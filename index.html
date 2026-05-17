@@ -1459,7 +1459,7 @@ function renderClientAcctPanel(u, client){
     const switchTargets = getDemoUsers().filter(other => other.id !== u.id && isAdminRole(other.role));
     const switchSection = (!isSingleTenant && switchTargets.length > 0) ? `
     <div class="acct-section-lbl">SWITCH USER</div>
-    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
     ` : '';
     const signOutSection = isSingleTenant ? '' : `
     <div class="acct-divider"></div>
@@ -1490,7 +1490,7 @@ function renderClientAcctPanel(u, client){
     `;
     const switchSection = switchTargets.length > 0 ? `
     <div class="acct-section-lbl">SWITCH USER</div>
-    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name}</div></div>`).join('')}
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name}</div></div>`).join('')}
     ` : '';
     return `
     <div class="acct-user-card">
