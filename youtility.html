@@ -2465,6 +2465,9 @@ function renderSearchModal(q){
   const list=document.getElementById('searchModalList');
   const lbl=document.getElementById('searchModalLbl');
   const count=document.getElementById('searchModalCount');
+  // Scope: homeChats is the active client's (Monese) conversation list.
+  // Single-tenant deployment — no cross-client data is reachable here.
+  // Falls back to [] gracefully if homeChats is unavailable.
   const all=(typeof homeChats!=='undefined')?homeChats:[];
   const filtered=q?all.filter(c=>c.title.toLowerCase().includes(q.toLowerCase())):all;
   lbl.textContent=q?`MATCHES FOR "${q.toUpperCase()}"`:'RECENT CONVERSATIONS';
