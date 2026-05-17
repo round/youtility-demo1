@@ -1277,7 +1277,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
         </div>
         <div class="cd-tab-content visible" id="cdpTabOverview"></div>
         <div class="cd-tab-content hidden"  id="cdpTabDatasource"><div id="cdpDatasourceList"></div></div>
-        <div class="cd-tab-content hidden"  id="cdpTabWhitelabel"><div class="cd-stub">Whitelabel — populated in Phase 10</div></div>
+        <div class="cd-tab-content hidden"  id="cdpTabWhitelabel"></div>
         <div class="cd-tab-content hidden"  id="cdpTabUsers"><div class="cd-stub">Users — populated in Phase 11</div></div>
       </div>
     </div>
@@ -2817,6 +2817,7 @@ function switchCdTab(name){
     }
   });
   if (name === 'datasource') renderCdDataSources(getActiveClient());
+  if (name === 'whitelabel') renderCdWhiteLabel(getActiveClient());
 }
 
 function renderCdOverview(client){
@@ -2975,6 +2976,187 @@ function renderDsTabBody(tab, src){
 function testDsConnection(){
   showToast('Testing connection…');
   setTimeout(() => showToast('Connection successful'), 1400);
+}
+
+// ════ WHITELABEL EDITOR ════
+
+// Per-client default colour palettes (used when a client has no wlColors saved yet).
+// Keys match WL_CSS_MAP tokens: primary, secondary, background, accent.
+const WL_CLIENT_DEFAULTS = {
+  monese:  {primary:'#0b72fd', secondary:'#3892ff', background:'#f7faf9', accent:'#1a1a2e'},
+  ledbury: {primary:'#4a6741', secondary:'#6a8f60', background:'#f5f2ed', accent:'#c8a96e'},
+  default: {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
+};
+
+// Known domain → palette map for the URL pull-colors demo.
+const WL_BRAND_PALETTES = {
+  ledbury:     {primary:'#4a6741', secondary:'#6a8f60', background:'#f5f2ed', accent:'#c8a96e'},
+  petsmart:    {primary:'#E31837', secondary:'#0072CE', background:'#ffffff', accent:'#f5a623'},
+  santander:   {primary:'#EC0000', secondary:'#cc0000', background:'#ffffff', accent:'#f5f5f5'},
+  monese:      {primary:'#00c389', secondary:'#00a374', background:'#f7faf9', accent:'#1a1a2e'},
+  virginmoney: {primary:'#E31837', secondary:'#c01028', background:'#ffffff', accent:'#333333'},
+  pockit:      {primary:'#6c47ff', secondary:'#5235d4', background:'#f8f7ff', accent:'#ff6b35'},
+  default:     {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
+};
+
+// Populate the whitelabel editor tab with current client's saved colours (or defaults).
+function renderCdWhiteLabel(client){
+  client = client || getActiveClient();
+  const saved = client.wlColors || WL_CLIENT_DEFAULTS[client.palette] || WL_CLIENT_DEFAULTS['default'];
+  const logoSrc = client.wlLogo || '';
+  const wlUrlVal = client.wlUrl || '';
+  const el = document.getElementById('cdpTabWhitelabel');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="wl-section">
+      <div class="wl-lbl">CLIENT LOGO</div>
+      <div class="wl-logo-drop" onclick="document.getElementById('cdLogoInput').click()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="wl-logo-drop-text" id="cdLogoDropText">${logoSrc ? 'Logo uploaded — click to replace' : 'Upload logo file'}</div>
+        <div class="wl-logo-drop-sub">PNG or SVG · Max 2MB</div>
+        <input type="file" id="cdLogoInput" accept=".png,.svg,.jpg" style="display:none" onchange="cdPreviewLogo(this)" />
+      </div>
+    </div>
+    <div class="wl-section">
+      <div class="wl-lbl">CLIENT URL — PULL BRAND COLOURS</div>
+      <div class="wl-input-row">
+        <input class="wl-input" id="cdWlUrl" placeholder="https://client-website.com" value="${wlUrlVal}" />
+        <button class="wl-url-btn" id="cdWlPullBtn" onclick="cdPullBrandColors()">Pull colours</button>
+      </div>
+      <div id="cdWlColorRecs" style="display:none;">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:8px;">Suggested from website</div>
+        <div class="wl-recommend-row" id="cdWlRecRow"></div>
+      </div>
+    </div>
+    <div class="wl-section">
+      <div class="wl-lbl">BRAND COLOUR TOKENS</div>
+      <div class="wl-color-field"><div class="wl-color-label">Primary</div><div class="wl-color-preview" id="cdcp-primary" style="background:${saved.primary};"></div><input class="wl-color-hex" id="cdp-wlinput-primary"    value="${saved.primary}"    oninput="cdUpdateSwatch('primary',this.value)"    /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Secondary</div><div class="wl-color-preview" id="cdcp-secondary" style="background:${saved.secondary};"></div><input class="wl-color-hex" id="cdp-wlinput-secondary"  value="${saved.secondary}"  oninput="cdUpdateSwatch('secondary',this.value)"  /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Background</div><div class="wl-color-preview" id="cdcp-background" style="background:${saved.background};"></div><input class="wl-color-hex" id="cdp-wlinput-background" value="${saved.background}" oninput="cdUpdateSwatch('background',this.value)" /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Accent</div><div class="wl-color-preview" id="cdcp-accent" style="background:${saved.accent};"></div><input class="wl-color-hex" id="cdp-wlinput-accent"    value="${saved.accent}"    oninput="cdUpdateSwatch('accent',this.value)"    /></div>
+    </div>
+    <button class="wl-save-btn" onclick="cdSaveWhiteLabel()">Save white label settings</button>
+    <button class="wl-save-btn" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);" onclick="cdResetWhiteLabel()">Reset to defaults</button>`;
+  wireWlInputs();
+}
+
+// Live-update the colour preview swatch and apply to interface.
+function cdUpdateSwatch(token, hex){
+  const previewEl = document.getElementById('cdcp-' + token);
+  if (previewEl) previewEl.style.background = hex;
+  if (WL_CSS_MAP[token]) applyColorToInterface(token, hex);
+}
+
+// Bind oninput events (belt-and-suspenders alongside the inline oninput attrs).
+function wireWlInputs(){
+  ['primary','secondary','background','accent'].forEach(t => {
+    const input = document.getElementById('cdp-wlinput-' + t);
+    if (input){
+      input.addEventListener('input', function(){ cdUpdateSwatch(t, this.value); });
+    }
+  });
+}
+
+// Logo file upload — reads as data URL, previews drop zone text, applies to header.
+function cdPreviewLogo(input){
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    const textEl = document.getElementById('cdLogoDropText');
+    if (textEl) textEl.textContent = 'Logo uploaded — click to replace';
+    const client = getActiveClient();
+    client.wlLogo = src;
+    cdApplyLogoToHeader(src);
+  };
+  reader.readAsDataURL(file);
+}
+
+// Replace the SVG monogram in any .client-logo-mark elements with the uploaded image.
+function cdApplyLogoToHeader(src){
+  document.querySelectorAll('.client-logo-mark').forEach(el => {
+    el.innerHTML = `<img src="${src}" style="height:20px;width:auto;display:block;border-radius:2px;" />`;
+    el.style.background = 'transparent';
+    el.style.border = 'none';
+    el.style.padding = '0';
+  });
+}
+
+// Pull brand colours from a URL — uses WL_BRAND_PALETTES demo map; no live external fetch.
+function cdPullBrandColors(){
+  const urlEl = document.getElementById('cdWlUrl');
+  const url = urlEl ? urlEl.value.trim() : '';
+  if (!url){ showToast('Enter a URL first'); return; }
+
+  let domain = '';
+  try {
+    const parsed = new URL(url.startsWith('http') ? url : 'https://' + url);
+    domain = parsed.hostname.replace(/^www\./, '').split('.')[0].toLowerCase();
+  } catch(e){
+    domain = url.replace(/https?:\/\//,'').replace(/www\./,'').split(/[./]/)[0].toLowerCase();
+  }
+
+  const btn = document.getElementById('cdWlPullBtn');
+  if (btn){ btn.textContent = 'Pulling…'; btn.disabled = true; }
+
+  setTimeout(() => {
+    if (btn){ btn.textContent = 'Pull colours'; btn.disabled = false; }
+    const palette = WL_BRAND_PALETTES[domain] || WL_BRAND_PALETTES['default'];
+    const row = document.getElementById('cdWlRecRow');
+    const recsEl = document.getElementById('cdWlColorRecs');
+    if (row) {
+      row.innerHTML = Object.entries(palette).map(([k, hex]) => `
+        <div class="wl-rec-chip" onclick="cdApplyRecColor('${k}','${hex}')" title="Apply ${k}: ${hex}">
+          <div class="wl-rec-dot" style="background:${hex};border-radius:3px;"></div>
+          <span>${k}</span>
+        </div>`).join('') +
+        `<button onclick="cdApplyAllColors()" style="margin-left:auto;padding:5px 12px;border-radius:6px;background:var(--brand-primary);border:none;font-family:'Montserrat',sans-serif;font-size:9.5px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;">Apply all ↗</button>`;
+    }
+    if (recsEl) recsEl.style.display = 'block';
+    window._cdWlCurrentPalette = palette;
+    showToast('Colours detected: ' + (WL_BRAND_PALETTES[domain] ? domain : 'default palette'));
+  }, 900);
+}
+
+// Apply a single recommended colour chip to its token slot.
+function cdApplyRecColor(token, hex){
+  if (!hex || !/^#[0-9a-fA-F]{3,6}$/.test(hex)) return;
+  const input = document.getElementById('cdp-wlinput-' + token);
+  if (input) input.value = hex;
+  cdUpdateSwatch(token, hex);
+}
+
+// Apply all recommended colours at once.
+function cdApplyAllColors(){
+  const palette = window._cdWlCurrentPalette;
+  if (!palette) return;
+  Object.entries(palette).forEach(([k, hex]) => cdApplyRecColor(k, hex));
+  showToast('All brand colours applied');
+}
+
+// Persist current editor state into the CLIENTS record in memory.
+function cdSaveWhiteLabel(){
+  const client = getActiveClient();
+  const colors = {};
+  ['primary','secondary','background','accent'].forEach(t => {
+    const el = document.getElementById('cdp-wlinput-' + t);
+    if (el) colors[t] = el.value;
+  });
+  client.wlColors = colors;
+  const urlEl = document.getElementById('cdWlUrl');
+  if (urlEl) client.wlUrl = urlEl.value.trim();
+  Object.entries(colors).forEach(([t, hex]) => applyColorToInterface(t, hex));
+  showToast('White label settings saved');
+}
+
+// Reset editor to client defaults, clearing any saved overrides.
+function cdResetWhiteLabel(){
+  const client = getActiveClient();
+  delete client.wlColors;
+  delete client.wlLogo;
+  renderCdWhiteLabel(client);
+  applyBrandPalette(client.palette);
+  showToast('Reset to defaults');
 }
 
 </script>
