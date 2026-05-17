@@ -316,6 +316,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
 .chat-input:focus{border-color:rgba(255,255,255,.2);}
 .send-btn{position:absolute;right:10px;bottom:9px;width:28px;height:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .15s;}
 .send-btn:hover{background:var(--bg);color:var(--text);}
+.send-btn.stopping{background:#d0553a;border-color:#d0553a;color:#fff;}
 /* ── CHAT TOOLBAR ── */
 .chat-toolbar{display:flex;gap:6px;padding:8px 0 2px;flex-wrap:wrap;}
 .ctool{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;border:1px solid var(--border2);background:var(--bg4);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1;}
@@ -1061,7 +1062,10 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <div class="stop-bar" id="stopBar"><button class="stop-btn" onclick="stopGen()"><span class="stop-dot"></span> STOP GENERATING</button></div>
     <div class="input-bar hidden" id="chatInputBar"><div class="input-wrap">
       <textarea class="chat-input" id="chatIn" rows="1" placeholder="Command Stokes..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" onclick="sendMsg()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      <button class="send-btn" id="sendBtn" onclick="handleSendBtn()">
+  <svg id="sendIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+  <svg id="stopIcon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+</button>
     </div>
     <div class="chat-toolbar">
       <div class="ctool" onclick="sendFromToolbar('Who is my best customer?')" style="border-color:rgb(var(--brand-primary-rgb) / .35);color:var(--brand-primary);">
@@ -1931,6 +1935,7 @@ function injectAudienceExplorer(kind){
   const id=nMsgId++;
   // Brief typing simulation then inject widget
   streaming=true;
+  setSendBtnState('stop');
   document.getElementById('stopBar').classList.add('visible');
   const analysingText = kind==='churn' 
     ? 'Analysing Monese churn-risk profiles...'
@@ -1942,6 +1947,7 @@ function injectAudienceExplorer(kind){
   msgs.push(placeholder); renderMsgs();
   setTimeout(()=>{
     streaming=false;
+    setSendBtnState('send');
     document.getElementById('stopBar').classList.remove('visible');
     // Replace placeholder with widget
     const idx=msgs.findIndex(m=>m.id===id);
@@ -2007,8 +2013,26 @@ function vote(id,t){const m=msgs.find(x=>x.id===id);if(!m)return;m.feedback=m.fe
 function retryMsg(id){const i=msgs.findIndex(x=>x.id===id);if(i===-1)return;msgs.splice(i,1);renderMsgs();simAI();}
 function editMsg(id){const m=msgs.find(x=>x.id===id),idx=msgs.findIndex(x=>x.id===id);if(!m)return;const g=document.getElementById(`mg-${m.id}`);g.innerHTML=`<div class="msg-row" style="flex-direction:row-reverse"><div class="msg-avatar">${IC.user}</div><div style="max-width:540px;width:100%;display:flex;flex-direction:column;gap:8px"><textarea style="width:100%;background:var(--bg4);border:1px solid var(--brand-primary-hover);border-radius:10px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13.5px;padding:11px 13px;resize:none;outline:none;line-height:1.6" id="eta-${id}" rows="2">${eh(m.text)}</textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button style="padding:5px 12px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="renderMsgs()">Cancel</button><button style="padding:5px 12px;border-radius:6px;background:var(--brand-primary);border:none;color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="saveEdit(${id},${idx})">Save &amp; resend</button></div></div></div>`;document.getElementById(`eta-${id}`).focus();}
 function saveEdit(id,idx){const ta=document.getElementById(`eta-${id}`);const val=ta?ta.value.trim():'';if(!val)return;msgs[idx].text=val;msgs=msgs.slice(0,idx+1);renderMsgs();setTimeout(simAI,400);}
-function simAI(){streaming=true;document.getElementById('stopBar').classList.add('visible');const id=nMsgId++;const full='Analysing Monese customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;document.getElementById('stopBar').classList.remove('visible');renderMsgs();}},30);}
-function stopGen(){if(!streaming)return;clearInterval(sTimer);streaming=false;document.getElementById('stopBar').classList.remove('visible');renderMsgs();showToast('Generation stopped');}
+function simAI(){streaming=true;setSendBtnState('stop');document.getElementById('stopBar').classList.add('visible');const id=nMsgId++;const full='Analysing Monese customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;setSendBtnState('send');document.getElementById('stopBar').classList.remove('visible');renderMsgs();}},30);}
+function stopGen(){if(!streaming)return;clearInterval(sTimer);streaming=false;setSendBtnState('send');document.getElementById('stopBar').classList.remove('visible');renderMsgs();showToast('Generation stopped');}
+function setSendBtnState(state){
+  const btn=document.getElementById('sendBtn');
+  const si=document.getElementById('sendIcon');
+  const xi=document.getElementById('stopIcon');
+  if(!btn)return;
+  if(state==='stop'){
+    btn.classList.add('stopping');
+    if(si)si.style.display='none';
+    if(xi)xi.style.display='';
+  } else {
+    btn.classList.remove('stopping');
+    if(si)si.style.display='';
+    if(xi)xi.style.display='none';
+  }
+}
+function handleSendBtn(){
+  if(streaming){ stopGen(); } else { sendMsg(); }
+}
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
 function handleStartKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendFromStart();}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';}
