@@ -2908,7 +2908,8 @@ function openClientDetail(clientId){
   // Populate header
   const nameEl = document.getElementById('cdpClientName'); if (nameEl) nameEl.textContent = client.name;
   const subEl  = document.getElementById('cdpClientSub');
-  if (subEl) subEl.textContent = client.enabledFeatures && client.enabledFeatures.admin ? 'Live · Active' : 'Setup · Configuring';
+  const isLive = (client.status || 'live') === 'live';
+  if (subEl) subEl.textContent = isLive ? 'Live · Active' : 'Setup · Configuring';
   // Show view
   const view = document.getElementById('clientDetailView'); if (view) view.classList.remove('hidden');
   // Default tab: overview
