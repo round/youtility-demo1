@@ -863,6 +863,10 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <div class="sb-section-lbl">RECENT</div>
     <div class="sb-list" id="homeList"></div>
     <div class="sb-foot">
+      <div class="acct-menu-item" id="sbLinkAdmin" onclick="showAdminView()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="acct-menu-label">Admin</span>
+      </div>
       <button class="user-avatar-btn" onclick="openAccountModal()">
         <div class="user-av">DS</div>
         <div class="user-av-body">
@@ -1146,6 +1150,15 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
   <!-- VERTICAL OVERVIEW REPORTS -->
   <div id="reportView" class="report-view"></div>
 
+  <!-- ADMIN CLIENT LIST VIEW -->
+  <div id="adminView" class="admin-view hidden">
+    <header class="admin-view-header">
+      <h2 class="admin-view-title">Clients</h2>
+      <div class="admin-view-sub">Manage workspace clients</div>
+    </header>
+    <div id="adminClientList" class="admin-client-list"></div>
+  </div>
+
 </div>
 </div>
 
@@ -1417,6 +1430,7 @@ function switchWs(ws){
   const hV=document.getElementById('homeView');if(hV) hV.style.display=ws==='home'?'':'none';
   const cW=document.getElementById('campWs');if(cW) cW.classList.toggle('visible',ws==='campaign');
   const rV=document.getElementById('reportView');if(rV) rV.style.display=ws==='report'?'flex':'none';
+  const aV=document.getElementById('adminView');if(aV) aV.classList.add('hidden');
   if(ws==='campaign'){renderCampSb();renderOverview();}
 }
 // (workspace dropdown removed)
@@ -2432,6 +2446,28 @@ const REPORTS={
   }
 };
 
+function renderAdminClients(){
+  const listEl = document.getElementById('adminClientList');
+  if (!listEl) return;
+  listEl.innerHTML = CLIENTS.map(c => `
+    <div class="admin-client-row" onclick="if(typeof openClientDetail==='function') openClientDetail('${c.id}')">
+      <div class="admin-client-dot" style="background:var(--brand-primary)"></div>
+      <div class="admin-client-name">${c.name}</div>
+      <div class="admin-client-status status-live">LIVE</div>
+      <svg class="admin-client-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  `).join('');
+}
+
+function showAdminView(){
+  const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
+  const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
+  const cS=document.getElementById('csView');if(cS) cS.style.display='none';
+  const rV=document.getElementById('reportView');if(rV) rV.style.display='none';
+  const aV=document.getElementById('adminView');if(aV) aV.classList.remove('hidden');
+  renderAdminClients();
+}
+
 function showVerticalReport(verticalId){
   const r=REPORTS[verticalId];
   if(!r){ console.warn('No report for', verticalId); return; }
@@ -2442,6 +2478,7 @@ function showVerticalReport(verticalId){
   const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
   const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
   const cS=document.getElementById('csView');if(cS) cS.style.display='none';
+  const aV2=document.getElementById('adminView');if(aV2) aV2.classList.add('hidden');
   const rV=document.getElementById('reportView'); if(!rV) return;
   rV.style.display='flex';
   rV.innerHTML=buildReportHTML(r);
@@ -2593,6 +2630,10 @@ function buildDonutChart(data,color){
       loginEl.classList.add('hidden');
     } else {
       loginEl.classList.remove('hidden');
+    }
+    const adminLink = document.getElementById('sbLinkAdmin');
+    if (adminLink && client.enabledFeatures.admin) {
+      adminLink.style.display = '';
     }
   })();
 
