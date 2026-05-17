@@ -2775,6 +2775,9 @@ function renderAdminClients(){
 }
 
 function showAdminView(){
+  const u=getCurrentUser();
+  const client=getActiveClient();
+  if(!(client && client.enabledFeatures && client.enabledFeatures.admin) || !(u && isAdminRole(u.role))){ updateAdminNavVisibility(); return; }
   const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
   const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
   const cS=document.getElementById('csView');if(cS) cS.style.display='none';
