@@ -113,6 +113,12 @@
 | `#projSwitcher` / `#wsSwitcher` responsive icon-mode | CSS | Sidebar shrink rules — identical |
 | `.client-logo` / `.client-logo-mark` | CSS | Client logo component in topbar — identical |
 | `#ae-footer-seg` / `#ae-footer-ct` | DOM | Audience explorer footer targeting info — identical |
+| `#themeIconDark` | DOM | Sun SVG icon inside `#themeBtn`; `toggleTheme()` swaps `display` with `#themeIconLight`. Monese:675, Stokes:811 |
+| `#themeIconLight` | DOM | Moon SVG icon inside `#themeBtn`; `toggleTheme()` swaps `display` with `#themeIconDark`. Monese:676, Stokes:812 |
+| `#ctGrid` | DOM | Campaign-type card grid container rendered by `selectType()`. Monese:932, Stokes:1093 |
+| `#projIndicator` | DOM | Colored dot in project switcher; `switchProj()` updates `background` style. Monese:688, Stokes:824 |
+| `#projNameEl` | DOM | Project name label in switcher header; `switchProj()` updates `textContent`. Monese:691, Stokes:827 |
+| `bDonut`, `bLeg`, `selC`, `bSamps`, `selS`, `mkId`, `bDims`, `bMkt` (nested inside `bootAudienceExplorer`) | JS (nested fns) | AE widget internal helpers — port as a unit with `bootAudienceExplorer`. Monese:1580-1683, Stokes:1790-1893. Identical implementations in both files. |
 
 ---
 
@@ -151,6 +157,13 @@
 | `injectAudienceExplorer(kind)` | JS | Monese:1408 | Accepts a `kind` parameter for different audience segmentation contexts |
 | `widgetIntro` / `widgetKind` message properties | JS | Monese:1428 | Extended message object properties for AE widget |
 | `isAudienceQuery(val)` multi-phrase version | JS | Monese:1401 | Matches multiple phrases; Stokes version only matches one exact phrase |
+| `#proj-all` | DOM | Project switcher option — "All customers". Monese:696 | `switchProj('all', …)` |
+| `#proj-churn-transfer` | DOM | Project switcher option — "Churn on transfer to Monese". Monese:703 | `switchProj` |
+| `#proj-accounts` | DOM | Project switcher option — "Personal Accounts". Monese:710 | `switchProj` |
+| `#proj-travel` | DOM | Project switcher option — "Travel and FX". Monese:717 | `switchProj` |
+| `#proj-savings` | DOM | Project switcher option — "Savings and Budgeting". Monese:724 | `switchProj` |
+| `#proj-credit` | DOM | Project switcher option — "Credit and Lending". Monese:731 | `switchProj` |
+| `#proj-business` | DOM | Project switcher option — "Business". Monese:738 | `switchProj` |
 
 ---
 
@@ -251,6 +264,18 @@
 | `handleSendBtn()` | JS | Stokes:1699 | Routes click to `stopGen()` or `sendMsg()` depending on `streaming` | 10 |
 | `/* ── COMING SOON BADGE on disabled selectors ── */` | CSS | Stokes:703–704 | `.coming-soon-tag` badge for disabled proj/ws switchers | (note) |
 | `.coming-soon-tag` | CSS | Stokes:704 | Absolute-positioned badge on disabled sidebar items | (note) |
+| `#wsIconEl` | DOM | Workspace switcher icon element; `switchWs()` updates content. Stokes:859 | `switchWs()` | include in shared shell port |
+| `#wsNameEl` | DOM | Workspace switcher name label; `switchWs()` updates `textContent`. Stokes:860 | `switchWs()` | include in shared shell port |
+| `#ws-home` | DOM | Workspace switcher option — "Home". Stokes:865 | `switchWs('home', …)` | include in shared shell port |
+| `#ws-campaign` | DOM | Workspace switcher option — "Campaign". Stokes:872 | `switchWs` | include in shared shell port |
+| `#ws-churn` | DOM | Workspace switcher option — "Churn". Stokes:877 | `switchWs` | include in shared shell port |
+| `#ws-engage` | DOM | Workspace switcher option — "Engage". Stokes:882 | `switchWs` | include in shared shell port |
+| `#ws-ltv` | DOM | Workspace switcher option — "LTV". Stokes:887 | `switchWs` | include in shared shell port |
+| `#proj-digital` | DOM | Project switcher option — "Digital Sales". Stokes:832 | `switchProj` | include in shared shell port |
+| `#proj-retail` | DOM | Project switcher option — "Retail Sales". Stokes:839 | `switchProj` | include in shared shell port |
+| `#ae-cct` | DOM | AE donut center count `<text>` element; `bDonut()` updates content. Stokes:1729 | `bDonut()` | include in shared shell port |
+| `#ae-clbl` | DOM | AE donut center label `<text>` element; `bDonut()` updates content. Stokes:1728 | `bDonut()` | include in shared shell port |
+| `#cdLogoInput` | DOM | Client-detail whitelabel file input (duplicate of `#wlLogoInput`). Stokes:2323 | `previewLogo()` | include in shared shell port |
 
 ---
 
