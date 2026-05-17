@@ -1637,7 +1637,7 @@ function renderProds(){const filtered=PRODUCTS.filter(p=>!prodFilter||p.name.toL
 function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!p.sel;renderProds();}
 
 // ══ OVERVIEW ══
-function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const ucs=[{l:'Promotional',n:8,c:'#0b72fd'},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
+function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const brandPri=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()||'#0b72fd';const ucs=[{l:'Promotional',n:8,c:brandPri},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
 
 // ══ CAMPAIGN WORKSPACE TABS ══
 let cwCur='report';
@@ -2496,7 +2496,7 @@ document.addEventListener('keydown',e=>{
 // ── PRODUCT VERTICAL REPORTS ──
 const REPORTS={
   'all':{
-    color:'#0b72fd',name:'All customers',
+    color:'brand-primary',name:'All customers',
     narrative:'Aggregate health across every Monese product and persona. Engagement is up month over month, with travel-driven activity leading the lift.',
     kpis:[
       {label:'Active users (MAU)',value:'147.2k',trend:'+4.8%',dir:'up'},
@@ -2533,7 +2533,7 @@ const REPORTS={
     focus:['Biggest drop-off is post-KYC, before funding','Top-up reminders not firing for 31% of users','Bank-to-bank transfer abandonment at 24%']
   },
   'accounts':{
-    color:'#3892ff',name:'Personal Accounts',
+    color:'brand-primary-hover',name:'Personal Accounts',
     narrative:'Instant and Joint accounts are the foundation of every Monese relationship. New account opens up 48% half on half, with Joint accounts accelerating after the referral push.',
     kpis:[
       {label:'Active accounts',value:'88.4k',trend:'+3.1%',dir:'up'},
@@ -2696,11 +2696,17 @@ function buildReportHTML(r){
   </div>`;
 }
 
+function resolveBrandColor(color){
+  if(color==='brand-primary') return getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()||'#0b72fd';
+  if(color==='brand-primary-hover') return getComputedStyle(document.documentElement).getPropertyValue('--brand-primary-hover').trim()||'#3892ff';
+  return color;
+}
 function buildChart(type,data,color){
-  if(type==='line') return buildLineChart(data,color);
-  if(type==='bars') return buildBarChart(data,color);
-  if(type==='hbars') return buildHBarChart(data,color);
-  if(type==='donut') return buildDonutChart(data,color);
+  const c=resolveBrandColor(color);
+  if(type==='line') return buildLineChart(data,c);
+  if(type==='bars') return buildBarChart(data,c);
+  if(type==='hbars') return buildHBarChart(data,c);
+  if(type==='donut') return buildDonutChart(data,c);
   return '';
 }
 function buildLineChart(data,color){
