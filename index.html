@@ -1507,6 +1507,30 @@ function renderClientAcctPanel(u, client){
     <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
   }
 
+  function renderClientAdminAcctPanel(u, client){
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = getDemoUsers().filter(other => other.id !== u.id);
+    const roleLabel = r => r === 'admin' ? 'Client Admin' : r === 'super' ? 'Super Admin' : 'User';
+    const switchSection = switchTargets.length > 0 ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name} (${roleLabel(t.role)})</div></div>`).join('')}
+    ` : '';
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">${client.name} · CLIENT ADMIN</div>
+        <span class="acct-badge badge-client">CLIENT ADMIN</span>
+      </div>
+    </div>
+    <div class="acct-section-lbl">YOUR CLIENT</div>
+    <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}')"><div class="admin-client-dot" style="background:${client.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${client.name}</div></div>
+    ${switchSection}
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+  }
+
   function openAccountModal(){
     const u = getCurrentUser();
     if (!u) return;
@@ -1514,9 +1538,12 @@ function renderClientAcctPanel(u, client){
     const titleEl = document.getElementById('acctModalTitle');
     const bodyEl = document.getElementById('acctModalBody');
     if (!titleEl || !bodyEl) return;
-    if (isAdminRole(u.role)) {
+    if (u.role === 'super') {
       titleEl.textContent = 'Admin panel';
       bodyEl.innerHTML = renderAdminAcctPanel(u);
+    } else if (u.role === 'admin') {
+      titleEl.textContent = 'Admin panel';
+      bodyEl.innerHTML = renderClientAdminAcctPanel(u, client);
     } else {
       titleEl.textContent = 'Account';
       bodyEl.innerHTML = renderClientAcctPanel(u, client);
