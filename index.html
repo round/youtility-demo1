@@ -2777,7 +2777,14 @@ function renderAdminClients(){
 function showAdminView(){
   const u=getCurrentUser();
   const client=getActiveClient();
-  if(!(client && client.enabledFeatures && client.enabledFeatures.admin) || !(u && isAdminRole(u.role))){ updateAdminNavVisibility(); return; }
+  if(!(client && client.enabledFeatures && client.enabledFeatures.admin) || !(u && isAdminRole(u.role))){
+    updateAdminNavVisibility();
+    const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
+    const aV0=document.getElementById('adminView');if(aV0) aV0.classList.add('hidden');
+    const hV0=document.getElementById('homeView');if(hV0) hV0.style.display='';
+    DETAIL_CLIENT_ID = null;
+    return;
+  }
   const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
   const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
   const cS=document.getElementById('csView');if(cS) cS.style.display='none';
