@@ -822,6 +822,20 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
 .wl-rec-dot{width:10px;height:10px;border-radius:3px;}
 .wl-save-btn{width:100%;padding:10px;background:var(--brand-primary);border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;color:#fff;cursor:pointer;margin-top:16px;transition:background .15s;}
 .wl-save-btn:hover{background:var(--brand-primary-hover);}
+
+/* ── USER MANAGEMENT ── */
+.user-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;}
+.user-row-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.user-row-name{font-size:12px;font-weight:500;color:var(--text);flex:1;}
+.user-row-role{font-size:10px;color:var(--text3);}
+.user-row-badge{font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;user-select:none;transition:opacity .15s;}
+.user-row-badge:hover{opacity:.75;}
+.user-row-actions{display:flex;gap:4px;margin-left:6px;}
+.user-row-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .15s;flex-shrink:0;}
+.user-row-btn:hover{border-color:var(--border3);color:var(--text);}
+.user-row-btn.danger:hover{border-color:#e05555;color:#e05555;}
+.invite-btn{width:100%;padding:9px;border-radius:8px;background:var(--bg3);border:1.5px dashed var(--border2);font-family:'Montserrat',sans-serif;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;margin-top:8px;}
+.invite-btn:hover{border-color:var(--border3);color:var(--text);}
 </style>
 </head>
 <body>
@@ -1278,7 +1292,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
         <div class="cd-tab-content visible" id="cdpTabOverview"></div>
         <div class="cd-tab-content hidden"  id="cdpTabDatasource"><div id="cdpDatasourceList"></div></div>
         <div class="cd-tab-content hidden"  id="cdpTabWhitelabel"></div>
-        <div class="cd-tab-content hidden"  id="cdpTabUsers"><div class="cd-stub">Users — populated in Phase 11</div></div>
+        <div class="cd-tab-content hidden"  id="cdpTabUsers"><div id="cdpUsersList"></div></div>
       </div>
     </div>
   </div>
@@ -2818,6 +2832,90 @@ function switchCdTab(name){
   });
   if (name === 'datasource') renderCdDataSources(getActiveClient());
   if (name === 'whitelabel') renderCdWhiteLabel(getActiveClient());
+  if (name === 'users') renderCdUsers(getActiveClient());
+}
+
+// ── ROLE HELPERS ──
+const ROLE_CYCLE = {user:'admin', admin:'super', super:'user'};
+const ROLE_BADGE_STYLES = {
+  user:  {bg:'rgba(74,103,65,.15)',  col:'#6a8f60',  label:'CLIENT USER'},
+  admin: {bg:'rgba(124,92,191,.15)', col:'#7c5cbf',  label:'CLIENT ADMIN'},
+  super: {bg:'rgba(74,127,212,.15)', col:'#4a7fd4',  label:'SUPER ADMIN'},
+};
+
+function renderCdUsers(client){
+  client = client || getActiveClient();
+  const clientUsers = Object.values(USERS).filter(u => u.clientId === client.id);
+  const listEl = document.getElementById('cdpUsersList');
+  if (!listEl) return;
+
+  function rowHtml(u){
+    const bs = ROLE_BADGE_STYLES[u.role] || ROLE_BADGE_STYLES.user;
+    const avBg = u.color && u.color.startsWith('var(') ? 'var(--brand-primary)' : (u.color || '#888');
+    return `<div class="user-row" id="urow-${u.id}">
+      <div class="user-row-av" style="background:${avBg}">${u.initials || '?'}</div>
+      <div style="flex:1">
+        <div class="user-row-name">${u.name || '—'}</div>
+        <div class="user-row-role">${u.email || ''}</div>
+      </div>
+      <span class="user-row-badge" style="background:${bs.bg};color:${bs.col};border:1px solid ${bs.col}40;"
+            title="Click to cycle role" onclick="cycleUserRole('${u.id}')">${bs.label}</span>
+      <div class="user-row-actions">
+        <button class="user-row-btn danger" title="Remove user" onclick="removeUser('${u.id}')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }
+
+  listEl.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);">USERS (${clientUsers.length})</div>
+    </div>
+    <div id="cdpUsersRows">${clientUsers.map(rowHtml).join('')}</div>
+    <button class="invite-btn" onclick="addUser('${client.id}')">+ Invite user</button>`;
+}
+
+function cycleUserRole(userId){
+  const u = USERS[userId];
+  if (!u) return;
+  u.role = ROLE_CYCLE[u.role] || 'user';
+  // Re-render just this row
+  const rowEl = document.getElementById('urow-'+userId);
+  if (rowEl){
+    const bs = ROLE_BADGE_STYLES[u.role] || ROLE_BADGE_STYLES.user;
+    const badge = rowEl.querySelector('.user-row-badge');
+    if (badge){
+      badge.style.background = bs.bg;
+      badge.style.color = bs.col;
+      badge.style.border = '1px solid '+bs.col+'40';
+      badge.textContent = bs.label;
+    }
+  }
+  showToast('Role updated to ' + (ROLE_BADGE_STYLES[u.role]||{label:u.role}).label);
+}
+
+function removeUser(userId){
+  const u = USERS[userId];
+  if (!u) return;
+  if (!confirm('Remove ' + (u.name||'this user') + ' from this client?')) return;
+  delete USERS[userId];
+  renderCdUsers(getActiveClient());
+  showToast('User removed');
+}
+
+function addUser(clientId){
+  const name = prompt('Enter user name:');
+  if (!name || !name.trim()) return;
+  const email = prompt('Enter email address:');
+  if (!email || !email.trim()) return;
+  const id = 'user-' + Date.now();
+  const initials = name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const colors = ['#4a6741','#7c5cbf','#e8a020','#4a7fd4','#c0504d','#2e8b57'];
+  const color = colors[Math.floor(Math.random()*colors.length)];
+  USERS[id] = {id, name:name.trim(), email:email.trim(), role:'user', clientId, initials, color};
+  renderCdUsers(getActiveClient());
+  showToast('User ' + name.trim() + ' added');
 }
 
 function renderCdOverview(client){
