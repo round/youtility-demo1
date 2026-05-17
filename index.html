@@ -1419,6 +1419,14 @@ function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
 function hasRole(...roles){ const u = getCurrentUser(); return u && roles.includes(u.role); }
 function getDemoUsers(){ return Object.values(USERS); }
 function isAdminRole(role){ return role === 'admin' || role === 'super'; }
+function updateAdminNavVisibility(){
+  const adminLink = document.getElementById('sbLinkAdmin');
+  if (!adminLink) return;
+  const client = getActiveClient();
+  const u = getCurrentUser();
+  const show = !!(client && client.enabledFeatures && client.enabledFeatures.admin) && !!(u && isAdminRole(u.role));
+  adminLink.style.display = show ? '' : 'none';
+}
 
 // ── AUTH / SESSION ──
 function doLogin() {
@@ -1448,6 +1456,7 @@ function quickLogin(role) {
     document.querySelectorAll('.user-av-role').forEach(el => el.textContent = u.role);
     showToast('Welcome back, ' + u.name.split(' ')[0]);
   }
+  updateAdminNavVisibility();
 }
 
 function signOut() {
@@ -2945,10 +2954,7 @@ function buildDonutChart(data,color){
     } else {
       loginEl.classList.remove('hidden');
     }
-    const adminLink = document.getElementById('sbLinkAdmin');
-    if (adminLink && client.enabledFeatures.admin) {
-      adminLink.style.display = '';
-    }
+    updateAdminNavVisibility();
   })();
 
 /* ── CLIENT DETAIL PANEL ── */
