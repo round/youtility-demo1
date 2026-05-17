@@ -1184,6 +1184,35 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <div id="adminClientList" class="admin-client-list"></div>
   </div>
 
+  <!-- CLIENT DETAIL PANEL -->
+  <div id="clientDetailView" class="admin-view hidden">
+    <div style="padding:24px 32px;flex:1;overflow-y:auto;">
+      <div class="client-detail">
+        <div class="client-detail-hdr">
+          <button class="client-detail-back" onclick="closeClientDetail()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+            All clients
+          </button>
+          <div class="client-dot-lg" id="cdpClientDot" style="background:var(--brand-primary);margin-left:8px;"></div>
+          <div>
+            <div class="client-detail-name" id="cdpClientName"></div>
+            <div class="client-detail-sub" id="cdpClientSub"></div>
+          </div>
+        </div>
+        <div class="cd-tabs">
+          <div class="cd-tab active" id="cdt-overview"    onclick="switchCdTab('overview')">Overview</div>
+          <div class="cd-tab"        id="cdt-datasource"  onclick="switchCdTab('datasource')">Data sources</div>
+          <div class="cd-tab"        id="cdt-whitelabel"  onclick="switchCdTab('whitelabel')">White label</div>
+          <div class="cd-tab"        id="cdt-users"       onclick="switchCdTab('users')">Users</div>
+        </div>
+        <div class="cd-tab-content visible" id="cdpTabOverview"></div>
+        <div class="cd-tab-content hidden"  id="cdpTabDatasource"><div class="cd-stub">Datasource — populated in Phase 9</div></div>
+        <div class="cd-tab-content hidden"  id="cdpTabWhitelabel"><div class="cd-stub">Whitelabel — populated in Phase 10</div></div>
+        <div class="cd-tab-content hidden"  id="cdpTabUsers"><div class="cd-stub">Users — populated in Phase 11</div></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 </div>
 
@@ -2661,6 +2690,87 @@ function buildDonutChart(data,color){
       adminLink.style.display = '';
     }
   })();
+
+/* ── CLIENT DETAIL PANEL ── */
+
+function openClientDetail(clientId){
+  const client = CLIENTS.find(c => c.id === clientId);
+  if (!client) return;
+  // Hide other views (follow showAdminView / showVerticalReport pattern)
+  const hV = document.getElementById('homeView');   if (hV) hV.style.display = 'none';
+  const cW = document.getElementById('campWs');     if (cW) cW.classList.remove('visible');
+  const cS = document.getElementById('csView');     if (cS) cS.style.display = 'none';
+  const rV = document.getElementById('reportView'); if (rV) rV.style.display = 'none';
+  const aV = document.getElementById('adminView');  if (aV) aV.classList.add('hidden');
+  // Close account modal if open
+  closeAccountModal();
+  // Populate header
+  const nameEl = document.getElementById('cdpClientName'); if (nameEl) nameEl.textContent = client.name;
+  const subEl  = document.getElementById('cdpClientSub');
+  if (subEl) subEl.textContent = client.enabledFeatures && client.enabledFeatures.admin ? 'Live · Active' : 'Setup · Configuring';
+  // Show view
+  const view = document.getElementById('clientDetailView'); if (view) view.classList.remove('hidden');
+  // Default tab: overview
+  switchCdTab('overview');
+  renderCdOverview(client);
+}
+
+function closeClientDetail(){
+  const view = document.getElementById('clientDetailView'); if (view) view.classList.add('hidden');
+  showAdminView();
+}
+
+function switchCdTab(name){
+  const tabMap = {overview:'cdpTabOverview', datasource:'cdpTabDatasource', whitelabel:'cdpTabWhitelabel', users:'cdpTabUsers'};
+  const tabIds  = ['overview','datasource','whitelabel','users'];
+  tabIds.forEach(t => {
+    const btnEl = document.getElementById('cdt-'+t);
+    if (btnEl) btnEl.classList.toggle('active', t === name);
+    const pEl = document.getElementById(tabMap[t]);
+    if (pEl){
+      pEl.classList.toggle('visible', t === name);
+      pEl.classList.toggle('hidden',  t !== name);
+    }
+  });
+}
+
+function renderCdOverview(client){
+  const feat = client.enabledFeatures || {};
+  const mode       = client.mode  || '—';
+  const palette    = client.palette || '—';
+  const reportsOn  = feat.reports   ? 'Yes' : 'No';
+  const campaignsOn = feat.campaigns ? 'Yes' : 'No';
+  const adminOn    = feat.admin     ? 'Yes' : 'No';
+  const overviewEl = document.getElementById('cdpTabOverview');
+  if (!overviewEl) return;
+  overviewEl.innerHTML = `
+    <div class="cd-kpi-row">
+      <div class="cd-kpi"><div class="cd-kpi-lbl">MODE</div><div class="cd-kpi-val" style="font-size:13px;">${mode}</div><div class="cd-kpi-sub">tenant configuration</div></div>
+      <div class="cd-kpi"><div class="cd-kpi-lbl">PALETTE</div><div class="cd-kpi-val" style="font-size:13px;">${palette}</div><div class="cd-kpi-sub">brand theme</div></div>
+      <div class="cd-kpi"><div class="cd-kpi-lbl">REPORTS</div><div class="cd-kpi-val" style="font-size:13px;">${reportsOn}</div><div class="cd-kpi-sub">feature flag</div></div>
+    </div>
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:8px;">FEATURE STATUS</div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.campaigns ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Campaigns</div>
+      <div class="cd-status-val" style="color:${feat.campaigns ? '#2ea86a' : 'var(--text3)'};">${campaignsOn.toUpperCase()}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.admin ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Admin panel</div>
+      <div class="cd-status-val" style="color:${feat.admin ? '#2ea86a' : 'var(--text3)'};">${adminOn.toUpperCase()}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.whitelabel ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Whitelabel</div>
+      <div class="cd-status-val" style="color:${feat.whitelabel ? '#2ea86a' : 'var(--text3)'};">${feat.whitelabel ? 'YES' : 'NO'}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.userManagement ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">User management</div>
+      <div class="cd-status-val" style="color:${feat.userManagement ? '#2ea86a' : 'var(--text3)'};">${feat.userManagement ? 'YES' : 'NO'}</div>
+    </div>`;
+}
 
 </script>
 
