@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stokes Orchestrator</title>
+<title>Youtility</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#08091a;--bg2:#0d1124;--bg3:#111828;--bg4:#161e30;--bg5:#1c2438;
@@ -13,7 +12,7 @@
   --text:#e8eaf2;--text2:#8b90a8;--text3:#555a72;
   --accent:#d0553a;--accent2:#e8a020;--accent3:#4a7fd4;
   --green:#2ea86a;--purple:#7c5cbf;
-  --monese:#0b72fd;--monese2:#3892ff;
+  --brand-primary:#0b72fd;--brand-primary-hover:#3892ff;--brand-primary-rgb:11 114 253;
   --sw:268px;
 }
 body.light-mode{
@@ -36,7 +35,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .icon-btn:hover{color:var(--text);}
 /* Client badge in header */
 .client-badge{display:flex;align-items:center;gap:8px;padding:0 12px;height:33px;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;}
-.cb-dot{width:7px;height:7px;border-radius:50%;background:var(--monese);}
+.cb-dot{width:7px;height:7px;border-radius:50%;background:var(--brand-primary);}
 .cb-text{font-family:'Montserrat',sans-serif;font-size:10.5px;color:var(--text2);letter-spacing:.05em;}
 .cb-name{font-family:'Montserrat',sans-serif;font-size:10.5px;font-weight:500;color:var(--text);letter-spacing:.05em;}
 .node-sel{display:flex;align-items:center;gap:7px;padding:0 13px;height:33px;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:10.5px;font-weight:500;letter-spacing:.08em;color:var(--text);cursor:pointer;}
@@ -188,7 +187,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .search-modal-overlay{position:fixed;inset:0;background:rgba(8,11,28,0.55);display:none;align-items:flex-start;justify-content:center;z-index:9999;padding-top:88px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
 .search-modal-overlay.open{display:flex;}
 .search-modal{background:var(--bg);border:1px solid var(--border2);border-radius:14px;width:min(540px,calc(100vw - 40px));max-height:70vh;display:flex;flex-direction:column;box-shadow:0 24px 60px -10px rgba(0,0,0,0.35),0 8px 20px -6px rgba(0,0,0,0.15);overflow:hidden;font-family:'Montserrat',sans-serif;}
-body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12),0 8px 20px -6px rgba(0,0,0,0.08);}
+body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-primary-rgb) / 0.12),0 8px 20px -6px rgba(0,0,0,0.08);}
 .search-modal-input-row{display:flex;align-items:center;gap:9px;padding:13px 14px;border-bottom:1px solid var(--border);}
 .search-modal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Montserrat',sans-serif;font-size:14px;font-weight:500;}
 .search-modal-input::placeholder{color:var(--text3);}
@@ -237,9 +236,9 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .sb-campaign.visible{display:flex;}
 .gc-pin{padding:10px 10px 6px;}
 .gc-card{background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 13px;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden;}
-.gc-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(11,114,253,.1) 0%,transparent 60%);pointer-events:none;}
+.gc-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgb(var(--brand-primary-rgb) / .1) 0%,transparent 60%);pointer-events:none;}
 .gc-card:hover{border-color:var(--border3);}
-.gc-card.active{border-color:var(--monese);}
+.gc-card.active{border-color:var(--brand-primary);}
 .gc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .gc-lbl{font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.1em;color:var(--text3);}
 .gc-live{display:flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;font-size:9px;color:var(--green);}
@@ -256,7 +255,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .sb-scroll::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
 .camp-item{display:flex;align-items:flex-start;gap:7px;padding:6px 7px;margin:0 5px;border-radius:7px;cursor:pointer;transition:background .12s;}
 .camp-item:hover{background:var(--bg4);}
-.camp-item.active{background:var(--bg3);box-shadow:inset 1px 0 0 var(--monese);}
+.camp-item.active{background:var(--bg3);box-shadow:inset 1px 0 0 var(--brand-primary);}
 .ci-bar{width:2.5px;border-radius:2px;flex-shrink:0;align-self:stretch;min-height:26px;margin-top:2px;}
 .ci-body{flex:1;min-width:0;}
 .ci-title{font-size:11.5px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;margin-bottom:2px;}
@@ -316,6 +315,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .chat-input:focus{border-color:rgba(255,255,255,.2);}
 .send-btn{position:absolute;right:10px;bottom:9px;width:28px;height:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .15s;}
 .send-btn:hover{background:var(--bg);color:var(--text);}
+.send-btn.stopping{background:#d0553a;border-color:#d0553a;color:#fff;}
 /* ── CHAT TOOLBAR ── */
 .chat-toolbar{display:flex;gap:6px;padding:8px 0 2px;flex-wrap:wrap;}
 .ctool{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;border:1px solid var(--border2);background:var(--bg4);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1;}
@@ -330,18 +330,18 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .cw-title-block{}
 .cw-ws-label{font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.1em;color:var(--text3);margin-bottom:3px;}
 .cw-title-row{display:flex;align-items:center;gap:12px;}
-.cw-client-logo{width:28px;height:28px;border-radius:6px;background:var(--monese);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:500;color:rgba(255,255,255,.9);letter-spacing:.02em;}
+.cw-client-logo{width:28px;height:28px;border-radius:6px;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:500;color:rgba(255,255,255,.9);letter-spacing:.02em;}
 .cw-title{font-size:15px;font-weight:600;color:var(--text);}
 .cw-actions{display:flex;gap:8px;}
 .cw-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;}
 .cw-btn.secondary{background:var(--bg4);border:1px solid var(--border2);color:var(--text2);}
 .cw-btn.secondary:hover{border-color:var(--border3);color:var(--text);}
-.cw-btn.primary{background:var(--monese);border:1px solid transparent;color:#fff;}
-.cw-btn.primary:hover{background:var(--monese2);}
+.cw-btn.primary{background:var(--brand-primary);border:1px solid transparent;color:#fff;}
+.cw-btn.primary:hover{background:var(--brand-primary-hover);}
 .cw-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);}
 .cw-tab{padding:9px 16px;font-size:12.5px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;}
 .cw-tab:hover{color:var(--text2);}
-.cw-tab.active{color:var(--text);border-bottom-color:var(--monese);}
+.cw-tab.active{color:var(--text);border-bottom-color:var(--brand-primary);}
 .cw-panel{display:none;flex:1;overflow-y:auto;padding:22px 28px;}
 .cw-panel.visible{display:flex;flex-direction:column;}
 .cw-panel#cwp-create{overflow:hidden;}
@@ -388,13 +388,13 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .step-node{display:flex;align-items:center;gap:7px;flex:1;}
 .step-node:last-child{flex:0;}
 .step-circ{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:10.5px;font-weight:500;flex-shrink:0;transition:all .2s;}
-.step-circ.done{background:var(--monese);color:#fff;}
-.step-circ.active{background:var(--bg5);color:var(--monese2);border:1.5px solid var(--monese);}
+.step-circ.done{background:var(--brand-primary);color:#fff;}
+.step-circ.active{background:var(--bg5);color:var(--brand-primary-hover);border:1.5px solid var(--brand-primary);}
 .step-circ.pending{background:var(--bg4);color:var(--text3);border:1px solid var(--border2);}
 .step-lbl{font-size:11px;color:var(--text3);white-space:nowrap;}
 .step-lbl.active{color:var(--text2);}
 .step-line{flex:1;height:1px;background:var(--border2);margin:0 7px;}
-.step-line.done{background:var(--monese);opacity:.35;}
+.step-line.done{background:var(--brand-primary);opacity:.35;}
 .wiz-step{display:none;}
 .wiz-step.visible{display:block;}
 
@@ -403,7 +403,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .ct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
 .ct-card{border:1px solid var(--border2);border-radius:10px;padding:13px 12px;cursor:pointer;transition:all .15s;text-align:center;}
 .ct-card:hover{border-color:var(--border3);background:var(--bg4);}
-.ct-card.selected{border-color:var(--monese);background:rgba(11,114,253,.1);}
+.ct-card.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);}
 .ct-icon{width:32px;height:32px;border-radius:8px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;}
 .ct-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px;}
 .ct-desc{font-size:10.5px;color:var(--text3);line-height:1.4;}
@@ -418,26 +418,26 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .offer-pill-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
 .offer-pill{padding:5px 13px;border-radius:20px;border:1px solid var(--border2);background:var(--bg4);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
 .offer-pill:hover{border-color:var(--border3);color:var(--text);}
-.offer-pill.selected{border-color:var(--monese);background:rgba(11,114,253,.12);color:#1a8fff;}
+.offer-pill.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .12);color:#1a8fff;}
 .offer-input-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;}
 
 /* Product catalogue */
 .prod-search{width:100%;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13px;padding:8px 12px;outline:none;transition:border-color .15s;margin-bottom:10px;}
-.prod-search:focus{border-color:var(--monese2);}
+.prod-search:focus{border-color:var(--brand-primary-hover);}
 .prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
 .prod-card{border:1px solid var(--border2);border-radius:9px;overflow:hidden;cursor:pointer;transition:all .15s;position:relative;}
 .prod-card:hover{border-color:var(--border3);}
-.prod-card.selected{border-color:var(--monese);box-shadow:0 0 0 1px var(--monese);}
+.prod-card.selected{border-color:var(--brand-primary);box-shadow:0 0 0 1px var(--brand-primary);}
 .prod-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;background:var(--bg5);position:relative;}
 .prod-img-mock{width:100%;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;background:var(--bg4);font-size:28px;}
-.prod-sel-check{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:4px;background:var(--monese);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;}
+.prod-sel-check{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:4px;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;}
 .prod-card.selected .prod-sel-check{opacity:1;}
 .prod-info{padding:8px;}
 .prod-name{font-size:11px;font-weight:500;color:var(--text);line-height:1.3;margin-bottom:2px;}
 .prod-cat{font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3);}
 .prod-price{font-family:'Montserrat',sans-serif;font-size:10px;color:var(--text2);margin-top:2px;}
 .prod-sel-count{font-family:'Montserrat',sans-serif;font-size:10px;color:var(--text3);margin-top:8px;}
-.prod-sel-count span{color:var(--monese2);}
+.prod-sel-count span{color:var(--brand-primary-hover);}
 
 /* Form fields */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
@@ -445,32 +445,32 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .form-field.full{grid-column:1/-1;}
 .field-lbl{font-family:'Montserrat',sans-serif;font-size:9.5px;letter-spacing:.08em;color:var(--text3);}
 .field-in,.field-sel,.field-ta{background:var(--bg4);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13px;padding:8px 11px;outline:none;transition:border-color .15s;width:100%;}
-.field-in:focus,.field-sel:focus,.field-ta:focus{border-color:var(--monese2);}
+.field-in:focus,.field-sel:focus,.field-ta:focus{border-color:var(--brand-primary-hover);}
 .field-in::placeholder,.field-ta::placeholder{color:var(--text3);}
 .field-ta{resize:vertical;min-height:60px;line-height:1.55;}
 .field-sel{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b90a8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
 .chan-row{display:flex;gap:7px;flex-wrap:wrap;}
 .chan-chk{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:7px;border:1px solid var(--border2);background:var(--bg4);cursor:pointer;font-size:12px;color:var(--text2);transition:all .15s;user-select:none;}
 .chan-chk input{display:none;}
-.chan-chk.checked{border-color:var(--monese);background:rgba(11,114,253,.1);color:#1a8fff;}
+.chan-chk.checked{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);color:#1a8fff;}
 .chan-dot-chk{width:5px;height:5px;border-radius:50%;background:var(--text3);}
-.chan-chk.checked .chan-dot-chk{background:var(--monese2);}
+.chan-chk.checked .chan-dot-chk{background:var(--brand-primary-hover);}
 
 /* Urgency row */
 .urgency-row{display:flex;gap:7px;}
 .urg-pill{padding:6px 13px;border-radius:7px;border:1px solid var(--border2);background:var(--bg4);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;}
 .urg-pill:hover{border-color:var(--border3);}
-.urg-pill.selected{border-color:var(--monese);background:rgba(11,114,253,.1);color:#1a8fff;}
+.urg-pill.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);color:#1a8fff;}
 
 /* ── STEP 2 SEGMENTS ── */
 .seg-intro{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;}
 .seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
 .seg-card{border:1px solid var(--border2);border-radius:11px;background:var(--bg3);padding:13px;cursor:pointer;transition:all .15s;position:relative;}
 .seg-card:hover{border-color:var(--border3);}
-.seg-card.sel{border-color:var(--monese);background:rgba(11,114,253,.06);}
+.seg-card.sel{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .06);}
 .seg-card.desel{opacity:.4;}
 .seg-chk{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:5px;border:1px solid var(--border2);background:var(--bg4);display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.seg-card.sel .seg-chk{background:var(--monese);border-color:var(--monese);}
+.seg-card.sel .seg-chk{background:var(--brand-primary);border-color:var(--brand-primary);}
 .seg-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;padding-right:24px;}
 .seg-sz{font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3);margin-bottom:7px;}
 .seg-desc{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:9px;}
@@ -490,7 +490,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .out-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:14px;flex-wrap:wrap;}
 .otab{padding:7px 13px;font-size:12px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
 .otab:hover{color:var(--text2);}
-.otab.active{color:var(--text);border-bottom-color:var(--monese);}
+.otab.active{color:var(--text);border-bottom-color:var(--brand-primary);}
 .chan-tabs{display:flex;gap:6px;margin-bottom:13px;}
 .ctab{padding:4px 10px;border-radius:5px;font-size:10.5px;border:1px solid var(--border2);background:var(--bg4);color:var(--text3);cursor:pointer;transition:all .15s;font-family:'Montserrat',sans-serif;letter-spacing:.04em;}
 .ctab.active{background:var(--bg5);border-color:var(--border3);color:var(--text);}
@@ -511,7 +511,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 
 /* Preview frame label */
 .preview-label{font-family:'Montserrat',sans-serif;font-size:9.5px;letter-spacing:.09em;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.preview-label span{color:var(--monese2);}
+.preview-label span{color:var(--brand-primary-hover);}
 
 /* Email device frame */
 .email-device{width:100%;max-width:360px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--border2),0 12px 40px rgba(0,0,0,.5);}
@@ -527,21 +527,21 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .lb-nav{background:#fff;display:flex;justify-content:center;gap:18px;padding:10px 0 8px;border-bottom:1px solid #eef3fa;}
 .lb-nav a{font-family:'Montserrat',sans-serif;font-size:9px;color:#555;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;}
 .lb-wordmark{text-align:center;padding:14px 0 10px;background:#fff;}
-.lb-wordmark-text{font-family:'Inter','Montserrat',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;color:#0b72fd;text-transform:lowercase;}
-.lb-banner{background:#0b72fd;padding:8px 20px;text-align:center;}
+.lb-wordmark-text{font-family:'Inter','Montserrat',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;color:var(--brand-primary);text-transform:lowercase;}
+.lb-banner{background:var(--brand-primary);padding:8px 20px;text-align:center;}
 .lb-banner-text{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;color:#fff;text-transform:uppercase;}
 .lb-hero{background:#f4f8ff;padding:22px 22px 18px;text-align:center;}
-.lb-hero-product{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0b72fd;margin-bottom:4px;font-family:'Montserrat',sans-serif;}
+.lb-hero-product{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-primary);margin-bottom:4px;font-family:'Montserrat',sans-serif;}
 .lb-hero-head{font-size:26px;font-weight:400;color:#1a1a18;line-height:1.2;margin-bottom:6px;}
 .lb-hero-sub{font-size:11px;color:#666;font-family:'Montserrat',sans-serif;margin-bottom:14px;line-height:1.5;}
 .lb-hero-img{width:100%;height:130px;background:linear-gradient(135deg,#dceaff 0%,#a8c8ff 100%);border-radius:4px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;position:relative;}
 .lb-hero-img-label{font-family:'Montserrat',sans-serif;font-size:13px;color:#888;font-style:italic;}
-.lb-cta-btn{display:inline-block;background:#0b72fd;color:#fff;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;text-decoration:none;cursor:pointer;border:none;border-radius:2px;}
+.lb-cta-btn{display:inline-block;background:var(--brand-primary);color:#fff;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;text-decoration:none;cursor:pointer;border:none;border-radius:2px;}
 .lb-body-section{padding:18px 22px;}
 .lb-body-text{font-size:12px;line-height:1.75;color:#333;font-family:'Montserrat',sans-serif;margin-bottom:12px;}
 .lb-body-list{list-style:none;padding:0;margin:0 0 14px;}
 .lb-body-list li{font-size:11.5px;font-family:'Montserrat',sans-serif;color:#444;padding:3px 0;padding-left:12px;position:relative;}
-.lb-body-list li::before{content:'•';position:absolute;left:0;color:#0b72fd;}
+.lb-body-list li::before{content:'•';position:absolute;left:0;color:var(--brand-primary);}
 .lb-divider{height:1px;background:#eef3fa;margin:0;}
 .lb-footer{padding:14px 22px 16px;text-align:center;}
 .lb-footer-text{font-family:'Montserrat',sans-serif;font-size:9px;color:#aaa;line-height:1.6;}
@@ -571,14 +571,14 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .ad-mock-img span{font-family:'Montserrat',sans-serif;font-size:11px;color:#6a7990;font-style:italic;}
 .ad-mock-headline{font-family:'Montserrat',sans-serif;font-size:16px;color:#1a1a18;text-align:center;line-height:1.3;}
 .ad-mock-sub{font-family:'Montserrat',sans-serif;font-size:10px;color:#666;text-align:center;}
-.ad-mock-cta{background:#0b72fd;color:#fff;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 18px;border-radius:2px;}
+.ad-mock-cta{background:var(--brand-primary);color:#fff;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 18px;border-radius:2px;}
 .ad-brief-specs{padding:14px 16px;}
 .ad-spec-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
 .ad-spec-key{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.07em;color:var(--text3);min-width:64px;flex-shrink:0;padding-top:1px;}
 .ad-spec-val{font-size:11.5px;color:var(--text2);line-height:1.45;}
 
 .gen-overlay{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:60px;text-align:center;}
-.gen-spin{width:30px;height:30px;border:2px solid var(--border2);border-top-color:var(--monese);border-radius:50%;animation:spin .8s linear infinite;}
+.gen-spin{width:30px;height:30px;border:2px solid var(--border2);border-top-color:var(--brand-primary);border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .gen-lbl{font-size:12.5px;color:var(--text2);}
 .gen-sub{font-size:10.5px;color:var(--text3);font-family:'Montserrat',sans-serif;}
@@ -589,8 +589,8 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .wiz-btn{padding:7px 17px;border-radius:7px;font-family:'Montserrat',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;transition:all .15s;}
 .wiz-btn.back{background:var(--bg4);border:1px solid var(--border2);color:var(--text2);}
 .wiz-btn.back:hover{border-color:var(--border3);color:var(--text);}
-.wiz-btn.next{background:var(--monese);border:none;color:#fff;}
-.wiz-btn.next:hover{background:var(--monese2);}
+.wiz-btn.next{background:var(--brand-primary);border:none;color:#fff;}
+.wiz-btn.next:hover{background:var(--brand-primary-hover);}
 .wiz-btn.finish{background:var(--green);border:none;color:#fff;}
 .wiz-btn.finish:hover{background:#38c87e;}
 .coming-soon{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px;text-align:center;}
@@ -602,7 +602,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .start-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px 40px;}
 .start-screen.hidden{display:none;}
 .start-greeting{display:flex;align-items:center;gap:14px;margin-bottom:32px;}
-.start-asterisk{font-size:38px;color:var(--monese2);line-height:1;animation:spin-slow 8s linear infinite;}
+.start-asterisk{font-size:38px;color:var(--brand-primary-hover);line-height:1;animation:spin-slow 8s linear infinite;}
 @keyframes spin-slow{to{transform:rotate(360deg)}}
 .start-hello{font-size:34px;font-weight:300;color:var(--text);letter-spacing:-.01em;}
 .start-hello strong{font-weight:600;}
@@ -613,8 +613,8 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .start-input-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
 .start-footer-left{display:flex;align-items:center;gap:8px;}
 .start-model{font-family:'Montserrat',sans-serif;font-size:10px;color:var(--text3);letter-spacing:.05em;}
-.start-send{width:32px;height:32px;background:var(--monese);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s;flex-shrink:0;}
-.start-send:hover{background:var(--monese2);}
+.start-send{width:32px;height:32px;background:var(--brand-primary);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;transition:background .15s;flex-shrink:0;}
+.start-send:hover{background:var(--brand-primary-hover);}
 .start-pills{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;justify-content:center;}
 .start-pill{display:flex;align-items:center;gap:7px;padding:7px 16px;border-radius:22px;border:1px solid var(--border2);background:var(--bg3);font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;}
 .start-pill:hover{border-color:var(--border3);color:var(--text);background:var(--bg4);}
@@ -625,7 +625,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .sb-foot{padding:10px;border-top:1px solid var(--border);flex-shrink:0;}
 .user-avatar-btn{width:100%;display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;background:none;border:none;cursor:pointer;transition:background .15s;text-align:left;}
 .user-avatar-btn:hover{background:var(--bg4);}
-.user-av{width:30px;height:30px;border-radius:50%;background:var(--monese);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;color:#fff;letter-spacing:.04em;flex-shrink:0;}
+.user-av{width:30px;height:30px;border-radius:50%;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;color:#fff;letter-spacing:.04em;flex-shrink:0;}
 .user-av-body{flex:1;min-width:0;}
 .user-av-name{font-size:12.5px;font-weight:500;color:var(--text);line-height:1.2;}
 .user-av-role{font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3);letter-spacing:.05em;margin-top:1px;}
@@ -640,33 +640,254 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .ctx-item.danger:hover{background:rgba(192,80,64,.12);color:#e06050;}
 .ctx-div{height:1px;background:var(--border);margin:4px 0;}
 
+/* ── LOGIN SCREEN ── */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;}
+.login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:40px 44px;width:420px;max-width:calc(100vw - 32px);}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.login-logo-icon{width:36px;height:36px;background:var(--bg4);border:1px solid var(--border2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:16px;font-weight:700;color:var(--text2);}
+.login-logo-text{font-size:16px;font-weight:700;letter-spacing:.06em;color:var(--text);}
+.login-logo-text em{font-style:normal;font-weight:300;color:var(--text2);margin-left:4px;}
+.login-tagline{font-size:11px;color:var(--text3);margin-bottom:32px;letter-spacing:.04em;}
+.login-client-row{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg3);border-radius:8px;margin-bottom:24px;border:1px solid var(--border);}
+.login-client-dot{width:8px;height:8px;border-radius:50%;background:var(--brand-primary);flex-shrink:0;}
+.login-client-label{font-size:11px;color:var(--text3);letter-spacing:.06em;}
+.login-client-name{font-size:12px;font-weight:600;color:var(--text);margin-left:2px;}
+.login-field{margin-bottom:14px;}
+.login-field label{display:block;font-size:10.5px;font-weight:600;letter-spacing:.07em;color:var(--text3);margin-bottom:6px;}
+.login-field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 13px;font-family:'Montserrat',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
+.login-field input:focus{border-color:var(--brand-primary-hover);}
+.login-field input::placeholder{color:var(--text3);}
+.login-btn{width:100%;padding:11px;background:var(--brand-primary);border:none;border-radius:9px;font-family:'Montserrat',sans-serif;font-size:13.5px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s;margin-top:8px;}
+.login-btn:hover{background:var(--brand-primary-hover);}
+.login-users{margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
+.login-users-lbl{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3);margin-bottom:10px;}
+.login-user-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .12s;}
+.login-user-row:hover{background:var(--bg3);}
+.login-user-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.login-user-name{font-size:12px;font-weight:500;color:var(--text);}
+.login-user-role{font-size:10px;color:var(--text3);}
+.login-footer{margin-top:20px;text-align:center;font-size:10px;color:var(--text3);}
+
 /* ── CLIENT WHITE-LABEL LOGO ── */
 .hdr-divider{width:1px;height:22px;background:var(--border2);margin:0 2px;flex-shrink:0;}
 .client-logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0;}
-.client-logo-mark{width:28px;height:28px;border-radius:6px;background:var(--monese);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.client-logo-mark{width:28px;height:28px;border-radius:6px;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .client-logo-img{height:24px;width:auto;display:block;flex-shrink:0;}
 body.dark-mode .client-logo-img{filter:brightness(1.08);}
 .client-wordmark{display:flex;flex-direction:column;gap:1px;}
-.client-wordmark-name{font-family:'Inter','Montserrat',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;color:#0b72fd;text-transform:lowercase;line-height:1;}
+.client-wordmark-name{font-family:'Inter','Montserrat',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--brand-primary);text-transform:lowercase;line-height:1;}
 .client-wordmark-tag{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.14em;color:var(--text3);text-transform:uppercase;line-height:1;}
 /* Light mode: client logo adapts */
-body.light-mode .client-logo-mark{background:var(--monese);}
+body.light-mode .client-logo-mark{background:var(--brand-primary);}
 @media(max-width:480px){
   .client-wordmark{display:none;}
 }
+
+/* ── MODAL BASE ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:560px;max-width:calc(100vw - 32px);max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 14px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:14px;font-weight:600;color:var(--text);}
+.modal-close{width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:6px;transition:color .12s;}
+.modal-close:hover{color:var(--text);}
+.modal-body{flex:1;overflow-y:auto;padding:16px 20px;}
+.modal-body::-webkit-scrollbar{width:4px;}
+.modal-body::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+
+/* ── ACCOUNT MODAL ── */
+.acct-user-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg3);border-radius:10px;margin-bottom:16px;border:1px solid var(--border);}
+.acct-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;}
+.acct-name{font-size:14px;font-weight:600;color:var(--text);}
+.acct-role{font-size:10.5px;color:var(--text3);margin-top:2px;letter-spacing:.04em;}
+.acct-badge{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.07em;margin-top:4px;}
+.badge-admin{background:rgb(var(--brand-primary-rgb) / .15);color:var(--brand-primary-hover);border:1px solid rgb(var(--brand-primary-rgb) / .25);}
+.badge-super{background:rgba(74,127,212,.15);color:var(--accent3);border:1px solid rgba(74,127,212,.25);}
+.acct-section-lbl{font-size:9.5px;font-weight:700;letter-spacing:.1em;color:var(--text3);margin-bottom:8px;margin-top:16px;}
+.acct-menu-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .12s;color:var(--text2);}
+.acct-menu-item:hover{background:var(--bg3);color:var(--text);}
+.acct-menu-item svg{flex-shrink:0;}
+.acct-menu-label{font-size:12.5px;}
+.acct-divider{height:1px;background:var(--border);margin:12px 0;}
+.acct-signout{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .12s;color:#c05040;width:100%;background:none;border:none;font-family:'Montserrat',sans-serif;font-size:12.5px;text-align:left;}
+.acct-signout:hover{background:rgba(192,80,64,.08);}
+.badge-client{background:rgb(var(--brand-primary-rgb) / .12);color:var(--brand-primary-hover);border:1px solid rgb(var(--brand-primary-rgb) / .2);}
+.admin-client-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;}
+
+/* ── ADMIN CLIENT LIST ── */
+.admin-client-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);margin-bottom:8px;cursor:pointer;transition:border-color .15s;}
+.admin-client-row:hover{border-color:var(--border3);}
+.admin-client-name{font-size:12.5px;font-weight:500;color:var(--text);flex:1;}
+.admin-client-status{font-size:9.5px;padding:2px 7px;border-radius:4px;font-weight:600;}
+.status-live{background:rgba(46,168,106,.12);color:var(--green);border:1px solid rgba(46,168,106,.2);}
+.status-setup{background:rgba(232,160,32,.1);color:var(--accent2);border:1px solid rgba(232,160,32,.2);}
+.admin-client-chevron{color:var(--text3);}
+.admin-view{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.admin-view-header{padding:32px 32px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.admin-view-title{font-size:18px;font-weight:700;color:var(--text);margin:0 0 4px;}
+.admin-view-sub{font-size:12px;color:var(--text3);}
+.admin-client-list{padding:20px 32px;overflow-y:auto;flex:1;}
+
+/* ── CLIENT DETAIL ── */
+.client-detail{display:flex;flex-direction:column;height:100%;}
+.client-detail-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+.client-detail-back{background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;gap:5px;font-family:'Montserrat',sans-serif;font-size:11px;padding:4px 0;transition:color .12s;}
+.client-detail-back:hover{color:var(--text);}
+.client-detail-name{font-size:15px;font-weight:600;color:var(--text);}
+.client-detail-sub{font-size:10.5px;color:var(--text3);margin-top:1px;}
+.client-dot-lg{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.cd-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px;gap:0;}
+.cd-tab{padding:8px 14px;font-size:11.5px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;}
+.cd-tab:hover{color:var(--text2);}
+.cd-tab.active{color:var(--brand-primary-dark,var(--brand-primary));border-bottom-color:var(--brand-primary);}
+.cd-tab-content{display:none;}
+.cd-tab-content.visible{display:block;}
+.cd-kpi-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+.cd-kpi{background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border);}
+.cd-kpi-lbl{font-size:8.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:4px;}
+.cd-kpi-val{font-size:18px;font-weight:600;color:var(--text);}
+.cd-kpi-sub{font-size:9.5px;margin-top:2px;}
+.cd-status-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);margin-bottom:6px;}
+.cd-status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.cd-status-label{font-size:11.5px;color:var(--text2);flex:1;}
+.cd-status-val{font-size:10.5px;color:var(--text3);}
+.cd-stub{padding:24px;color:var(--text3);font-size:12px;}
+
+/* ── DATASOURCE ── */
+.ds-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.ds-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 13px;cursor:pointer;transition:border-color .15s;position:relative;}
+.ds-card:hover{border-color:var(--border3);}
+.ds-card.selected{border-color:var(--accent3);background:rgba(74,127,212,.06);}
+.ds-card.add-card{border:1.5px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:80px;}
+.ds-card.add-card:hover{border-color:var(--border3);}
+.ds-status-dot{position:absolute;top:10px;right:10px;width:7px;height:7px;border-radius:50%;}
+.ds-check{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;background:var(--accent3);display:flex;align-items:center;justify-content:center;}
+.ds-icon{width:28px;height:28px;border-radius:7px;background:var(--bg4);display:flex;align-items:center;justify-content:center;margin-bottom:7px;}
+.ds-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.ds-type{font-size:10px;color:var(--text3);}
+.ds-add-label{font-size:11.5px;color:var(--text2);}
+.ds-settings{background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.ds-settings-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.ds-settings-title{display:flex;align-items:center;gap:10px;}
+.ds-settings-name{font-size:13px;font-weight:600;color:var(--text);}
+.ds-settings-sub{font-size:10px;color:var(--text3);}
+.ds-connected-badge{padding:3px 9px;border-radius:5px;font-size:9.5px;font-weight:700;background:rgba(46,168,106,.12);color:var(--green);border:1px solid rgba(46,168,106,.2);}
+.ds-remove-btn{padding:4px 11px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);font-family:'Montserrat',sans-serif;font-size:11px;color:var(--text2);cursor:pointer;transition:all .12s;}
+.ds-remove-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ds-conn-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 14px;}
+.ds-conn-tab{padding:8px 12px;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.ds-conn-tab:hover{color:var(--text2);}
+.ds-conn-tab.active{color:var(--accent3);border-bottom-color:var(--accent3);}
+.ds-conn-body{padding:14px;}
+.ds-field{margin-bottom:13px;}
+.ds-field label{display:block;font-size:10.5px;font-weight:600;color:var(--text3);margin-bottom:5px;letter-spacing:.04em;}
+.ds-field input,.ds-field select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-family:'Montserrat',sans-serif;font-size:12.5px;color:var(--text);outline:none;transition:border-color .15s;}
+.ds-field input:focus{border-color:var(--accent3);}
+.ds-toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.ds-toggle-label{font-size:12px;font-weight:500;color:var(--text);}
+.ds-toggle-sub{font-size:10px;color:var(--text3);margin-top:2px;}
+.ds-toggle{width:36px;height:20px;border-radius:10px;background:var(--bg4);border:1px solid var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
+.ds-toggle.on{background:var(--brand-primary);border-color:var(--brand-primary);}
+.ds-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s;}
+.ds-toggle.on::after{left:18px;}
+.ds-actions{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);}
+.ds-test-btn{padding:7px 16px;border-radius:7px;background:var(--bg4);border:1px solid var(--border2);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;}
+.ds-test-btn:hover{border-color:var(--border3);color:var(--text);}
+.ds-save-btn{padding:7px 16px;border-radius:7px;background:var(--brand-primary);border:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s;}
+.ds-save-btn:hover{background:var(--brand-primary-hover);}
+
+/* ── WHITELABEL EDITOR ── */
+.wl-section{margin-bottom:20px;}
+.wl-lbl{font-size:10px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:10px;}
+.wl-logo-drop{border:2px dashed var(--border2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .15s;}
+.wl-logo-drop:hover{border-color:var(--border3);}
+.wl-logo-drop-text{font-size:12px;color:var(--text2);margin-top:6px;}
+.wl-logo-drop-sub{font-size:10px;color:var(--text3);margin-top:3px;}
+.wl-input-row{display:flex;gap:8px;margin-bottom:8px;}
+.wl-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-family:'Montserrat',sans-serif;font-size:12.5px;color:var(--text);outline:none;transition:border-color .15s;}
+.wl-input:focus{border-color:var(--brand-primary);}
+.wl-input::placeholder{color:var(--text3);}
+.wl-url-btn{padding:8px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.wl-url-btn:hover{border-color:var(--border3);color:var(--text);}
+.wl-swatch-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+.wl-swatch{width:32px;height:32px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:border-color .15s;flex-shrink:0;}
+.wl-swatch.active{border-color:var(--text);}
+.wl-color-field{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.wl-color-label{font-size:11px;color:var(--text2);width:80px;flex-shrink:0;}
+.wl-color-preview{width:24px;height:24px;border-radius:5px;flex-shrink:0;border:1px solid var(--border2);}
+.wl-color-hex{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 10px;font-family:'Montserrat',sans-serif;font-size:11.5px;color:var(--text);outline:none;}
+.wl-recommend-row{display:flex;gap:8px;margin-top:10px;}
+.wl-rec-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;font-size:10.5px;color:var(--text2);transition:all .15s;}
+.wl-rec-chip:hover{border-color:var(--border3);color:var(--text);}
+.wl-rec-dot{width:10px;height:10px;border-radius:3px;}
+.wl-save-btn{width:100%;padding:10px;background:var(--brand-primary);border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;color:#fff;cursor:pointer;margin-top:16px;transition:background .15s;}
+.wl-save-btn:hover{background:var(--brand-primary-hover);}
+
+/* ── USER MANAGEMENT ── */
+.user-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;}
+.user-row-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.user-row-name{font-size:12px;font-weight:500;color:var(--text);flex:1;}
+.user-row-role{font-size:10px;color:var(--text3);}
+.user-row-badge{font-size:8.5px;font-weight:700;padding:2px 7px;border-radius:4px;cursor:pointer;user-select:none;transition:opacity .15s;}
+.user-row-badge:hover{opacity:.75;}
+.user-row-actions{display:flex;gap:4px;margin-left:6px;}
+.user-row-btn{width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .15s;flex-shrink:0;}
+.user-row-btn:hover{border-color:var(--border3);color:var(--text);}
+.user-row-btn.danger:hover{border-color:#e05555;color:#e05555;}
+.invite-btn{width:100%;padding:9px;border-radius:8px;background:var(--bg3);border:1.5px dashed var(--border2);font-family:'Montserrat',sans-serif;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;margin-top:8px;}
+.invite-btn:hover{border-color:var(--border3);color:var(--text);}
 </style>
 </head>
 <body>
 
+<!-- ════ LOGIN SCREEN ════ -->
+<div class="login-screen hidden" id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">S</div>
+      <div class="login-logo-text product-name">Youtility</div>
+    </div>
+    <div class="login-tagline">Behavioural intelligence platform · Sign in to continue</div>
+
+    <div class="login-field">
+      <label>EMAIL</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com" />
+    </div>
+    <div class="login-field">
+      <label>PASSWORD</label>
+      <input type="password" id="loginPass" placeholder="••••••••" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign in</button>
+    <div class="login-users">
+      <div class="login-users-lbl">QUICK ACCESS</div>
+      <div class="login-user-row" onclick="quickLogin('user')">
+        <div class="login-user-av" style="background:var(--brand-primary);">SL</div>
+        <div>
+          <div class="login-user-name">Sarah L.</div>
+          <div class="login-user-role">Marketing Manager</div>
+        </div>
+      </div>
+      <div class="login-user-row" onclick="quickLogin('admin')">
+        <div class="login-user-av" style="background:var(--accent3);">DS</div>
+        <div>
+          <div class="login-user-name">Dan S.</div>
+          <div class="login-user-role">Youtility · Super Admin</div>
+        </div>
+      </div>
+    </div>
+    <div class="login-footer"><span class="product-name">Youtility</span> · youtility.co.uk</div>
+  </div>
+</div>
+
 <header>
   <div class="hdr-left">
     <button class="sb-toggle" onclick="toggleSb()"><span></span><span></span><span></span></button>
-    <a class="logo" href="#"><div class="logo-icon">S</div><div class="logo-text">STOKES <em>ORCHESTRATOR</em></div></a>
+    <a class="logo" href="#"><div class="logo-icon">Y</div><div class="logo-text"><span class="product-name">Youtility</span></div></a>
     <div class="hdr-divider"></div>
     <a class="client-logo" href="#" title="Monese">
       <img class="client-logo-img" src="data:image/png;base64,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" alt="Monese" />
       <div class="client-wordmark">
-        <div class="client-wordmark-tag">Powered by Stokes</div>
+        <div class="client-wordmark-tag">Powered by <span class="product-name">Youtility</span></div>
       </div>
     </a>
   </div>
@@ -685,7 +906,7 @@ body.light-mode .client-logo-mark{background:var(--monese);}
   <!-- PRODUCT VERTICALS SELECTOR -->
   <div class="proj-switcher" id="projSwitcher">
     <div class="proj-btn" id="projBtn" onclick="toggleProjDrop()">
-      <div class="proj-indicator" id="projIndicator" style="background:#0b72fd"></div>
+      <div class="proj-indicator" id="projIndicator" style="background:var(--brand-primary)"></div>
       <div class="proj-text">
         <div class="proj-label">PRODUCT VERTICALS</div>
         <div class="proj-name" id="projNameEl">All customers</div>
@@ -693,8 +914,8 @@ body.light-mode .client-logo-mark{background:var(--monese);}
       <svg class="proj-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="proj-dropdown" id="projDrop">
-      <div class="proj-option active" id="proj-all" onclick="switchProj('all','All customers','#0b72fd','Every Monese user, all products')">
-        <div class="proj-opt-dot" style="background:#0b72fd"></div>
+      <div class="proj-option active" id="proj-all" onclick="switchProj('all','All customers','var(--brand-primary)','Every Monese user, all products')">
+        <div class="proj-opt-dot" style="background:var(--brand-primary)"></div>
         <div class="proj-opt-body">
           <div class="proj-opt-name">All customers</div>
           <div class="proj-opt-desc">Every Monese user, all products</div>
@@ -707,8 +928,8 @@ body.light-mode .client-logo-mark{background:var(--monese);}
           <div class="proj-opt-desc">Sign-up and first-funding drop-offs</div>
         </div>
       </div>
-      <div class="proj-option" id="proj-accounts" onclick="switchProj('accounts','Personal Accounts','#3892ff','Instant and Joint accounts')">
-        <div class="proj-opt-dot" style="background:#3892ff"></div>
+      <div class="proj-option" id="proj-accounts" onclick="switchProj('accounts','Personal Accounts','var(--brand-primary-hover)','Instant and Joint accounts')">
+        <div class="proj-opt-dot" style="background:var(--brand-primary-hover)"></div>
         <div class="proj-opt-body">
           <div class="proj-opt-name">Personal Accounts</div>
           <div class="proj-opt-desc">Instant and Joint accounts</div>
@@ -751,7 +972,11 @@ body.light-mode .client-logo-mark{background:var(--monese);}
     <div class="sb-section-lbl">RECENT</div>
     <div class="sb-list" id="homeList"></div>
     <div class="sb-foot">
-      <button class="user-avatar-btn" onclick="showToast('Account settings')">
+      <div class="acct-menu-item" id="sbLinkAdmin" onclick="showAdminView()" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="acct-menu-label">Admin</span>
+      </div>
+      <button class="user-avatar-btn" onclick="openAccountModal()">
         <div class="user-av">DS</div>
         <div class="user-av-body">
           <div class="user-av-name">Dan S.</div>
@@ -773,13 +998,13 @@ body.light-mode .client-logo-mark{background:var(--monese);}
           <div><div class="gc-m-val">24</div><div class="gc-m-lbl">CAMPAIGNS</div></div>
           <div><div class="gc-m-val">2</div><div class="gc-m-lbl">ACTIVE NOW</div></div>
         </div>
-        <div class="gc-bar-row"><div class="gc-bar-seg" style="flex:8;background:var(--monese);opacity:.7"></div><div class="gc-bar-seg" style="flex:6;background:var(--accent2);opacity:.6"></div><div class="gc-bar-seg" style="flex:4;background:var(--accent3);opacity:.6"></div><div class="gc-bar-seg" style="flex:6;background:var(--accent);opacity:.5"></div></div>
+        <div class="gc-bar-row"><div class="gc-bar-seg" style="flex:8;background:var(--brand-primary);opacity:.7"></div><div class="gc-bar-seg" style="flex:6;background:var(--accent2);opacity:.6"></div><div class="gc-bar-seg" style="flex:4;background:var(--accent3);opacity:.6"></div><div class="gc-bar-seg" style="flex:6;background:var(--accent);opacity:.5"></div></div>
       </div>
     </div>
     <div class="sb-section-lbl">CAMPAIGNS</div>
     <div class="sb-scroll" id="campScroll"></div>
     <div class="sb-foot">
-      <button class="user-avatar-btn" onclick="showToast('Account settings')">
+      <button class="user-avatar-btn" onclick="openAccountModal()">
         <div class="user-av">DS</div>
         <div class="user-av-body">
           <div class="user-av-name">Dan S.</div>
@@ -807,7 +1032,7 @@ body.light-mode .client-logo-mark{background:var(--monese);}
           <textarea class="start-ta" id="startTa" rows="2" placeholder="How can I help you today?" onkeydown="handleStartKey(event)" oninput="autoResizeEl(this)"></textarea>
           <div class="start-input-footer">
             <div class="start-footer-left">
-              <div class="start-model">Navier-Stokes · Monese node</div>
+              <div class="start-model"><span class="product-name">Youtility</span> · Monese node</div>
             </div>
             <button class="start-send" onclick="sendFromStart()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -835,12 +1060,15 @@ body.light-mode .client-logo-mark{background:var(--monese);}
     <div class="messages hidden" id="messages"></div>
     <div class="stop-bar" id="stopBar"><button class="stop-btn" onclick="stopGen()"><span class="stop-dot"></span> STOP GENERATING</button></div>
     <div class="input-bar hidden" id="chatInputBar"><div class="input-wrap">
-      <textarea class="chat-input" id="chatIn" rows="1" placeholder="Command Stokes..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" onclick="sendMsg()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      <textarea class="chat-input" id="chatIn" rows="1" placeholder="Command Youtility..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="handleSendBtn()">
+  <svg id="sendIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+  <svg id="stopIcon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+</button>
     </div>
     <div class="chat-toolbar">
-      <div class="ctool" onclick="sendFromToolbar('Who is my best customer?')" style="border-color:rgba(11,114,253,.35);color:#0b72fd;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0b72fd" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div class="ctool" onclick="sendFromToolbar('Who is my best customer?')" style="border-color:rgb(var(--brand-primary-rgb) / .35);color:var(--brand-primary);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Best customer
       </div>
       <div class="ctool" onclick="switchWs('campaign')">
@@ -903,7 +1131,7 @@ body.light-mode .client-logo-mark{background:var(--monese);}
       </div>
       <div class="chart-row">
         <div class="chart-card">
-          <div class="cc-hdr"><div class="cc-ttl">Open rate and conversion lift, last 12 campaigns</div><div class="cc-leg"><div class="cc-li"><div class="cc-ld" style="background:var(--monese)"></div>Open lift</div><div class="cc-li"><div class="cc-ld" style="background:var(--green)"></div>Conv. lift</div></div></div>
+          <div class="cc-hdr"><div class="cc-ttl">Open rate and conversion lift, last 12 campaigns</div><div class="cc-leg"><div class="cc-li"><div class="cc-ld" style="background:var(--brand-primary)"></div>Open lift</div><div class="cc-li"><div class="cc-ld" style="background:var(--green)"></div>Conv. lift</div></div></div>
           <div class="spark-bars" id="sparkBars"></div>
           <div style="display:flex;justify-content:space-between;margin-top:5px;"><span style="font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3)">MAR 13</span><span style="font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3)">MAR 28</span></div>
         </div>
@@ -931,7 +1159,7 @@ body.light-mode .client-logo-mark{background:var(--monese);}
         <div class="brief-section-lbl">CAMPAIGN TYPE</div>
         <div class="ct-grid" id="ctGrid">
           <div class="ct-card selected" data-type="promo" onclick="selectType(this)">
-            <div class="ct-icon" style="background:rgba(11,114,253,.15)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3892ff" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+            <div class="ct-icon" style="background:rgb(var(--brand-primary-rgb) / .15);color:var(--brand-primary-hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
             <div class="ct-name">Promotional offer</div>
             <div class="ct-desc">Reward, cashback or fee waiver with conditions</div>
           </div>
@@ -1034,6 +1262,44 @@ body.light-mode .client-logo-mark{background:var(--monese);}
   <!-- VERTICAL OVERVIEW REPORTS -->
   <div id="reportView" class="report-view"></div>
 
+  <!-- ADMIN CLIENT LIST VIEW -->
+  <div id="adminView" class="admin-view hidden">
+    <header class="admin-view-header">
+      <h2 class="admin-view-title">Clients</h2>
+      <div class="admin-view-sub">Manage workspace clients</div>
+    </header>
+    <div id="adminClientList" class="admin-client-list"></div>
+  </div>
+
+  <!-- CLIENT DETAIL PANEL -->
+  <div id="clientDetailView" class="admin-view hidden">
+    <div style="padding:24px 32px;flex:1;overflow-y:auto;">
+      <div class="client-detail">
+        <div class="client-detail-hdr">
+          <button class="client-detail-back" onclick="closeClientDetail()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+            All clients
+          </button>
+          <div class="client-dot-lg" id="cdpClientDot" style="background:var(--brand-primary);margin-left:8px;"></div>
+          <div>
+            <div class="client-detail-name" id="cdpClientName"></div>
+            <div class="client-detail-sub" id="cdpClientSub"></div>
+          </div>
+        </div>
+        <div class="cd-tabs">
+          <div class="cd-tab active" id="cdt-overview"    onclick="switchCdTab('overview')">Overview</div>
+          <div class="cd-tab"        id="cdt-datasource"  onclick="switchCdTab('datasource')">Data sources</div>
+          <div class="cd-tab"        id="cdt-whitelabel"  onclick="switchCdTab('whitelabel')">White label</div>
+          <div class="cd-tab"        id="cdt-users"       onclick="switchCdTab('users')">Users</div>
+        </div>
+        <div class="cd-tab-content visible" id="cdpTabOverview"></div>
+        <div class="cd-tab-content hidden"  id="cdpTabDatasource"><div id="cdpDatasourceList"></div></div>
+        <div class="cd-tab-content hidden"  id="cdpTabWhitelabel"></div>
+        <div class="cd-tab-content hidden"  id="cdpTabUsers"><div id="cdpUsersList"></div></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 </div>
 
@@ -1046,12 +1312,336 @@ body.light-mode .client-logo-mark{background:var(--monese);}
 <div id="toast"></div>
 
 <script>
+const CLIENTS = [
+  {
+    id: 'monese',
+    name: 'Monese',
+    mode: 'singleTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'monese',
+    color: '#7c5cbf',
+    status: 'live',
+    copy: { productName: 'Monese', tagline: '' },
+    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: false, whitelabel: false, userManagement: false },
+  },
+  {
+    id: 'ledbury',
+    name: 'Ledbury',
+    mode: 'multiTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'ledbury',
+    color: '#4a6741',
+    status: 'live',
+    copy: { productName: 'Ledbury', tagline: '' },
+    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+  },
+  {
+    id: 'pockit',
+    name: 'Pockit',
+    mode: 'multiTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'pockit',
+    color: '#4a7fd4',
+    status: 'live',
+    copy: { productName: 'Pockit', tagline: '' },
+    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+  },
+  {
+    id: 'virginmoney',
+    name: 'Virgin Money',
+    mode: 'multiTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'virginmoney',
+    color: '#d0553a',
+    status: 'live',
+    copy: { productName: 'Virgin Money', tagline: '' },
+    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+  },
+  {
+    id: 'santander',
+    name: 'Santander UK',
+    mode: 'multiTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'santander',
+    color: '#e8a020',
+    status: 'setup',
+    copy: { productName: 'Santander UK', tagline: '' },
+    enabledFeatures: { reports: false, search: true, campaigns: true, audienceExplorer: false, admin: true, whitelabel: true, userManagement: true },
+  },
+];
+let ACTIVE_CLIENT_ID = 'monese';
+function getActiveClient(){ return CLIENTS.find(c => c.id === ACTIVE_CLIENT_ID) || CLIENTS[0]; }
+(function injectClientFonts(){
+  const client = getActiveClient();
+  if (!client.fontImport) return;
+  const linkEl = document.createElement('link');
+  linkEl.rel = 'stylesheet';
+  linkEl.href = client.fontImport;
+  document.head.appendChild(linkEl);
+})();
+const PRODUCT_NAME = getActiveClient().copy.productName || 'Youtility';
+const USERS = {
+  'monese-demo': {
+    id: 'monese-demo',
+    name: 'Demo User',
+    email: 'demo@monese.com',
+    role: 'user',
+    clientId: 'monese',
+    initials: 'DU',
+    color: 'var(--brand-primary)',
+  },
+  'demo-admin': {
+    id: 'demo-admin',
+    name: 'Sarah L.',
+    email: 'sarah@example.com',
+    role: 'admin',
+    clientId: 'monese',
+    initials: 'SL',
+    color: '#7c5cbf',
+  },
+  'demo-super': {
+    id: 'demo-super',
+    name: 'Dan S.',
+    email: 'dan@youtility.co.uk',
+    role: 'super',
+    clientId: null,
+    initials: 'DS',
+    color: '#4a7fd4',
+  },
+};
+let CURRENT_USER_ID = 'monese-demo';
+function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
+function hasRole(...roles){ const u = getCurrentUser(); return u && roles.includes(u.role); }
+function getDemoUsers(){ return Object.values(USERS); }
+function isAdminRole(role){ return role === 'admin' || role === 'super'; }
+
+// ── AUTH / SESSION ──
+function doLogin() {
+  const email = (document.getElementById('loginEmail') || {}).value || '';
+  // Demo heuristic: admin if email contains 'admin', 'super', or 'youtility'
+  const lc = email.toLowerCase();
+  const isAdmin = lc.includes('admin') || lc.includes('super') || lc.includes('youtility');
+  quickLogin(isAdmin ? 'admin' : 'user');
+}
+
+function quickLogin(role) {
+  // Find the first USERS entry matching the requested role; fall back to monese-demo
+  const match = Object.entries(USERS).find(([, u]) => u.role === role);
+  if (match) {
+    CURRENT_USER_ID = match[0];
+  }
+  // If no match, keep existing CURRENT_USER_ID
+  const loginEl = document.getElementById('loginScreen');
+  if (loginEl) loginEl.classList.add('hidden');
+  const u = getCurrentUser();
+  if (u) {
+    document.querySelectorAll('.user-av').forEach(el => {
+      el.textContent = u.initials;
+      el.style.background = u.color;
+    });
+    document.querySelectorAll('.user-av-name').forEach(el => el.textContent = u.name);
+    document.querySelectorAll('.user-av-role').forEach(el => el.textContent = u.role);
+    showToast('Welcome back, ' + u.name.split(' ')[0]);
+  }
+}
+
+function signOut() {
+  CURRENT_USER_ID = '';
+  if (typeof closeAccountModal === 'function') closeAccountModal();
+  const loginEl = document.getElementById('loginScreen');
+  if (loginEl) loginEl.classList.remove('hidden');
+}
+
+// ── ACCOUNT MODAL ──
+function renderClientAcctPanel(u, client){
+    const isSingleTenant = client.mode === 'singleTenant';
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = getDemoUsers().filter(other => other.id !== u.id && isAdminRole(other.role));
+    const switchSection = (!isSingleTenant && switchTargets.length > 0) ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
+    ` : '';
+    const signOutSection = isSingleTenant ? '' : `
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">${client.name} · ${u.role.toUpperCase()}</div>
+        <span class="acct-badge badge-client">CLIENT</span>
+      </div>
+    </div>
+    <div class="acct-section-lbl">ACCOUNT</div>
+    <div class="acct-menu-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><div class="acct-menu-label">Profile settings</div></div>
+    <div class="acct-menu-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div class="acct-menu-label">Change password</div></div>
+    <div class="acct-menu-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="acct-menu-label">Notification preferences</div></div>
+    ${switchSection}
+    ${signOutSection}`;
+  }
+
+  function renderAdminAcctPanel(u){
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = getDemoUsers().filter(other => other.id !== u.id && !isAdminRole(other.role));
+    const clientListSection = `
+    <div class="acct-section-lbl">CLIENT LIST</div>
+    ${CLIENTS.map(c => `<div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${c.id}')"><div class="admin-client-dot" style="background:${c.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${c.name}</div></div>`).join('')}
+    `;
+    const switchSection = switchTargets.length > 0 ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name}</div></div>`).join('')}
+    ` : '';
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">YOUTILITY · ${u.role.toUpperCase()}</div>
+        <span class="acct-badge badge-super">SUPER ADMIN</span>
+      </div>
+    </div>
+    ${clientListSection}
+    ${switchSection}
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+  }
+
+  function openAccountModal(){
+    const u = getCurrentUser();
+    if (!u) return;
+    const client = getActiveClient();
+    const titleEl = document.getElementById('acctModalTitle');
+    const bodyEl = document.getElementById('acctModalBody');
+    if (!titleEl || !bodyEl) return;
+    if (isAdminRole(u.role)) {
+      titleEl.textContent = 'Admin panel';
+      bodyEl.innerHTML = renderAdminAcctPanel(u);
+    } else {
+      titleEl.textContent = 'Account';
+      bodyEl.innerHTML = renderClientAcctPanel(u, client);
+    }
+    document.getElementById('accountModal').classList.remove('hidden');
+  }
+
+function closeAccountModal() {
+  document.getElementById('accountModal').classList.add('hidden');
+}
+
+// Close account modal on overlay click or Esc key
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('accountModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAccountModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAccountModal();
+  });
+});
+
+const BRAND_PALETTES = {
+  monese: {
+    '--brand-primary': '#0b72fd',
+    '--brand-primary-hover': '#3892ff',
+    '--brand-primary-rgb': '11 114 253',
+  },
+  ledbury: {
+    '--brand-primary': '#4a6741',
+    '--brand-primary-hover': '#6a8f60',
+    '--brand-primary-rgb': '74 103 65',
+  },
+  pockit: {
+    '--brand-primary': '#4a7fd4',
+    '--brand-primary-hover': '#6b94db',
+    '--brand-primary-rgb': '74 127 212',
+  },
+  virginmoney: {
+    '--brand-primary': '#d0553a',
+    '--brand-primary-hover': '#d97050',
+    '--brand-primary-rgb': '208 85 58',
+  },
+  santander: {
+    '--brand-primary': '#e8a020',
+    '--brand-primary-hover': '#f0b440',
+    '--brand-primary-rgb': '232 160 32',
+  },
+};
+function applyBrandPalette(name){
+  const p = BRAND_PALETTES[name] || BRAND_PALETTES['monese'];
+  for (const [k, v] of Object.entries(p)) document.documentElement.style.setProperty(k, v);
+}
+applyBrandPalette(getActiveClient().palette);
+
+function injectClientCopy(){
+  const client = getActiveClient();
+  const name = client.copy.productName || 'Youtility';
+  document.title = name;
+  document.querySelectorAll('.product-name').forEach(el => el.textContent = name);
+}
+document.addEventListener('DOMContentLoaded', injectClientCopy);
+
+// ── DATASOURCE DATA ──
+const DS_SOURCES = [
+  {id:'sf',   clientId:'monese', name:'Salesforce CRM',    type:'REST API',       icon:'☁️',  status:'connected', selected:true},
+  {id:'hs',   clientId:'monese', name:'HubSpot CRM',       type:'REST API',       icon:'◆',   status:'idle'},
+  {id:'em',   clientId:'monese', name:'Email platform',    type:'SMTP / API',     icon:'✉',   status:'connected'},
+  {id:'sms',  clientId:'monese', name:'SMS gateway',       type:'REST API',       icon:'💬',  status:'error'},
+  {id:'web',  clientId:'monese', name:'Web visit logs',    type:'Event stream',   icon:'🌐',  status:'connected'},
+  {id:'call', clientId:'monese', name:'Outbound call mgmt',type:'Database / JDBC',icon:'📞',  status:'idle'},
+  {id:'ivr',  clientId:'monese', name:'Inbound IVR system',type:'Database / JDBC',icon:'📲',  status:'idle'},
+];
+const DS_STATUS_COLORS = {connected:'#2ea86a', error:'#d0553a', idle:'#555a72'};
+let dsSelected = 'sf';
+let dsConnTab  = 'connection';
+
+// ── WHITE LABEL ENGINE ──
+// Maps logical whitelabel tokens to CSS variable names.
+// Primary slots use semantic --brand-primary* tokens (replaces Stokes's --ledbury/--ledbury2).
+// bg/accent slots reference existing :root vars.
+const WL_CSS_MAP = {
+  primary:    '--brand-primary',
+  secondary:  '--brand-primary-hover',
+  background: '--bg',
+  accent:     '--accent2',
+};
+
+// Returns a hex colour darkened/lightened by pct% (negative = darken).
+function shadeHex(hex, pct){
+  // Expand 3-digit hex to 6-digit before parsing
+  if(/^#[0-9a-fA-F]{3}$/.test(hex)){
+    hex = '#' + hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3];
+  }
+  let r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  r = Math.max(0,Math.min(255, r + Math.round(r*pct/100)));
+  g = Math.max(0,Math.min(255, g + Math.round(g*pct/100)));
+  b = Math.max(0,Math.min(255, b + Math.round(b*pct/100)));
+  return '#' + [r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+// Applies a single whitelabel colour token to the live interface.
+// token: key from WL_CSS_MAP; hex: validated hex string.
+// Sets var on both documentElement and body for cascade coverage.
+// When the background token changes, --bg2/--bg3 depth ramps are also updated.
+// Guards on not-yet-ported DOM elements (#wlPullBtn, #cdp-whitelabel, .client-logo-mark)
+// are deferred to later phases; those lookups are not performed here.
+function applyColorToInterface(token, hex){
+  const cssVar = WL_CSS_MAP[token];
+  if(!cssVar) return;
+  if(!/^#[0-9a-fA-F]{3,6}$/.test(hex)) return;
+  document.documentElement.style.setProperty(cssVar, hex);
+  document.body.style.setProperty(cssVar, hex);
+  // When background changes, derive --bg2/--bg3 depth ramps.
+  if(token === 'background'){
+    document.documentElement.style.setProperty('--bg2', shadeHex(hex, -5));
+    document.documentElement.style.setProperty('--bg3', shadeHex(hex, -10));
+  }
+}
+
 // ══ ICONS ══
 const IC={bot:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M8 12h8M12 8v8"/></svg>`,user:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,copy:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,retry:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>`,up:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`,down:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>`,edit:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>`,chk:`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,chat:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,del:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>`,pen:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>`};
 
 // ══ WORKSPACE ══
 let currentWs='home',wsDrop=false;
-const WS_META={home:{name:'Home',color:'#8b90a8',bg:'rgba(139,144,168,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b90a8" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`},campaign:{name:'Marketing Spend',color:'#3892ff',bg:'rgba(11,114,253,.12)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3892ff" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`},churn:{name:'Churn Prevention',color:'#d0553a',bg:'rgba(208,85,58,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},engage:{name:'Engagement',color:'#e8a020',bg:'rgba(232,160,32,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`},ltv:{name:'Lifetime Value',color:'#4a7fd4',bg:'rgba(74,127,212,.08)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`}};
+const WS_META={home:{name:'Home',color:'#8b90a8',bg:'rgba(139,144,168,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b90a8" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`},campaign:{name:'Marketing Spend',color:'var(--brand-primary-hover)',bg:'rgb(var(--brand-primary-rgb) / .12)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--brand-primary-hover)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`},churn:{name:'Churn Prevention',color:'#d0553a',bg:'rgba(208,85,58,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},engage:{name:'Engagement',color:'#e8a020',bg:'rgba(232,160,32,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`},ltv:{name:'Lifetime Value',color:'#4a7fd4',bg:'rgba(74,127,212,.08)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`}};
 function toggleWsDrop(){} // removed
 function switchWs(ws){
   currentWs=ws;
@@ -1062,12 +1652,13 @@ function switchWs(ws){
   const hV=document.getElementById('homeView');if(hV) hV.style.display=ws==='home'?'':'none';
   const cW=document.getElementById('campWs');if(cW) cW.classList.toggle('visible',ws==='campaign');
   const rV=document.getElementById('reportView');if(rV) rV.style.display=ws==='report'?'flex':'none';
+  const aV=document.getElementById('adminView');if(aV) aV.classList.add('hidden');
   if(ws==='campaign'){renderCampSb();renderOverview();}
 }
 // (workspace dropdown removed)
 
 // ══ CAMPAIGN SIDEBAR ══
-const STATUS_COL={active:'#0b72fd',draft:'#555a72',completed:'#4a7fd4',scheduled:'#e8a020'};
+const STATUS_COL={active:'var(--brand-primary)',draft:'#555a72',completed:'#4a7fd4',scheduled:'#e8a020'};
 const CAMPS=[
   {id:101,title:'Travel Money Card Launch Push',  time:'Mar 28',status:'active',   type:'Arrival',open:'+44%',rev:'+28%',roi:'4.2x'},
   {id:102,title:'Money Mondays · Smart FX',       time:'Mar 28',status:'active',   type:'Series', open:'+38%',rev:'+19%',roi:'3.1x'},
@@ -1112,7 +1703,7 @@ function renderProds(){const filtered=PRODUCTS.filter(p=>!prodFilter||p.name.toL
 function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!p.sel;renderProds();}
 
 // ══ OVERVIEW ══
-function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--monese);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const ucs=[{l:'Promotional',n:8,c:'#0b72fd'},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
+function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const brandPri=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()||'#0b72fd';const ucs=[{l:'Promotional',n:8,c:brandPri},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
 
 // ══ CAMPAIGN WORKSPACE TABS ══
 let cwCur='report';
@@ -1244,11 +1835,11 @@ function exportCamp(){
   renderCampSb();sbUserOverride=null;applyBreakpoint();
   switchCwTab('report');showToast('Campaign saved');
 }
-function renderSegs(){document.getElementById('segContent').innerHTML=`<p class="seg-intro">Navier-Stokes recommended segments for <strong style="color:var(--text)">Monese</strong> based on purchase behaviour, email engagement, and browse signals. Deselect any you don't want to target.</p><div class="seg-grid">${SEGS.map(s=>{const tags=s.signals.map((t,i)=>`<span class="sig-tag ${s.types[i]}">${t}</span>`).join('');return `<div class="seg-card ${s.selected?'sel':'desel'}" id="sg-${s.id}" onclick="toggleSeg('${s.id}')"><div class="seg-chk">${s.selected?IC.chk:''}</div><div class="seg-name">${s.name}</div><div class="seg-sz">${s.size} customers</div><div class="seg-desc">${s.desc}</div><div class="seg-tags">${tags}</div><div class="seg-note">${s.note}</div></div>`;}).join('')}</div>`;}
+function renderSegs(){document.getElementById('segContent').innerHTML=`<p class="seg-intro">${PRODUCT_NAME} recommended segments for <strong style="color:var(--text)">${getActiveClient().name}</strong> based on purchase behaviour, email engagement, and browse signals. Deselect any you don't want to target.</p><div class="seg-grid">${SEGS.map(s=>{const tags=s.signals.map((t,i)=>`<span class="sig-tag ${s.types[i]}">${t}</span>`).join('');return `<div class="seg-card ${s.selected?'sel':'desel'}" id="sg-${s.id}" onclick="toggleSeg('${s.id}')"><div class="seg-chk">${s.selected?IC.chk:''}</div><div class="seg-name">${s.name}</div><div class="seg-sz">${s.size} customers</div><div class="seg-desc">${s.desc}</div><div class="seg-tags">${tags}</div><div class="seg-note">${s.note}</div></div>`;}).join('')}</div>`;}
 function toggleSeg(id){const s=SEGS.find(x=>x.id===id);if(!s)return;s.selected=!s.selected;const c=document.getElementById(`sg-${id}`);c.className=`seg-card ${s.selected?'sel':'desel'}`;c.querySelector('.seg-chk').innerHTML=s.selected?IC.chk:'';const n=SEGS.filter(x=>x.selected).length;document.getElementById('wizInfo').innerHTML=`<span>${n} segment${n!==1?'s':''} selected</span>`;}
 
 function renderGenOverlay(){
-  document.getElementById('outputContent').innerHTML=`<div class="gen-overlay"><div class="gen-spin"></div><div class="gen-lbl">Generating segment-tailored content for Monese</div><div class="gen-sub">Applying Navier-Stokes behavioural profiles...</div></div>`;
+  document.getElementById('outputContent').innerHTML=`<div class="gen-overlay"><div class="gen-spin"></div><div class="gen-lbl">Generating segment-tailored content for ${getActiveClient().name}</div><div class="gen-sub">Applying ${PRODUCT_NAME} behavioural profiles...</div></div>`;
 }
 
 function renderOutput(){
@@ -1410,6 +2001,7 @@ function injectAudienceExplorer(kind){
   const id=nMsgId++;
   // Brief typing simulation then inject widget
   streaming=true;
+  setSendBtnState('stop');
   document.getElementById('stopBar').classList.add('visible');
   const analysingText = kind==='churn' 
     ? 'Analysing Monese churn-risk profiles...'
@@ -1421,6 +2013,7 @@ function injectAudienceExplorer(kind){
   msgs.push(placeholder); renderMsgs();
   setTimeout(()=>{
     streaming=false;
+    setSendBtnState('send');
     document.getElementById('stopBar').classList.remove('visible');
     // Replace placeholder with widget
     const idx=msgs.findIndex(m=>m.id===id);
@@ -1459,7 +2052,7 @@ function sendMsg(){
   if(k) injectAudienceExplorer(k);
   else setTimeout(simAI,400);
 }
-let msgs=[{id:1,role:'ai',text:"Welcome back to Stokes.\n\nYou're connected to the Navier-Stokes behavioural layer for Monese. Pick a product vertical from the sidebar to see its overview report, or ask me anything here.",feedback:null}];
+let msgs=[{id:1,role:'ai',text:`Welcome back to ${PRODUCT_NAME}.\n\nYou're connected to the ${PRODUCT_NAME} behavioural layer for ${getActiveClient().name}. Pick a product vertical from the sidebar to see its overview report, or ask me anything here.`,feedback:null}];
 let nMsgId=2,streaming=false,sTimer=null;
 function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function renderMsgs(){const el=document.getElementById('messages');el.innerHTML=msgs.map((m,i)=>m.role==='ai'?rAI(m,i===msgs.length-1):rUser(m)).join('');el.scrollTop=el.scrollHeight;// init any donut charts in widget messages
@@ -1484,10 +2077,28 @@ function rUser(m){return `<div class="msg-group user" id="mg-${m.id}"><div class
 function cpyMsg(id){const m=msgs.find(x=>x.id===id);if(m)navigator.clipboard.writeText(m.text).catch(()=>{});showToast('Copied');}
 function vote(id,t){const m=msgs.find(x=>x.id===id);if(!m)return;m.feedback=m.feedback===t?null:t;const u=document.getElementById(`up-${id}`),d=document.getElementById(`dn-${id}`);if(u)u.className='act-btn'+(m.feedback==='up'?' voted-up':'');if(d)d.className='act-btn'+(m.feedback==='down'?' voted-down':'');if(m.feedback)showToast(m.feedback==='up'?'Marked helpful':'Feedback noted');}
 function retryMsg(id){const i=msgs.findIndex(x=>x.id===id);if(i===-1)return;msgs.splice(i,1);renderMsgs();simAI();}
-function editMsg(id){const m=msgs.find(x=>x.id===id),idx=msgs.findIndex(x=>x.id===id);if(!m)return;const g=document.getElementById(`mg-${m.id}`);g.innerHTML=`<div class="msg-row" style="flex-direction:row-reverse"><div class="msg-avatar">${IC.user}</div><div style="max-width:540px;width:100%;display:flex;flex-direction:column;gap:8px"><textarea style="width:100%;background:var(--bg4);border:1px solid var(--monese2);border-radius:10px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13.5px;padding:11px 13px;resize:none;outline:none;line-height:1.6" id="eta-${id}" rows="2">${eh(m.text)}</textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button style="padding:5px 12px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="renderMsgs()">Cancel</button><button style="padding:5px 12px;border-radius:6px;background:var(--monese);border:none;color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="saveEdit(${id},${idx})">Save &amp; resend</button></div></div></div>`;document.getElementById(`eta-${id}`).focus();}
+function editMsg(id){const m=msgs.find(x=>x.id===id),idx=msgs.findIndex(x=>x.id===id);if(!m)return;const g=document.getElementById(`mg-${m.id}`);g.innerHTML=`<div class="msg-row" style="flex-direction:row-reverse"><div class="msg-avatar">${IC.user}</div><div style="max-width:540px;width:100%;display:flex;flex-direction:column;gap:8px"><textarea style="width:100%;background:var(--bg4);border:1px solid var(--brand-primary-hover);border-radius:10px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13.5px;padding:11px 13px;resize:none;outline:none;line-height:1.6" id="eta-${id}" rows="2">${eh(m.text)}</textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button style="padding:5px 12px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="renderMsgs()">Cancel</button><button style="padding:5px 12px;border-radius:6px;background:var(--brand-primary);border:none;color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="saveEdit(${id},${idx})">Save &amp; resend</button></div></div></div>`;document.getElementById(`eta-${id}`).focus();}
 function saveEdit(id,idx){const ta=document.getElementById(`eta-${id}`);const val=ta?ta.value.trim():'';if(!val)return;msgs[idx].text=val;msgs=msgs.slice(0,idx+1);renderMsgs();setTimeout(simAI,400);}
-function simAI(){streaming=true;document.getElementById('stopBar').classList.add('visible');const id=nMsgId++;const full='Analysing Monese customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;document.getElementById('stopBar').classList.remove('visible');renderMsgs();}},30);}
-function stopGen(){if(!streaming)return;clearInterval(sTimer);streaming=false;document.getElementById('stopBar').classList.remove('visible');renderMsgs();showToast('Generation stopped');}
+function simAI(){streaming=true;setSendBtnState('stop');document.getElementById('stopBar').classList.add('visible');const id=nMsgId++;const full='Analysing Monese customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;setSendBtnState('send');document.getElementById('stopBar').classList.remove('visible');renderMsgs();}},30);}
+function stopGen(){if(!streaming)return;clearInterval(sTimer);streaming=false;setSendBtnState('send');document.getElementById('stopBar').classList.remove('visible');renderMsgs();showToast('Generation stopped');}
+function setSendBtnState(state){
+  const btn=document.getElementById('sendBtn');
+  const si=document.getElementById('sendIcon');
+  const xi=document.getElementById('stopIcon');
+  if(!btn)return;
+  if(state==='stop'){
+    btn.classList.add('stopping');
+    if(si)si.style.display='none';
+    if(xi)xi.style.display='';
+  } else {
+    btn.classList.remove('stopping');
+    if(si)si.style.display='';
+    if(xi)xi.style.display='none';
+  }
+}
+function handleSendBtn(){
+  if(streaming){ stopGen(); } else { sendMsg(); }
+}
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
 function handleStartKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendFromStart();}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';}
@@ -1498,12 +2109,12 @@ function buildAudienceExplorerHTML(){
   return `<div id="ae-widget" style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;max-width:100%;">
   <div style="padding:11px 16px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text);">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0b72fd" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--brand-primary)"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Customer Explorer
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div style="font-size:10px;color:var(--text3);letter-spacing:.05em;">POPULATION: <b style="color:var(--text2)">84,320</b> &nbsp;·&nbsp; <b style="color:var(--text2)">MONESE</b></div>
-      <button id="ae-create-btn" onclick="window._aeLaunchCampaign()" style="display:flex;align-items:center;gap:6px;padding:6px 13px;background:#0b72fd;border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:background .15s;" onmouseover="this.style.background='#3892ff'" onmouseout="this.style.background='#0b72fd'">
+      <button id="ae-create-btn" onclick="window._aeLaunchCampaign()" style="display:flex;align-items:center;gap:6px;padding:6px 13px;background:var(--brand-primary);border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:background .15s;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Create campaign
       </button>
@@ -1520,7 +2131,7 @@ function buildAudienceExplorerHTML(){
           </svg>
         </div>
         <div id="ae-leg" style="width:100%;margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
-        <div id="ae-vbadge" style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;border:1.5px solid #0b72fd;font-size:9px;font-weight:700;letter-spacing:.07em;color:#0b72fd;margin-top:8px;background:rgba(11,114,253,.09);"></div>
+        <div id="ae-vbadge" style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;border:1.5px solid var(--brand-primary);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--brand-primary);margin-top:8px;background:rgb(var(--brand-primary-rgb) / .09);"></div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px 5px;border-bottom:1px solid var(--border);">
         <span id="ae-slbl" style="font-size:9px;font-weight:700;letter-spacing:.09em;color:var(--text3);"></span>
@@ -1531,11 +2142,11 @@ function buildAudienceExplorerHTML(){
     <div style="display:flex;flex-direction:column;min-width:0;">
       <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border);">
         <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0b72fd" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--brand-primary)"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           <span id="ae-pid"></span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div id="ae-ppill" style="display:inline-flex;padding:3px 10px;border-radius:20px;border:1.5px solid #0b72fd;font-size:9px;font-weight:700;letter-spacing:.07em;color:#0b72fd;"></div>
+          <div id="ae-ppill" style="display:inline-flex;padding:3px 10px;border-radius:20px;border:1.5px solid var(--brand-primary);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--brand-primary);"></div>
           <div style="font-size:10.5px;color:var(--text3);">Match Confidence: <b id="ae-pconf" style="color:var(--text2);"></b></div>
         </div>
       </div>
@@ -1548,9 +2159,9 @@ function buildAudienceExplorerHTML(){
       </div>
     </div>
   </div>
-  <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(11,114,253,.04);">
+  <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgb(var(--brand-primary-rgb) / .04);">
     <div style="font-size:10.5px;color:var(--text2);">Targeting <b id="ae-footer-seg" style="color:var(--text);"></b> &nbsp;·&nbsp; <span id="ae-footer-ct" style="color:var(--text3);"></span> customers in this segment</div>
-    <button onclick="window._aeLaunchCampaign()" style="display:flex;align-items:center;gap:7px;padding:7px 16px;background:#0b72fd;border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;transition:background .15s;letter-spacing:.02em;" onmouseover="this.style.background='#3892ff'" onmouseout="this.style.background='#0b72fd'">
+    <button onclick="window._aeLaunchCampaign()" style="display:flex;align-items:center;gap:7px;padding:7px 16px;background:var(--brand-primary);border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;transition:background .15s;letter-spacing:.02em;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Create campaign for this segment
     </button>
@@ -1609,7 +2220,7 @@ function bootAudienceExplorer(){
   }
   function bLeg(){
     const el=document.getElementById('ae-leg');if(!el)return;
-    el.innerHTML=AEC.map((c,i)=>`<div onclick="window._aeSelC(${i})" style="display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:5px;cursor:pointer;background:${i===aC?'rgba(11,114,253,.09)':'transparent'};">
+    el.innerHTML=AEC.map((c,i)=>`<div onclick="window._aeSelC(${i})" style="display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:5px;cursor:pointer;background:${i===aC?'rgb(var(--brand-primary-rgb) / .09)':'transparent'};">
       <div style="width:8px;height:8px;border-radius:50%;background:${c.color};flex-shrink:0;${i===aC?'box-shadow:0 0 0 2px '+c.hi:''}"></div>
       <div style="font-size:9.5px;color:${i===aC?'var(--text)':'var(--text2)'};flex:1;font-weight:${i===aC?'600':'400'}">${c.name}</div>
       <div style="font-size:9px;color:var(--text3);">${c.count.toLocaleString()}</div>
@@ -1643,7 +2254,7 @@ function bootAudienceExplorer(){
   }
   function bSamps(){
     const el=document.getElementById('ae-slist');if(!el)return;
-    el.innerHTML=AESAMP.map((s,i)=>`<div onclick="window._aeSelS(${i})" style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;cursor:pointer;border-left:2.5px solid ${i===aS?'#0b72fd':'transparent'};background:${i===aS?'rgba(11,114,253,.06)':'transparent'};transition:background .1s;">
+    el.innerHTML=AESAMP.map((s,i)=>`<div onclick="window._aeSelS(${i})" style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;cursor:pointer;border-left:2.5px solid ${i===aS?'var(--brand-primary)':'transparent'};background:${i===aS?'rgb(var(--brand-primary-rgb) / .06)':'transparent'};transition:background .1s;">
       <div style="font-size:9.5px;color:var(--text);font-weight:500;line-height:1.4;">${s.id.slice(0,18)}·<br>${s.id.slice(18)}</div>
       <div style="font-size:9px;color:var(--text3);text-align:right;">Match:<br><b style="color:var(--text2);">${Math.round(s.match*100)}%</b></div>
     </div>`).join('');
@@ -1683,7 +2294,7 @@ function bootAudienceExplorer(){
     <div style="background:var(--bg4);border-radius:8px;padding:9px 11px;">
       <div style="font-size:8px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:6px;">CHANNEL</div>
       <div style="margin-bottom:7px;">
-        <span style="display:inline-flex;padding:2px 8px;border-radius:4px;background:rgba(11,114,253,.12);border:1px solid rgba(11,114,253,.3);font-size:8.5px;font-weight:700;color:#0b72fd;margin-right:5px;">PRIMARY: ${m.em>m.sm?'EMAIL':'SMS'}</span>
+        <span style="display:inline-flex;padding:2px 8px;border-radius:4px;background:rgb(var(--brand-primary-rgb) / .12);border:1px solid rgb(var(--brand-primary-rgb) / .3);font-size:8.5px;font-weight:700;color:var(--brand-primary);margin-right:5px;">PRIMARY: ${m.em>m.sm?'EMAIL':'SMS'}</span>
         <span style="display:inline-flex;padding:2px 8px;border-radius:4px;background:rgba(55,138,221,.1);border:1px solid rgba(55,138,221,.25);font-size:8.5px;font-weight:700;color:#185fa5;">SECONDARY: ${m.em>m.sm?'SMS':'EMAIL'}</span>
       </div>
       <div style="display:flex;gap:7px;align-items:flex-end;">
@@ -1920,6 +2531,9 @@ function renderSearchModal(q){
   const list=document.getElementById('searchModalList');
   const lbl=document.getElementById('searchModalLbl');
   const count=document.getElementById('searchModalCount');
+  // Scope: homeChats is the active client's (Monese) conversation list.
+  // Single-tenant deployment — no cross-client data is reachable here.
+  // Falls back to [] gracefully if homeChats is unavailable.
   const all=(typeof homeChats!=='undefined')?homeChats:[];
   const filtered=q?all.filter(c=>c.title.toLowerCase().includes(q.toLowerCase())):all;
   lbl.textContent=q?`MATCHES FOR "${q.toUpperCase()}"`:'RECENT CONVERSATIONS';
@@ -1951,7 +2565,7 @@ document.addEventListener('keydown',e=>{
 // ── PRODUCT VERTICAL REPORTS ──
 const REPORTS={
   'all':{
-    color:'#0b72fd',name:'All customers',
+    color:'brand-primary',name:'All customers',
     narrative:'Aggregate health across every Monese product and persona. Engagement is up month over month, with travel-driven activity leading the lift.',
     kpis:[
       {label:'Active users (MAU)',value:'147.2k',trend:'+4.8%',dir:'up'},
@@ -1988,7 +2602,7 @@ const REPORTS={
     focus:['Biggest drop-off is post-KYC, before funding','Top-up reminders not firing for 31% of users','Bank-to-bank transfer abandonment at 24%']
   },
   'accounts':{
-    color:'#3892ff',name:'Personal Accounts',
+    color:'brand-primary-hover',name:'Personal Accounts',
     narrative:'Instant and Joint accounts are the foundation of every Monese relationship. New account opens up 48% half on half, with Joint accounts accelerating after the referral push.',
     kpis:[
       {label:'Active accounts',value:'88.4k',trend:'+3.1%',dir:'up'},
@@ -2077,6 +2691,33 @@ const REPORTS={
   }
 };
 
+function renderAdminClients(){
+  const listEl = document.getElementById('adminClientList');
+  if (!listEl) return;
+  listEl.innerHTML = CLIENTS.map(c => {
+    const dotColor = c.color || 'var(--brand-primary)';
+    const isLive = (c.status || 'live') === 'live';
+    const statusClass = isLive ? 'status-live' : 'status-setup';
+    const statusLabel = isLive ? 'LIVE' : 'SETUP';
+    return `
+    <div class="admin-client-row" onclick="if(typeof openClientDetail==='function') openClientDetail('${c.id}')">
+      <div class="admin-client-dot" style="background:${dotColor}"></div>
+      <div class="admin-client-name">${c.name}</div>
+      <div class="admin-client-status ${statusClass}">${statusLabel}</div>
+      <svg class="admin-client-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>`;
+  }).join('');
+}
+
+function showAdminView(){
+  const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
+  const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
+  const cS=document.getElementById('csView');if(cS) cS.style.display='none';
+  const rV=document.getElementById('reportView');if(rV) rV.style.display='none';
+  const aV=document.getElementById('adminView');if(aV) aV.classList.remove('hidden');
+  renderAdminClients();
+}
+
 function showVerticalReport(verticalId){
   const r=REPORTS[verticalId];
   if(!r){ console.warn('No report for', verticalId); return; }
@@ -2087,6 +2728,7 @@ function showVerticalReport(verticalId){
   const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
   const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
   const cS=document.getElementById('csView');if(cS) cS.style.display='none';
+  const aV2=document.getElementById('adminView');if(aV2) aV2.classList.add('hidden');
   const rV=document.getElementById('reportView'); if(!rV) return;
   rV.style.display='flex';
   rV.innerHTML=buildReportHTML(r);
@@ -2105,7 +2747,7 @@ function buildReportHTML(r){
   const focusHTML=r.focus.map(t=>`<div class="report-insight-item">${t}</div>`).join('');
   return `<div class="report-header">
     <div class="report-title-row">
-      <div class="report-dot" style="background:${r.color}"></div>
+      <div class="report-dot" style="background:${resolveBrandColor(r.color)}"></div>
       <h1 class="report-title">${r.name}</h1>
       <div class="report-subtitle">Overview</div>
     </div>
@@ -2128,11 +2770,17 @@ function buildReportHTML(r){
   </div>`;
 }
 
+function resolveBrandColor(color){
+  if(color==='brand-primary') return getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()||'#0b72fd';
+  if(color==='brand-primary-hover') return getComputedStyle(document.documentElement).getPropertyValue('--brand-primary-hover').trim()||'#3892ff';
+  return color;
+}
 function buildChart(type,data,color){
-  if(type==='line') return buildLineChart(data,color);
-  if(type==='bars') return buildBarChart(data,color);
-  if(type==='hbars') return buildHBarChart(data,color);
-  if(type==='donut') return buildDonutChart(data,color);
+  const c=resolveBrandColor(color);
+  if(type==='line') return buildLineChart(data,c);
+  if(type==='bars') return buildBarChart(data,c);
+  if(type==='hbars') return buildHBarChart(data,c);
+  if(type==='donut') return buildDonutChart(data,c);
   return '';
 }
 function buildLineChart(data,color){
@@ -2229,6 +2877,490 @@ function buildDonutChart(data,color){
   </div>`;
 }
 
+  // Bootstrap: show login screen only for multi-tenant clients
+  (function bootstrapSession(){
+    const client = getActiveClient();
+    const loginEl = document.getElementById('loginScreen');
+    if (!loginEl) return;
+    if (client.mode === 'singleTenant') {
+      loginEl.classList.add('hidden');
+    } else {
+      loginEl.classList.remove('hidden');
+    }
+    const adminLink = document.getElementById('sbLinkAdmin');
+    if (adminLink && client.enabledFeatures.admin) {
+      adminLink.style.display = '';
+    }
+  })();
+
+/* ── CLIENT DETAIL PANEL ── */
+
+function openClientDetail(clientId){
+  const client = CLIENTS.find(c => c.id === clientId);
+  if (!client) return;
+  // Hide other views (follow showAdminView / showVerticalReport pattern)
+  const hV = document.getElementById('homeView');   if (hV) hV.style.display = 'none';
+  const cW = document.getElementById('campWs');     if (cW) cW.classList.remove('visible');
+  const cS = document.getElementById('csView');     if (cS) cS.style.display = 'none';
+  const rV = document.getElementById('reportView'); if (rV) rV.style.display = 'none';
+  const aV = document.getElementById('adminView');  if (aV) aV.classList.add('hidden');
+  // Close account modal if open
+  closeAccountModal();
+  // Populate header
+  const nameEl = document.getElementById('cdpClientName'); if (nameEl) nameEl.textContent = client.name;
+  const subEl  = document.getElementById('cdpClientSub');
+  if (subEl) subEl.textContent = client.enabledFeatures && client.enabledFeatures.admin ? 'Live · Active' : 'Setup · Configuring';
+  // Show view
+  const view = document.getElementById('clientDetailView'); if (view) view.classList.remove('hidden');
+  // Default tab: overview
+  switchCdTab('overview');
+  renderCdOverview(client);
+}
+
+function closeClientDetail(){
+  const view = document.getElementById('clientDetailView'); if (view) view.classList.add('hidden');
+  showAdminView();
+}
+
+function switchCdTab(name){
+  const tabMap = {overview:'cdpTabOverview', datasource:'cdpTabDatasource', whitelabel:'cdpTabWhitelabel', users:'cdpTabUsers'};
+  const tabIds  = ['overview','datasource','whitelabel','users'];
+  tabIds.forEach(t => {
+    const btnEl = document.getElementById('cdt-'+t);
+    if (btnEl) btnEl.classList.toggle('active', t === name);
+    const pEl = document.getElementById(tabMap[t]);
+    if (pEl){
+      pEl.classList.toggle('visible', t === name);
+      pEl.classList.toggle('hidden',  t !== name);
+    }
+  });
+  if (name === 'datasource') renderCdDataSources(getActiveClient());
+  if (name === 'whitelabel') renderCdWhiteLabel(getActiveClient());
+  if (name === 'users') renderCdUsers(getActiveClient());
+}
+
+// ── ROLE HELPERS ──
+const ROLE_CYCLE = {user:'admin', admin:'super', super:'user'};
+const ROLE_BADGE_STYLES = {
+  user:  {bg:'rgba(74,103,65,.15)',  col:'#6a8f60',  label:'CLIENT USER'},
+  admin: {bg:'rgba(124,92,191,.15)', col:'#7c5cbf',  label:'CLIENT ADMIN'},
+  super: {bg:'rgba(74,127,212,.15)', col:'#4a7fd4',  label:'SUPER ADMIN'},
+};
+
+function renderCdUsers(client){
+  client = client || getActiveClient();
+  const clientUsers = Object.values(USERS).filter(u => u.clientId === client.id);
+  const listEl = document.getElementById('cdpUsersList');
+  if (!listEl) return;
+
+  function rowHtml(u){
+    const bs = ROLE_BADGE_STYLES[u.role] || ROLE_BADGE_STYLES.user;
+    const avBg = u.color && u.color.startsWith('var(') ? 'var(--brand-primary)' : (u.color || '#888');
+    return `<div class="user-row" id="urow-${u.id}">
+      <div class="user-row-av" style="background:${avBg}">${u.initials || '?'}</div>
+      <div style="flex:1">
+        <div class="user-row-name">${u.name || '—'}</div>
+        <div class="user-row-role">${u.email || ''}</div>
+      </div>
+      <span class="user-row-badge" style="background:${bs.bg};color:${bs.col};border:1px solid ${bs.col}40;"
+            title="Click to cycle role" onclick="cycleUserRole('${u.id}')">${bs.label}</span>
+      <div class="user-row-actions">
+        <button class="user-row-btn danger" title="Remove user" onclick="removeUser('${u.id}')">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>`;
+  }
+
+  listEl.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);">USERS (${clientUsers.length})</div>
+    </div>
+    <div id="cdpUsersRows">${clientUsers.map(rowHtml).join('')}</div>
+    <button class="invite-btn" onclick="addUser('${client.id}')">+ Invite user</button>`;
+}
+
+function cycleUserRole(userId){
+  const u = USERS[userId];
+  if (!u) return;
+  u.role = ROLE_CYCLE[u.role] || 'user';
+  // Re-render just this row
+  const rowEl = document.getElementById('urow-'+userId);
+  if (rowEl){
+    const bs = ROLE_BADGE_STYLES[u.role] || ROLE_BADGE_STYLES.user;
+    const badge = rowEl.querySelector('.user-row-badge');
+    if (badge){
+      badge.style.background = bs.bg;
+      badge.style.color = bs.col;
+      badge.style.border = '1px solid '+bs.col+'40';
+      badge.textContent = bs.label;
+    }
+  }
+  showToast('Role updated to ' + (ROLE_BADGE_STYLES[u.role]||{label:u.role}).label);
+}
+
+function removeUser(userId){
+  const u = USERS[userId];
+  if (!u) return;
+  if (!confirm('Remove ' + (u.name||'this user') + ' from this client?')) return;
+  delete USERS[userId];
+  renderCdUsers(getActiveClient());
+  showToast('User removed');
+}
+
+function addUser(clientId){
+  const name = prompt('Enter user name:');
+  if (!name || !name.trim()) return;
+  const email = prompt('Enter email address:');
+  if (!email || !email.trim()) return;
+  const id = 'user-' + Date.now();
+  const initials = name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const colors = ['#4a6741','#7c5cbf','#e8a020','#4a7fd4','#c0504d','#2e8b57'];
+  const color = colors[Math.floor(Math.random()*colors.length)];
+  USERS[id] = {id, name:name.trim(), email:email.trim(), role:'user', clientId, initials, color};
+  renderCdUsers(getActiveClient());
+  showToast('User ' + name.trim() + ' added');
+}
+
+function renderCdOverview(client){
+  const feat = client.enabledFeatures || {};
+  const mode       = client.mode  || '—';
+  const palette    = client.palette || '—';
+  const reportsOn  = feat.reports   ? 'Yes' : 'No';
+  const campaignsOn = feat.campaigns ? 'Yes' : 'No';
+  const adminOn    = feat.admin     ? 'Yes' : 'No';
+  const overviewEl = document.getElementById('cdpTabOverview');
+  if (!overviewEl) return;
+  overviewEl.innerHTML = `
+    <div class="cd-kpi-row">
+      <div class="cd-kpi"><div class="cd-kpi-lbl">MODE</div><div class="cd-kpi-val" style="font-size:13px;">${mode}</div><div class="cd-kpi-sub">tenant configuration</div></div>
+      <div class="cd-kpi"><div class="cd-kpi-lbl">PALETTE</div><div class="cd-kpi-val" style="font-size:13px;">${palette}</div><div class="cd-kpi-sub">brand theme</div></div>
+      <div class="cd-kpi"><div class="cd-kpi-lbl">REPORTS</div><div class="cd-kpi-val" style="font-size:13px;">${reportsOn}</div><div class="cd-kpi-sub">feature flag</div></div>
+    </div>
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:8px;">FEATURE STATUS</div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.campaigns ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Campaigns</div>
+      <div class="cd-status-val" style="color:${feat.campaigns ? '#2ea86a' : 'var(--text3)'};">${campaignsOn.toUpperCase()}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.admin ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Admin panel</div>
+      <div class="cd-status-val" style="color:${feat.admin ? '#2ea86a' : 'var(--text3)'};">${adminOn.toUpperCase()}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.whitelabel ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Whitelabel</div>
+      <div class="cd-status-val" style="color:${feat.whitelabel ? '#2ea86a' : 'var(--text3)'};">${feat.whitelabel ? 'YES' : 'NO'}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.userManagement ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">User management</div>
+      <div class="cd-status-val" style="color:${feat.userManagement ? '#2ea86a' : 'var(--text3)'};">${feat.userManagement ? 'YES' : 'NO'}</div>
+    </div>`;
+}
+
+// ── DATASOURCE PANEL ──
+function renderCdDataSources(client){
+  const clientId = (client || getActiveClient()).id;
+  const sources  = DS_SOURCES.filter(s => s.clientId === clientId);
+  const grid = sources.map(s => {
+    const dotColor  = DS_STATUS_COLORS[s.status] || '#555';
+    const isSelected = s.id === dsSelected;
+    const indicator  = isSelected
+      ? `<div class="ds-check"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>`
+      : `<div class="ds-status-dot" style="background:${dotColor};"></div>`;
+    return `<div class="ds-card ${isSelected ? 'selected' : ''}" onclick="selectDs('${s.id}')">
+      ${indicator}
+      <div class="ds-icon"><span style="font-size:14px;">${s.icon}</span></div>
+      <div class="ds-name">${s.name}</div>
+      <div class="ds-type">${s.type}</div>
+    </div>`;
+  }).join('');
+  const sel          = sources.find(s => s.id === dsSelected);
+  const sectionLabel = sel ? `${sel.name.toUpperCase()} — CONNECTION SETTINGS` : '';
+  const listEl = document.getElementById('cdpDatasourceList');
+  if (!listEl) return;
+  listEl.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);">AVAILABLE SOURCES</div>
+      <button onclick="showToast('Add source — coming soon')" style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;background:var(--bg3);border:1px solid var(--border2);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add source
+      </button>
+    </div>
+    <div class="ds-grid">${grid}</div>
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:10px;">${sectionLabel}</div>
+    ${sel ? renderDsSettings(sel) : ''}`;
+}
+
+function selectDs(id){
+  dsSelected = id; dsConnTab = 'connection';
+  renderCdDataSources(getActiveClient());
+}
+
+function renderDsSettings(src){
+  const isConnected = src.status === 'connected';
+  const tabs = ['Connection','Authentication','Field mapping','Sync schedule'];
+  const tabHtml = tabs.map((t, i) => {
+    const key = t.toLowerCase().replace(' ', '');
+    return `<div class="ds-conn-tab ${dsConnTab === key || (!i && dsConnTab === 'connection') ? 'active' : ''}" onclick="switchDsTab('${key}')">${t}</div>`;
+  }).join('');
+  const bodyHtml = renderDsTabBody(dsConnTab, src);
+  return `<div class="ds-settings">
+    <div class="ds-settings-hdr">
+      <div class="ds-settings-title">
+        <span style="font-size:18px;">${src.icon}</span>
+        <div>
+          <div class="ds-settings-name">${src.name}</div>
+          <div class="ds-settings-sub">${src.type} · ${src.id.toUpperCase()}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        ${isConnected ? '<span class="ds-connected-badge">Connected</span>' : ''}
+        <button class="ds-remove-btn" onclick="showToast('Removed connection')">Remove</button>
+      </div>
+    </div>
+    <div class="ds-conn-tabs">${tabHtml}</div>
+    <div class="ds-conn-body" id="dsTabBody">${bodyHtml}</div>
+    <div class="ds-actions">
+      <button class="ds-test-btn" onclick="testDsConnection()">Test connection</button>
+      <button class="ds-save-btn" onclick="showToast('Settings saved')">Save</button>
+    </div>
+  </div>`;
+}
+
+function switchDsTab(key){
+  dsConnTab = key;
+  const sel = DS_SOURCES.find(s => s.id === dsSelected);
+  if (!sel) return;
+  document.querySelectorAll('.ds-conn-tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.toLowerCase().replace(' ', '') === key);
+  });
+  const body = document.getElementById('dsTabBody');
+  if (body) body.innerHTML = renderDsTabBody(key, sel);
+}
+
+function renderDsTabBody(tab, src){
+  if (tab === 'connection' || tab === '') return `
+    <div class="ds-field"><label>ENDPOINT URL</label><input value="https://your-instance.salesforce.com" /></div>
+    <div class="ds-field"><label>API VERSION</label><input value="v57.0" /></div>
+    <div class="ds-toggle-row">
+      <div><div class="ds-toggle-label">Sandbox / test environment</div><div class="ds-toggle-sub">Route all requests to the sandbox instance</div></div>
+      <div class="ds-toggle" onclick="this.classList.toggle('on')"></div>
+    </div>`;
+  if (tab === 'authentication') return `
+    <div class="ds-field"><label>CLIENT ID</label><input value="3MVG9..." type="password" /></div>
+    <div class="ds-field"><label>CLIENT SECRET</label><input value="••••••••••••••••" type="password" /></div>
+    <div class="ds-field"><label>OAUTH CALLBACK URL</label><input value="https://app.youtility.co.uk/oauth/callback" /></div>`;
+  if (tab === 'fieldmapping') return `
+    <div style="font-size:11px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Map ${src.name} fields to Youtility behavioural attributes.</div>
+    ${[['Contact ID','customer_id'],['Email Address','email'],['Last Purchase Date','last_purchase_at'],['Segment Tag','segment_label']].map(([f, m]) => `
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <input style="flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-family:'Montserrat',sans-serif;font-size:11.5px;color:var(--text);outline:none;" value="${f}" readonly />
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        <input style="flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-family:'Montserrat',sans-serif;font-size:11.5px;color:var(--text);outline:none;" value="${m}" />
+      </div>`).join('')}`;
+  if (tab === 'syncschedule') return `
+    <div class="ds-field"><label>SYNC FREQUENCY</label>
+      <select style="width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-family:'Montserrat',sans-serif;font-size:12.5px;color:var(--text);outline:none;appearance:none;">
+        <option>Every 15 minutes</option><option>Every hour</option><option selected>Every 6 hours</option><option>Daily</option>
+      </select>
+    </div>
+    <div class="ds-field"><label>LAST SYNC</label><input value="Today at 14:32 · 24,812 records" readonly /></div>
+    <div class="ds-toggle-row">
+      <div><div class="ds-toggle-label">Real-time webhooks</div><div class="ds-toggle-sub">Push updates instantly on record change</div></div>
+      <div class="ds-toggle on" onclick="this.classList.toggle('on')"></div>
+    </div>`;
+  return '';
+}
+
+function testDsConnection(){
+  showToast('Testing connection…');
+  setTimeout(() => showToast('Connection successful'), 1400);
+}
+
+// ════ WHITELABEL EDITOR ════
+
+// Per-client default colour palettes (used when a client has no wlColors saved yet).
+// Keys match WL_CSS_MAP tokens: primary, secondary, background, accent.
+const WL_CLIENT_DEFAULTS = {
+  monese:  {primary:'#0b72fd', secondary:'#3892ff', background:'#f7faf9', accent:'#1a1a2e'},
+  ledbury: {primary:'#4a6741', secondary:'#6a8f60', background:'#f5f2ed', accent:'#c8a96e'},
+  default: {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
+};
+
+// Known domain → palette map for the URL pull-colors demo.
+const WL_BRAND_PALETTES = {
+  ledbury:     {primary:'#4a6741', secondary:'#6a8f60', background:'#f5f2ed', accent:'#c8a96e'},
+  petsmart:    {primary:'#E31837', secondary:'#0072CE', background:'#ffffff', accent:'#f5a623'},
+  santander:   {primary:'#EC0000', secondary:'#cc0000', background:'#ffffff', accent:'#f5f5f5'},
+  monese:      {primary:'#00c389', secondary:'#00a374', background:'#f7faf9', accent:'#1a1a2e'},
+  virginmoney: {primary:'#E31837', secondary:'#c01028', background:'#ffffff', accent:'#333333'},
+  pockit:      {primary:'#6c47ff', secondary:'#5235d4', background:'#f8f7ff', accent:'#ff6b35'},
+  default:     {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
+};
+
+// Populate the whitelabel editor tab with current client's saved colours (or defaults).
+function renderCdWhiteLabel(client){
+  client = client || getActiveClient();
+  const saved = client.wlColors || WL_CLIENT_DEFAULTS[client.palette] || WL_CLIENT_DEFAULTS['default'];
+  const logoSrc = client.wlLogo || '';
+  const wlUrlVal = client.wlUrl || '';
+  const el = document.getElementById('cdpTabWhitelabel');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="wl-section">
+      <div class="wl-lbl">CLIENT LOGO</div>
+      <div class="wl-logo-drop" onclick="document.getElementById('cdLogoInput').click()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="wl-logo-drop-text" id="cdLogoDropText">${logoSrc ? 'Logo uploaded — click to replace' : 'Upload logo file'}</div>
+        <div class="wl-logo-drop-sub">PNG or SVG · Max 2MB</div>
+        <input type="file" id="cdLogoInput" accept=".png,.svg,.jpg" style="display:none" onchange="cdPreviewLogo(this)" />
+      </div>
+    </div>
+    <div class="wl-section">
+      <div class="wl-lbl">CLIENT URL — PULL BRAND COLOURS</div>
+      <div class="wl-input-row">
+        <input class="wl-input" id="cdWlUrl" placeholder="https://client-website.com" value="${wlUrlVal}" />
+        <button class="wl-url-btn" id="cdWlPullBtn" onclick="cdPullBrandColors()">Pull colours</button>
+      </div>
+      <div id="cdWlColorRecs" style="display:none;">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:8px;">Suggested from website</div>
+        <div class="wl-recommend-row" id="cdWlRecRow"></div>
+      </div>
+    </div>
+    <div class="wl-section">
+      <div class="wl-lbl">BRAND COLOUR TOKENS</div>
+      <div class="wl-color-field"><div class="wl-color-label">Primary</div><div class="wl-color-preview" id="cdcp-primary" style="background:${saved.primary};"></div><input class="wl-color-hex" id="cdp-wlinput-primary"    value="${saved.primary}"    oninput="cdUpdateSwatch('primary',this.value)"    /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Secondary</div><div class="wl-color-preview" id="cdcp-secondary" style="background:${saved.secondary};"></div><input class="wl-color-hex" id="cdp-wlinput-secondary"  value="${saved.secondary}"  oninput="cdUpdateSwatch('secondary',this.value)"  /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Background</div><div class="wl-color-preview" id="cdcp-background" style="background:${saved.background};"></div><input class="wl-color-hex" id="cdp-wlinput-background" value="${saved.background}" oninput="cdUpdateSwatch('background',this.value)" /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Accent</div><div class="wl-color-preview" id="cdcp-accent" style="background:${saved.accent};"></div><input class="wl-color-hex" id="cdp-wlinput-accent"    value="${saved.accent}"    oninput="cdUpdateSwatch('accent',this.value)"    /></div>
+    </div>
+    <button class="wl-save-btn" onclick="cdSaveWhiteLabel()">Save white label settings</button>
+    <button class="wl-save-btn" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);" onclick="cdResetWhiteLabel()">Reset to defaults</button>`;
+  wireWlInputs();
+}
+
+// Live-update the colour preview swatch and apply to interface.
+function cdUpdateSwatch(token, hex){
+  const previewEl = document.getElementById('cdcp-' + token);
+  if (previewEl) previewEl.style.background = hex;
+  if (WL_CSS_MAP[token]) applyColorToInterface(token, hex);
+}
+
+// Bind oninput events (belt-and-suspenders alongside the inline oninput attrs).
+function wireWlInputs(){
+  ['primary','secondary','background','accent'].forEach(t => {
+    const input = document.getElementById('cdp-wlinput-' + t);
+    if (input){
+      input.addEventListener('input', function(){ cdUpdateSwatch(t, this.value); });
+    }
+  });
+}
+
+// Logo file upload — reads as data URL, previews drop zone text, applies to header.
+function cdPreviewLogo(input){
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    const textEl = document.getElementById('cdLogoDropText');
+    if (textEl) textEl.textContent = 'Logo uploaded — click to replace';
+    const client = getActiveClient();
+    client.wlLogo = src;
+    cdApplyLogoToHeader(src);
+  };
+  reader.readAsDataURL(file);
+}
+
+// Replace the SVG monogram in any .client-logo-mark elements with the uploaded image.
+function cdApplyLogoToHeader(src){
+  document.querySelectorAll('.client-logo-mark').forEach(el => {
+    el.innerHTML = `<img src="${src}" style="height:20px;width:auto;display:block;border-radius:2px;" />`;
+    el.style.background = 'transparent';
+    el.style.border = 'none';
+    el.style.padding = '0';
+  });
+}
+
+// Pull brand colours from a URL — uses WL_BRAND_PALETTES demo map; no live external fetch.
+function cdPullBrandColors(){
+  const urlEl = document.getElementById('cdWlUrl');
+  const url = urlEl ? urlEl.value.trim() : '';
+  if (!url){ showToast('Enter a URL first'); return; }
+
+  let domain = '';
+  try {
+    const parsed = new URL(url.startsWith('http') ? url : 'https://' + url);
+    domain = parsed.hostname.replace(/^www\./, '').split('.')[0].toLowerCase();
+  } catch(e){
+    domain = url.replace(/https?:\/\//,'').replace(/www\./,'').split(/[./]/)[0].toLowerCase();
+  }
+
+  const btn = document.getElementById('cdWlPullBtn');
+  if (btn){ btn.textContent = 'Pulling…'; btn.disabled = true; }
+
+  setTimeout(() => {
+    if (btn){ btn.textContent = 'Pull colours'; btn.disabled = false; }
+    const palette = WL_BRAND_PALETTES[domain] || WL_BRAND_PALETTES['default'];
+    const row = document.getElementById('cdWlRecRow');
+    const recsEl = document.getElementById('cdWlColorRecs');
+    if (row) {
+      row.innerHTML = Object.entries(palette).map(([k, hex]) => `
+        <div class="wl-rec-chip" onclick="cdApplyRecColor('${k}','${hex}')" title="Apply ${k}: ${hex}">
+          <div class="wl-rec-dot" style="background:${hex};border-radius:3px;"></div>
+          <span>${k}</span>
+        </div>`).join('') +
+        `<button onclick="cdApplyAllColors()" style="margin-left:auto;padding:5px 12px;border-radius:6px;background:var(--brand-primary);border:none;font-family:'Montserrat',sans-serif;font-size:9.5px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;">Apply all ↗</button>`;
+    }
+    if (recsEl) recsEl.style.display = 'block';
+    window._cdWlCurrentPalette = palette;
+    showToast('Colours detected: ' + (WL_BRAND_PALETTES[domain] ? domain : 'default palette'));
+  }, 900);
+}
+
+// Apply a single recommended colour chip to its token slot.
+function cdApplyRecColor(token, hex){
+  if (!hex || !/^#[0-9a-fA-F]{3,6}$/.test(hex)) return;
+  const input = document.getElementById('cdp-wlinput-' + token);
+  if (input) input.value = hex;
+  cdUpdateSwatch(token, hex);
+}
+
+// Apply all recommended colours at once.
+function cdApplyAllColors(){
+  const palette = window._cdWlCurrentPalette;
+  if (!palette) return;
+  Object.entries(palette).forEach(([k, hex]) => cdApplyRecColor(k, hex));
+  showToast('All brand colours applied');
+}
+
+// Persist current editor state into the CLIENTS record in memory.
+function cdSaveWhiteLabel(){
+  const client = getActiveClient();
+  const colors = {};
+  ['primary','secondary','background','accent'].forEach(t => {
+    const el = document.getElementById('cdp-wlinput-' + t);
+    if (el) colors[t] = el.value;
+  });
+  client.wlColors = colors;
+  const urlEl = document.getElementById('cdWlUrl');
+  if (urlEl) client.wlUrl = urlEl.value.trim();
+  Object.entries(colors).forEach(([t, hex]) => applyColorToInterface(t, hex));
+  showToast('White label settings saved');
+}
+
+// Reset editor to client defaults, clearing any saved overrides.
+function cdResetWhiteLabel(){
+  const client = getActiveClient();
+  delete client.wlColors;
+  delete client.wlLogo;
+  renderCdWhiteLabel(client);
+  applyBrandPalette(client.palette);
+  showToast('Reset to defaults');
+}
+
 </script>
 
 <!-- SEARCH CONVERSATIONS MODAL -->
@@ -2247,6 +3379,19 @@ function buildDonutChart(data,color){
       <div class="search-modal-hint"><kbd>Esc</kbd> to close</div>
       <div class="search-modal-hint" id="searchModalCount">0 results</div>
     </div>
+  </div>
+</div>
+
+<!-- ════ ACCOUNT MODAL ════ -->
+<div class="modal-overlay hidden" id="accountModal">
+  <div class="modal-box" style="width:480px;">
+    <div class="modal-hdr">
+      <div class="modal-title" id="acctModalTitle">Account</div>
+      <button class="modal-close" onclick="closeAccountModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="acctModalBody"></div>
   </div>
 </div>
 </body>
