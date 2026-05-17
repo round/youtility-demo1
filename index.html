@@ -1371,6 +1371,11 @@ const CLIENTS = [
 ];
 let ACTIVE_CLIENT_ID = 'monese';
 function getActiveClient(){ return CLIENTS.find(c => c.id === ACTIVE_CLIENT_ID) || CLIENTS[0]; }
+// Tracks which client the admin has open in the client-detail panel.
+// Separate from ACTIVE_CLIENT_ID so admin-side reads/writes don't mutate the
+// signed-in user's tenant (e.g. saving Ledbury whitelabel must not touch Monese).
+let DETAIL_CLIENT_ID = null;
+function getDetailClient(){ return (DETAIL_CLIENT_ID && CLIENTS.find(c => c.id === DETAIL_CLIENT_ID)) || getActiveClient(); }
 (function injectClientFonts(){
   const client = getActiveClient();
   if (!client.fontImport) return;
@@ -1694,6 +1699,7 @@ const WS_META={home:{name:'Home',color:'#8b90a8',bg:'rgba(139,144,168,.1)',icon:
 function toggleWsDrop(){} // removed
 function switchWs(ws){
   currentWs=ws;
+  DETAIL_CLIENT_ID = null;
   // Show / hide sidebar variants
   const sbH=document.getElementById('sbHome');if(sbH) sbH.style.display=ws==='home'?'':'none';
   const sbC=document.getElementById('sbCampaign');if(sbC) sbC.classList.toggle('visible',ws==='campaign');
@@ -2766,6 +2772,7 @@ function showAdminView(){
   const rV=document.getElementById('reportView');if(rV) rV.style.display='none';
   const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
   const aV=document.getElementById('adminView');if(aV) aV.classList.remove('hidden');
+  DETAIL_CLIENT_ID = null;
   renderAdminClients();
 }
 
@@ -2949,6 +2956,7 @@ function buildDonutChart(data,color){
 function openClientDetail(clientId){
   const client = CLIENTS.find(c => c.id === clientId);
   if (!client) return;
+  DETAIL_CLIENT_ID = client.id;
   // Hide other views (follow showAdminView / showVerticalReport pattern)
   const hV = document.getElementById('homeView');   if (hV) hV.style.display = 'none';
   const cW = document.getElementById('campWs');     if (cW) cW.classList.remove('visible');
@@ -2971,6 +2979,7 @@ function openClientDetail(clientId){
 
 function closeClientDetail(){
   const view = document.getElementById('clientDetailView'); if (view) view.classList.add('hidden');
+  DETAIL_CLIENT_ID = null;
   showAdminView();
 }
 
@@ -2986,9 +2995,9 @@ function switchCdTab(name){
       pEl.classList.toggle('hidden',  t !== name);
     }
   });
-  if (name === 'datasource') renderCdDataSources(getActiveClient());
-  if (name === 'whitelabel') renderCdWhiteLabel(getActiveClient());
-  if (name === 'users') renderCdUsers(getActiveClient());
+  if (name === 'datasource') renderCdDataSources(getDetailClient());
+  if (name === 'whitelabel') renderCdWhiteLabel(getDetailClient());
+  if (name === 'users') renderCdUsers(getDetailClient());
 }
 
 // ── ROLE HELPERS ──
@@ -3000,7 +3009,7 @@ const ROLE_BADGE_STYLES = {
 };
 
 function renderCdUsers(client){
-  client = client || getActiveClient();
+  client = client || getDetailClient();
   const clientUsers = Object.values(USERS).filter(u => u.clientId === client.id);
   const listEl = document.getElementById('cdpUsersList');
   if (!listEl) return;
@@ -3056,7 +3065,7 @@ function removeUser(userId){
   if (!u) return;
   if (!confirm('Remove ' + (u.name||'this user') + ' from this client?')) return;
   delete USERS[userId];
-  renderCdUsers(getActiveClient());
+  renderCdUsers(getDetailClient());
   showToast('User removed');
 }
 
@@ -3070,7 +3079,7 @@ function addUser(clientId){
   const colors = ['#4a6741','#7c5cbf','#e8a020','#4a7fd4','#c0504d','#2e8b57'];
   const color = colors[Math.floor(Math.random()*colors.length)];
   USERS[id] = {id, name:name.trim(), email:email.trim(), role:'user', clientId, initials, color};
-  renderCdUsers(getActiveClient());
+  renderCdUsers(getDetailClient());
   showToast('User ' + name.trim() + ' added');
 }
 
@@ -3114,7 +3123,7 @@ function renderCdOverview(client){
 
 // ── DATASOURCE PANEL ──
 function renderCdDataSources(client){
-  const clientId = (client || getActiveClient()).id;
+  const clientId = (client || getDetailClient()).id;
   const sources  = DS_SOURCES.filter(s => s.clientId === clientId);
   const grid = sources.map(s => {
     const dotColor  = DS_STATUS_COLORS[s.status] || '#555';
@@ -3148,7 +3157,7 @@ function renderCdDataSources(client){
 
 function selectDs(id){
   dsSelected = id; dsConnTab = 'connection';
-  renderCdDataSources(getActiveClient());
+  renderCdDataSources(getDetailClient());
 }
 
 function renderDsSettings(src){
@@ -3255,7 +3264,7 @@ const WL_BRAND_PALETTES = {
 
 // Populate the whitelabel editor tab with current client's saved colours (or defaults).
 function renderCdWhiteLabel(client){
-  client = client || getActiveClient();
+  client = client || getDetailClient();
   const saved = client.wlColors || WL_CLIENT_DEFAULTS[client.palette] || WL_CLIENT_DEFAULTS['default'];
   const logoSrc = client.wlLogo || '';
   const wlUrlVal = client.wlUrl || '';
@@ -3319,7 +3328,7 @@ function cdPreviewLogo(input){
     const src = e.target.result;
     const textEl = document.getElementById('cdLogoDropText');
     if (textEl) textEl.textContent = 'Logo uploaded — click to replace';
-    const client = getActiveClient();
+    const client = getDetailClient();
     client.wlLogo = src;
     cdApplyLogoToHeader(src);
   };
@@ -3390,7 +3399,7 @@ function cdApplyAllColors(){
 
 // Persist current editor state into the CLIENTS record in memory.
 function cdSaveWhiteLabel(){
-  const client = getActiveClient();
+  const client = getDetailClient();
   const colors = {};
   ['primary','secondary','background','accent'].forEach(t => {
     const el = document.getElementById('cdp-wlinput-' + t);
@@ -3405,7 +3414,7 @@ function cdSaveWhiteLabel(){
 
 // Reset editor to client defaults, clearing any saved overrides.
 function cdResetWhiteLabel(){
-  const client = getActiveClient();
+  const client = getDetailClient();
   delete client.wlColors;
   delete client.wlLogo;
   renderCdWhiteLabel(client);
