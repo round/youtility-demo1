@@ -1319,19 +1319,54 @@ const CLIENTS = [
     mode: 'singleTenant',
     fontImport: 'https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap',
     palette: 'monese',
-    copy: {
-      productName: 'Monese',
-      tagline: '',
-    },
-    enabledFeatures: {
-      reports: true,
-      search: true,
-      campaigns: true,
-      audienceExplorer: true,
-      admin: false,
-      whitelabel: false,
-      userManagement: false,
-    },
+    color: '#7c5cbf',
+    status: 'live',
+    copy: { productName: 'Monese', tagline: '' },
+    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: false, whitelabel: false, userManagement: false },
+  },
+  {
+    id: 'ledbury',
+    name: 'Ledbury',
+    mode: 'multiTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'ledbury',
+    color: '#4a6741',
+    status: 'live',
+    copy: { productName: 'Ledbury', tagline: '' },
+    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+  },
+  {
+    id: 'pockit',
+    name: 'Pockit',
+    mode: 'multiTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'pockit',
+    color: '#4a7fd4',
+    status: 'live',
+    copy: { productName: 'Pockit', tagline: '' },
+    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+  },
+  {
+    id: 'virginmoney',
+    name: 'Virgin Money',
+    mode: 'multiTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'virginmoney',
+    color: '#d0553a',
+    status: 'live',
+    copy: { productName: 'Virgin Money', tagline: '' },
+    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+  },
+  {
+    id: 'santander',
+    name: 'Santander UK',
+    mode: 'multiTenant',
+    fontImport: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap',
+    palette: 'santander',
+    color: '#e8a020',
+    status: 'setup',
+    copy: { productName: 'Santander UK', tagline: '' },
+    enabledFeatures: { reports: false, search: true, campaigns: true, audienceExplorer: false, admin: true, whitelabel: true, userManagement: true },
   },
 ];
 let ACTIVE_CLIENT_ID = 'monese';
@@ -1451,7 +1486,7 @@ function renderClientAcctPanel(u, client){
     const switchTargets = getDemoUsers().filter(other => other.id !== u.id && !isAdminRole(other.role));
     const clientListSection = `
     <div class="acct-section-lbl">CLIENT LIST</div>
-    ${CLIENTS.map(c => `<div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${c.id}')"><div class="admin-client-dot" style="background:var(--brand-primary)"></div><div class="acct-menu-label">${c.name}</div></div>`).join('')}
+    ${CLIENTS.map(c => `<div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${c.id}')"><div class="admin-client-dot" style="background:${c.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${c.name}</div></div>`).join('')}
     `;
     const switchSection = switchTargets.length > 0 ? `
     <div class="acct-section-lbl">SWITCH USER</div>
@@ -1513,6 +1548,21 @@ const BRAND_PALETTES = {
     '--brand-primary': '#4a6741',
     '--brand-primary-hover': '#6a8f60',
     '--brand-primary-rgb': '74 103 65',
+  },
+  pockit: {
+    '--brand-primary': '#4a7fd4',
+    '--brand-primary-hover': '#6b94db',
+    '--brand-primary-rgb': '74 127 212',
+  },
+  virginmoney: {
+    '--brand-primary': '#d0553a',
+    '--brand-primary-hover': '#d97050',
+    '--brand-primary-rgb': '208 85 58',
+  },
+  santander: {
+    '--brand-primary': '#e8a020',
+    '--brand-primary-hover': '#f0b440',
+    '--brand-primary-rgb': '232 160 32',
   },
 };
 function applyBrandPalette(name){
@@ -2644,14 +2694,19 @@ const REPORTS={
 function renderAdminClients(){
   const listEl = document.getElementById('adminClientList');
   if (!listEl) return;
-  listEl.innerHTML = CLIENTS.map(c => `
+  listEl.innerHTML = CLIENTS.map(c => {
+    const dotColor = c.color || 'var(--brand-primary)';
+    const isLive = (c.status || 'live') === 'live';
+    const statusClass = isLive ? 'status-live' : 'status-setup';
+    const statusLabel = isLive ? 'LIVE' : 'SETUP';
+    return `
     <div class="admin-client-row" onclick="if(typeof openClientDetail==='function') openClientDetail('${c.id}')">
-      <div class="admin-client-dot" style="background:var(--brand-primary)"></div>
+      <div class="admin-client-dot" style="background:${dotColor}"></div>
       <div class="admin-client-name">${c.name}</div>
-      <div class="admin-client-status status-live">LIVE</div>
+      <div class="admin-client-status ${statusClass}">${statusLabel}</div>
       <svg class="admin-client-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
 function showAdminView(){
