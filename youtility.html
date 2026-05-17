@@ -1149,6 +1149,43 @@ const USERS = {
 let CURRENT_USER_ID = 'monese-demo';
 function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
 function hasRole(...roles){ const u = getCurrentUser(); return u && roles.includes(u.role); }
+
+// ── AUTH / SESSION ──
+function doLogin() {
+  const email = (document.getElementById('loginEmail') || {}).value || '';
+  // Demo heuristic: admin if email contains 'admin', 'super', or 'youtility'
+  const lc = email.toLowerCase();
+  const isAdmin = lc.includes('admin') || lc.includes('super') || lc.includes('youtility');
+  quickLogin(isAdmin ? 'admin' : 'user');
+}
+
+function quickLogin(role) {
+  // Find the first USERS entry matching the requested role; fall back to monese-demo
+  const match = Object.entries(USERS).find(([, u]) => u.role === role);
+  if (match) {
+    CURRENT_USER_ID = match[0];
+  }
+  // If no match, keep existing CURRENT_USER_ID
+  const loginEl = document.getElementById('loginScreen');
+  if (loginEl) loginEl.classList.add('hidden');
+  const u = getCurrentUser();
+  if (u) {
+    document.querySelectorAll('.user-av').forEach(el => {
+      el.textContent = u.initials;
+      el.style.background = u.color;
+    });
+    document.querySelectorAll('.user-av-name').forEach(el => el.textContent = u.name);
+    document.querySelectorAll('.user-av-role').forEach(el => el.textContent = u.role);
+    showToast('Welcome back, ' + u.name.split(' ')[0]);
+  }
+}
+
+function signOut() {
+  CURRENT_USER_ID = '';
+  if (typeof closeAccountModal === 'function') closeAccountModal();
+  const loginEl = document.getElementById('loginScreen');
+  if (loginEl) loginEl.classList.remove('hidden');
+}
 const BRAND_PALETTES = {
   monese: {
     '--brand-primary': '#0b72fd',
@@ -2392,6 +2429,18 @@ function buildDonutChart(data,color){
     <div style="flex:1;min-width:200px;display:flex;flex-direction:column;">${legend}</div>
   </div>`;
 }
+
+  // Bootstrap: show login screen only for multi-tenant clients
+  (function bootstrapSession(){
+    const client = getActiveClient();
+    const loginEl = document.getElementById('loginScreen');
+    if (!loginEl) return;
+    if (client.mode === 'singleTenant') {
+      loginEl.classList.add('hidden');
+    } else {
+      loginEl.classList.remove('hidden');
+    }
+  })();
 
 </script>
 
