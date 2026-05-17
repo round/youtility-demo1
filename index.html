@@ -1679,6 +1679,7 @@ function switchWs(ws){
   const cW=document.getElementById('campWs');if(cW) cW.classList.toggle('visible',ws==='campaign');
   const rV=document.getElementById('reportView');if(rV) rV.style.display=ws==='report'?'flex':'none';
   const aV=document.getElementById('adminView');if(aV) aV.classList.add('hidden');
+  const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
   if(ws==='campaign'){renderCampSb();renderOverview();}
 }
 // (workspace dropdown removed)
@@ -2740,6 +2741,7 @@ function showAdminView(){
   const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
   const cS=document.getElementById('csView');if(cS) cS.style.display='none';
   const rV=document.getElementById('reportView');if(rV) rV.style.display='none';
+  const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
   const aV=document.getElementById('adminView');if(aV) aV.classList.remove('hidden');
   renderAdminClients();
 }
