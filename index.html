@@ -13,6 +13,15 @@
   --accent:#d0553a;--accent2:#e8a020;--accent3:#4a7fd4;
   --green:#2ea86a;--purple:#7c5cbf;
   --brand-primary:#0b72fd;--brand-primary-hover:#3892ff;--brand-primary-rgb:11 114 253;
+  /* Per-tenant typography. Defaults match Monese (Inter bold-lowercase wordmark,
+     bullet dot). Ledbury overrides to Georgia serif uppercase wordmark + em-dash
+     bullet via BRAND_PALETTES — see applyBrandPalette(). */
+  --brand-wordmark-font:'Inter','Montserrat',sans-serif;
+  --brand-wordmark-weight:800;
+  --brand-wordmark-size:28px;
+  --brand-wordmark-letter-spacing:-.02em;
+  --brand-wordmark-transform:lowercase;
+  --brand-bullet-char:'\2022';
   --sw:268px;
 }
 body.light-mode{
@@ -506,7 +515,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
 .lb-nav{background:#fff;display:flex;justify-content:center;gap:18px;padding:10px 0 8px;border-bottom:1px solid #eef3fa;}
 .lb-nav a{font-family:'Montserrat',sans-serif;font-size:9px;color:#555;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;}
 .lb-wordmark{text-align:center;padding:14px 0 10px;background:#fff;}
-.lb-wordmark-text{font-family:'Inter','Montserrat',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;color:var(--brand-primary);text-transform:lowercase;}
+.lb-wordmark-text{font-family:var(--brand-wordmark-font);font-size:var(--brand-wordmark-size);font-weight:var(--brand-wordmark-weight);letter-spacing:var(--brand-wordmark-letter-spacing);color:var(--brand-primary);text-transform:var(--brand-wordmark-transform);}
 .lb-banner{background:var(--brand-primary);padding:8px 20px;text-align:center;}
 .lb-banner-text{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;color:#fff;text-transform:uppercase;}
 .lb-hero{background:#f4f8ff;padding:22px 22px 18px;text-align:center;}
@@ -520,7 +529,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
 .lb-body-text{font-size:12px;line-height:1.75;color:#333;font-family:'Montserrat',sans-serif;margin-bottom:12px;}
 .lb-body-list{list-style:none;padding:0;margin:0 0 14px;}
 .lb-body-list li{font-size:11.5px;font-family:'Montserrat',sans-serif;color:#444;padding:3px 0;padding-left:12px;position:relative;}
-.lb-body-list li::before{content:'•';position:absolute;left:0;color:var(--brand-primary);}
+.lb-body-list li::before{content:var(--brand-bullet-char);position:absolute;left:0;color:var(--brand-primary);}
 .lb-divider{height:1px;background:#eef3fa;margin:0;}
 .lb-footer{padding:14px 22px 16px;text-align:center;}
 .lb-footer-text{font-family:'Montserrat',sans-serif;font-size:9px;color:#aaa;line-height:1.6;}
@@ -1318,9 +1327,13 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
 // Placeholder header-logo generator for tenants that don't ship a real logo
 // asset. The encoded `#` characters MUST stay `%23` — raw `#` in a data URL
 // terminates the URL fragment and breaks the SVG load.
-function makeMonoLogo(letter, hex){
+function makeMonoLogo(letter, hex, font){
   const c = (hex || '#666').replace('#','%23');
-  return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'><rect width='100' height='100' rx='14' fill='" + c + "'/><text x='50' y='68' text-anchor='middle' font-family='Montserrat,sans-serif' font-size='56' font-weight='700' fill='%23fff'>" + letter + "</text></svg>";
+  // Font defaults to Montserrat (matches the platform sans). Pass 'Georgia,serif'
+  // for tenants whose brand is heritage-serif (e.g. Ledbury).
+  const f = font || 'Montserrat,sans-serif';
+  const weight = /serif/i.test(f) ? '400' : '700';
+  return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'><rect width='100' height='100' rx='14' fill='" + c + "'/><text x='50' y='68' text-anchor='middle' font-family='" + f + "' font-size='56' font-weight='" + weight + "' fill='%23fff'>" + letter + "</text></svg>";
 }
 const CLIENTS = [
   {
@@ -1360,7 +1373,7 @@ const CLIENTS = [
     palette: 'ledbury',
     color: '#4a6741',
     status: 'live',
-    logo: makeMonoLogo('L', '#4a6741'),
+    logo: makeMonoLogo('L', '#4a6741', 'Georgia,serif'),
     copy: {
       emailBanner: { promo: 'SPRING CUSTOM EVENT · ENDS SUNDAY', launch: 'NEW ARRIVALS · SPRING COLLECTION' },
       emailHero: {
@@ -1849,31 +1862,53 @@ document.addEventListener('DOMContentLoaded', function() {
 // match (both represent the tenant's identity); WL_BRAND_PALETTES MAY
 // diverge by design.
 // ─────────────────────────────────────────────────────────────────────────
+// Default typography (Monese-canonical). Spread into every non-Ledbury tenant
+// so applyBrandPalette() resets the typography vars on cross-tenant switches —
+// it sets keys but never clears ones a previous tenant added.
+const __DEFAULT_TYPOGRAPHY = {
+  '--brand-wordmark-font': "'Inter','Montserrat',sans-serif",
+  '--brand-wordmark-weight': '800',
+  '--brand-wordmark-size': '28px',
+  '--brand-wordmark-letter-spacing': '-.02em',
+  '--brand-wordmark-transform': 'lowercase',
+  '--brand-bullet-char': "'\\2022'",
+};
 const BRAND_PALETTES = {
   monese: {
     '--brand-primary': '#0b72fd',
     '--brand-primary-hover': '#3892ff',
     '--brand-primary-rgb': '11 114 253',
+    ...__DEFAULT_TYPOGRAPHY,
   },
   ledbury: {
     '--brand-primary': '#4a6741',
     '--brand-primary-hover': '#6a8f60',
     '--brand-primary-rgb': '74 103 65',
+    // Editorial heritage typography (matches stokes-ledbury-mvp:466).
+    '--brand-wordmark-font': "'Georgia',serif",
+    '--brand-wordmark-weight': '400',
+    '--brand-wordmark-size': '22px',
+    '--brand-wordmark-letter-spacing': '.22em',
+    '--brand-wordmark-transform': 'uppercase',
+    '--brand-bullet-char': "'\\2014'",
   },
   pockit: {
     '--brand-primary': '#4a7fd4',
     '--brand-primary-hover': '#6b94db',
     '--brand-primary-rgb': '74 127 212',
+    ...__DEFAULT_TYPOGRAPHY,
   },
   virginmoney: {
     '--brand-primary': '#d0553a',
     '--brand-primary-hover': '#d97050',
     '--brand-primary-rgb': '208 85 58',
+    ...__DEFAULT_TYPOGRAPHY,
   },
   santander: {
     '--brand-primary': '#e8a020',
     '--brand-primary-hover': '#f0b440',
     '--brand-primary-rgb': '232 160 32',
+    ...__DEFAULT_TYPOGRAPHY,
   },
 };
 function applyBrandPalette(name){
