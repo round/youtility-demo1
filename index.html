@@ -4600,7 +4600,6 @@ function init() {
   injectClientFonts(client);
   applyBrandPalette(client.palette);
   injectClientCopy();
-  applyBreakpoint();
   document.body.classList.add('light-mode');
   document.getElementById('themeIconDark').style.display = 'none';
   document.getElementById('themeIconLight').style.display = '';
@@ -4608,6 +4607,11 @@ function init() {
   switchWs('home');
   renderHomeList();
   showStartScreen();
+  // applyBreakpoint must run AFTER renderHomeList: in icon mode it calls
+  // attachIconTooltips(), which queries .sb-item rows that renderHomeList
+  // creates. Running it earlier leaves the initial chat icons tooltipless
+  // at tablet widths (580 ≤ innerWidth < 900).
+  applyBreakpoint();
   bindGlobalEvents();
 }
 
