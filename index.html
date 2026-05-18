@@ -1311,6 +1311,38 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
 <div class="sb-tooltip" id="sbTooltip"></div>
 <div id="toast"></div>
 
+<!-- SEARCH CONVERSATIONS MODAL -->
+<div class="search-modal-overlay" id="searchModalOverlay" onclick="if(event.target===this)closeSearchModal()">
+  <div class="search-modal" role="dialog" aria-label="Search conversations">
+    <div class="search-modal-input-row">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3);flex-shrink:0;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchModalInput" class="search-modal-input" placeholder="Search by keyword, topic or campaign..." oninput="filterSearchModal()" onkeydown="if(event.key==='Escape')closeSearchModal()" />
+      <button class="search-modal-close" onclick="closeSearchModal()" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="search-modal-section-lbl" id="searchModalLbl">RECENT CONVERSATIONS</div>
+    <div class="search-modal-list" id="searchModalList"></div>
+    <div class="search-modal-foot">
+      <div class="search-modal-hint"><kbd>Esc</kbd> to close</div>
+      <div class="search-modal-hint" id="searchModalCount">0 results</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ ACCOUNT MODAL ════ -->
+<div class="modal-overlay hidden" id="accountModal">
+  <div class="modal-box" style="width:480px;">
+    <div class="modal-hdr">
+      <div class="modal-title" id="acctModalTitle">Account</div>
+      <button class="modal-close" onclick="closeAccountModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="acctModalBody"></div>
+  </div>
+</div>
+
 <script>
 // Placeholder header-logo generator for tenants that don't ship a real logo
 // asset. The encoded `#` characters MUST stay `%23` — raw `#` in a data URL
@@ -4525,36 +4557,5 @@ function cdResetWhiteLabel(){
 
 </script>
 
-<!-- SEARCH CONVERSATIONS MODAL -->
-<div class="search-modal-overlay" id="searchModalOverlay" onclick="if(event.target===this)closeSearchModal()">
-  <div class="search-modal" role="dialog" aria-label="Search conversations">
-    <div class="search-modal-input-row">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text3);flex-shrink:0;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="searchModalInput" class="search-modal-input" placeholder="Search by keyword, topic or campaign..." oninput="filterSearchModal()" onkeydown="if(event.key==='Escape')closeSearchModal()" />
-      <button class="search-modal-close" onclick="closeSearchModal()" aria-label="Close">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="search-modal-section-lbl" id="searchModalLbl">RECENT CONVERSATIONS</div>
-    <div class="search-modal-list" id="searchModalList"></div>
-    <div class="search-modal-foot">
-      <div class="search-modal-hint"><kbd>Esc</kbd> to close</div>
-      <div class="search-modal-hint" id="searchModalCount">0 results</div>
-    </div>
-  </div>
-</div>
-
-<!-- ════ ACCOUNT MODAL ════ -->
-<div class="modal-overlay hidden" id="accountModal">
-  <div class="modal-box" style="width:480px;">
-    <div class="modal-hdr">
-      <div class="modal-title" id="acctModalTitle">Account</div>
-      <button class="modal-close" onclick="closeAccountModal()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body" id="acctModalBody"></div>
-  </div>
-</div>
 </body>
 </html>
