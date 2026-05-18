@@ -1032,7 +1032,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
           <textarea class="start-ta" id="startTa" rows="2" placeholder="How can I help you today?" onkeydown="handleStartKey(event)" oninput="autoResizeEl(this)"></textarea>
           <div class="start-input-footer">
             <div class="start-footer-left">
-              <div class="start-model"><span class="product-name">Youtility</span> · Monese node</div>
+              <div class="start-model"><span class="product-name">Youtility</span> · <span class="client-name">Monese</span> node</div>
             </div>
             <button class="start-send" onclick="sendFromStart()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -1107,7 +1107,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
           <div class="cw-ws-label">WORKSPACE · MARKETING SPEND</div>
           <div class="cw-title-row">
             <div class="cw-client-logo"><img src="data:image/png;base64,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" alt="Monese" style="height:14px;width:auto;display:block;filter:brightness(0) invert(1);" /></div>
-            <div class="cw-title">Monese Campaigns</div>
+            <div class="cw-title"><span class="client-name">Monese</span> Campaigns</div>
           </div>
         </div>
         <div class="cw-actions">
@@ -1376,15 +1376,25 @@ function getActiveClient(){ return CLIENTS.find(c => c.id === ACTIVE_CLIENT_ID) 
 // signed-in user's tenant (e.g. saving Ledbury whitelabel must not touch Monese).
 let DETAIL_CLIENT_ID = null;
 function getDetailClient(){ return (DETAIL_CLIENT_ID && CLIENTS.find(c => c.id === DETAIL_CLIENT_ID)) || getActiveClient(); }
-(function injectClientFonts(){
-  const client = getActiveClient();
+// Product display name (e.g. "Youtility") is tenant-scoped via client.copy.productName.
+// Read it through getProductName() rather than a captured const so cross-tenant
+// switches via setActiveTenant() see the new tenant's name without a page reload.
+function getProductName(){ return getActiveClient().copy.productName || 'Youtility'; }
+// Load a tenant's font stylesheet once (per stylesheet href). Re-runnable: on
+// repeat tenant switches we skip already-loaded sheets so the document head
+// doesn't fill with duplicate <link> tags.
+const __LOADED_FONT_HREFS = new Set();
+function injectClientFonts(client){
+  client = client || getActiveClient();
   if (!client.fontImport) return;
+  if (__LOADED_FONT_HREFS.has(client.fontImport)) return;
   const linkEl = document.createElement('link');
   linkEl.rel = 'stylesheet';
   linkEl.href = client.fontImport;
   document.head.appendChild(linkEl);
-})();
-const PRODUCT_NAME = getActiveClient().copy.productName || 'Youtility';
+  __LOADED_FONT_HREFS.add(client.fontImport);
+}
+injectClientFonts();
 const USERS = {
   'monese-demo': {
     id: 'monese-demo',
@@ -1469,13 +1479,15 @@ function quickLogin(target) {
     showToast('No demo user available for "' + target + '"');
     return;
   }
-  // Note: this function intentionally does NOT mutate ACTIVE_CLIENT_ID. Today
-  // every USERS record is either Monese-tenant or null (super admin), so the
-  // signed-in identity and the active tenant cannot diverge. If a future demo
-  // user is added under a different clientId, a proper tenant-switch pipeline
-  // (re-apply palette, re-inject copy, refresh PRODUCT_NAME) must be wired in
-  // before that switch path becomes reachable.
   CURRENT_USER_ID = matchedId;
+  // If the selected user lives in a different tenant than the one currently
+  // active, switch the whole shell over (palette, fonts, injected copy, admin
+  // visibility, white-label overrides, logo). Tenant-null supers do NOT trigger
+  // a switch — they keep working in whichever tenant was last active.
+  const _next = USERS[matchedId];
+  if (_next && _next.clientId && _next.clientId !== ACTIVE_CLIENT_ID) {
+    setActiveTenant(_next.clientId);
+  }
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.add('hidden');
   const u = getCurrentUser();
@@ -1644,6 +1656,9 @@ function applyBrandPalette(name){
   const p = BRAND_PALETTES[name] || BRAND_PALETTES['monese'];
   for (const [k, v] of Object.entries(p)) document.documentElement.style.setProperty(k, v);
 }
+// Boot: apply the default tenant's palette immediately so the shell paints with
+// the right colors before any further init runs. setActiveTenant() takes over
+// from here for any runtime tenant switch (see quickLogin and onward).
 applyBrandPalette(getActiveClient().palette);
 
 // Restore branding (palette + saved white-label overrides + uploaded logo)
@@ -1679,12 +1694,15 @@ function restoreActiveTenantBranding(){
   if(client.wlColors && typeof applyColorToInterface === 'function'){
     Object.entries(client.wlColors).forEach(([t, hex]) => applyColorToInterface(t, hex));
   }
-  // If the active tenant has its own uploaded logo, re-apply it. Otherwise,
-  // the static header markup carries the default logo; cdApplyLogoToHeader
-  // only mutates .client-logo-mark containers and the active tenant has none
-  // by default, so there is nothing to undo at the <img> level.
+  // Re-sync the visible header logo with the active tenant. If the tenant has
+  // its own uploaded logo, apply it; otherwise reset the header <img> to its
+  // cached original src so a logo applied while editing a different tenant
+  // (or while the detail view of THIS tenant had a wlLogo that has since been
+  // cleared) doesn't linger on screen after returning to the shell.
   if(client.wlLogo && typeof cdApplyLogoToHeader === 'function'){
     cdApplyLogoToHeader(client.wlLogo);
+  } else if(typeof cdResetLogoInHeader === 'function'){
+    cdResetLogoInHeader();
   }
 }
 
@@ -1692,7 +1710,54 @@ function injectClientCopy(){
   const client = getActiveClient();
   const name = client.copy.productName || 'Youtility';
   document.querySelectorAll('.product-name').forEach(el => el.textContent = name);
+  // Tenant display name (e.g. "Monese", "Ledbury") shows up alongside the
+  // product name in places like "<product> · <tenant> node" and "<tenant>
+  // Campaigns". Tag those occurrences with .client-name so this single call
+  // can keep them in sync on tenant switch.
+  document.querySelectorAll('.client-name').forEach(el => el.textContent = client.name || '');
 }
+
+// Single entry point for switching the active tenant.
+//
+// Tenant-scoped UI state (brand palette, saved white-label overrides, uploaded
+// logo, tenant fonts, product name in static markup, admin-link visibility) was
+// originally wired up once at module load. With multi-client demos plus the
+// account-modal "switch user" flow that can now select a user from a DIFFERENT
+// clientId, we need every one of those surfaces to be re-runnable. This helper
+// is the only place that should mutate ACTIVE_CLIENT_ID at runtime, and it
+// re-applies every surface in a fixed order.
+//
+// Boot path calls this once with the default tenant; quickLogin() calls it
+// whenever the chosen user has a clientId that differs from the current active
+// tenant. Tenant-null supers (clientId === null) do NOT trigger a switch — they
+// keep working in whichever tenant was last active.
+function setActiveTenant(clientId){
+  if (!clientId) return;
+  const next = CLIENTS.find(c => c.id === clientId);
+  if (!next) return;
+  ACTIVE_CLIENT_ID = next.id;
+  // 1. Fonts: load the new tenant's stylesheet if we haven't already.
+  injectClientFonts(next);
+  // 2. Palette + saved white-label overrides + uploaded logo. restoreActive
+  //    TenantBranding reads getActiveClient() which now returns `next`, clears
+  //    every inline CSS-var override before re-applying the palette, then
+  //    EITHER applies the new tenant's wlLogo OR resets the header <img> back
+  //    to its cached original src — handling both apply and reset paths so we
+  //    don't need a pre-call here.
+  if (typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
+  // 3. Injected copy in static markup (.product-name nodes etc.). Safe to call
+  //    pre-DOMContentLoaded — the querySelectorAll just returns no matches and
+  //    the boot-time DOMContentLoaded listener will run injectClientCopy again
+  //    once the DOM is ready.
+  injectClientCopy();
+  // 4. Admin-link visibility depends on the new tenant's enabledFeatures.admin.
+  if (typeof updateAdminNavVisibility === 'function') updateAdminNavVisibility();
+  // 5. Pristine chat seed (only the welcome message, no real turns yet) gets
+  //    regenerated so a freshly-switched user doesn't open the chat to a
+  //    "Welcome back to <previous tenant>" greeting. Real chat history stays.
+  if (typeof rebuildChatSeedIfPristine === 'function') rebuildChatSeedIfPristine();
+}
+
 document.addEventListener('DOMContentLoaded', injectClientCopy);
 
 // ── DATASOURCE DATA ──
@@ -1980,11 +2045,11 @@ function exportCamp(){
   renderCampSb();sbUserOverride=null;applyBreakpoint();
   switchCwTab('report');showToast('Campaign saved');
 }
-function renderSegs(){document.getElementById('segContent').innerHTML=`<p class="seg-intro">${PRODUCT_NAME} recommended segments for <strong style="color:var(--text)">${getActiveClient().name}</strong> based on purchase behaviour, email engagement, and browse signals. Deselect any you don't want to target.</p><div class="seg-grid">${SEGS.map(s=>{const tags=s.signals.map((t,i)=>`<span class="sig-tag ${s.types[i]}">${t}</span>`).join('');return `<div class="seg-card ${s.selected?'sel':'desel'}" id="sg-${s.id}" onclick="toggleSeg('${s.id}')"><div class="seg-chk">${s.selected?IC.chk:''}</div><div class="seg-name">${s.name}</div><div class="seg-sz">${s.size} customers</div><div class="seg-desc">${s.desc}</div><div class="seg-tags">${tags}</div><div class="seg-note">${s.note}</div></div>`;}).join('')}</div>`;}
+function renderSegs(){document.getElementById('segContent').innerHTML=`<p class="seg-intro">${getProductName()} recommended segments for <strong style="color:var(--text)">${getActiveClient().name}</strong> based on purchase behaviour, email engagement, and browse signals. Deselect any you don't want to target.</p><div class="seg-grid">${SEGS.map(s=>{const tags=s.signals.map((t,i)=>`<span class="sig-tag ${s.types[i]}">${t}</span>`).join('');return `<div class="seg-card ${s.selected?'sel':'desel'}" id="sg-${s.id}" onclick="toggleSeg('${s.id}')"><div class="seg-chk">${s.selected?IC.chk:''}</div><div class="seg-name">${s.name}</div><div class="seg-sz">${s.size} customers</div><div class="seg-desc">${s.desc}</div><div class="seg-tags">${tags}</div><div class="seg-note">${s.note}</div></div>`;}).join('')}</div>`;}
 function toggleSeg(id){const s=SEGS.find(x=>x.id===id);if(!s)return;s.selected=!s.selected;const c=document.getElementById(`sg-${id}`);c.className=`seg-card ${s.selected?'sel':'desel'}`;c.querySelector('.seg-chk').innerHTML=s.selected?IC.chk:'';const n=SEGS.filter(x=>x.selected).length;document.getElementById('wizInfo').innerHTML=`<span>${n} segment${n!==1?'s':''} selected</span>`;}
 
 function renderGenOverlay(){
-  document.getElementById('outputContent').innerHTML=`<div class="gen-overlay"><div class="gen-spin"></div><div class="gen-lbl">Generating segment-tailored content for ${getActiveClient().name}</div><div class="gen-sub">Applying ${PRODUCT_NAME} behavioural profiles...</div></div>`;
+  document.getElementById('outputContent').innerHTML=`<div class="gen-overlay"><div class="gen-spin"></div><div class="gen-lbl">Generating segment-tailored content for ${getActiveClient().name}</div><div class="gen-sub">Applying ${getProductName()} behavioural profiles...</div></div>`;
 }
 
 function renderOutput(){
@@ -2148,12 +2213,13 @@ function injectAudienceExplorer(kind){
   streaming=true;
   setSendBtnState('stop');
   document.getElementById('stopBar').classList.add('visible');
-  const analysingText = kind==='churn' 
-    ? 'Analysing Monese churn-risk profiles...'
-    : 'Analysing Monese customer profiles...';
+  const _clientName = getActiveClient().name;
+  const analysingText = kind==='churn'
+    ? 'Analysing '+_clientName+' churn-risk profiles...'
+    : 'Analysing '+_clientName+' customer profiles...';
   const introText = kind==='churn'
-    ? 'Here are the customer mindset profiles most likely to churn for Monese.'
-    : 'Here is your customer mindset breakdown for Monese.';
+    ? 'Here are the customer mindset profiles most likely to churn for '+_clientName+'.'
+    : 'Here is your customer mindset breakdown for '+_clientName+'.';
   const placeholder={id,role:'ai',text:analysingText,feedback:null};
   msgs.push(placeholder); renderMsgs();
   setTimeout(()=>{
@@ -2197,7 +2263,27 @@ function sendMsg(){
   if(k) injectAudienceExplorer(k);
   else setTimeout(simAI,400);
 }
-let msgs=[{id:1,role:'ai',text:`Welcome back to ${PRODUCT_NAME}.\n\nYou're connected to the ${PRODUCT_NAME} behavioural layer for ${getActiveClient().name}. Pick a product vertical from the sidebar to see its overview report, or ask me anything here.`,feedback:null}];
+// Seed welcome message uses the currently-active tenant. Re-runnable: if a
+// cross-tenant switch happens BEFORE the user has chatted (msgs is still just
+// the seed), setActiveTenant() calls rebuildChatSeedIfPristine() so the seed
+// reflects the new tenant. Existing chat history (anything past id=1) is left
+// alone — generated AI messages from earlier in the session stay verbatim.
+function buildChatSeedMessage(){
+  return {id:1, role:'ai', feedback:null, text:`Welcome back to ${getProductName()}.\n\nYou're connected to the ${getProductName()} behavioural layer for ${getActiveClient().name}. Pick a product vertical from the sidebar to see its overview report, or ask me anything here.`};
+}
+function rebuildChatSeedIfPristine(){
+  // "Pristine" = only the seed message exists. As soon as there's a real user
+  // turn we leave history untouched.
+  if (typeof msgs === 'undefined' || !Array.isArray(msgs)) return;
+  if (msgs.length !== 1) return;
+  if (msgs[0] && msgs[0].id !== 1) return;
+  msgs[0] = buildChatSeedMessage();
+  if (typeof renderMsgs === 'function') {
+    const el = document.getElementById('messages');
+    if (el) renderMsgs();
+  }
+}
+let msgs=[buildChatSeedMessage()];
 let nMsgId=2,streaming=false,sTimer=null;
 function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function renderMsgs(){const el=document.getElementById('messages');el.innerHTML=msgs.map((m,i)=>m.role==='ai'?rAI(m,i===msgs.length-1):rUser(m)).join('');el.scrollTop=el.scrollHeight;// init any donut charts in widget messages
@@ -2206,7 +2292,7 @@ function rAI(m,last){
   if(m.widget){
     return `<div class="msg-group ai" id="mg-${m.id}">
       <div class="msg-row"><div class="msg-avatar">${IC.bot}</div>
-        <div style="font-size:12.5px;color:var(--text2);font-style:italic;padding-top:4px">${m.widgetIntro||'Here is your customer mindset breakdown for Monese.'}</div>
+        <div style="font-size:12.5px;color:var(--text2);font-style:italic;padding-top:4px">${m.widgetIntro||('Here is your customer mindset breakdown for '+getActiveClient().name+'.')}</div>
       </div>
       <div style="margin-top:10px;" id="widget-${m.id}">${m.widgetHTML||''}</div>
       <div class="msg-actions">
@@ -2224,7 +2310,7 @@ function vote(id,t){const m=msgs.find(x=>x.id===id);if(!m)return;m.feedback=m.fe
 function retryMsg(id){const i=msgs.findIndex(x=>x.id===id);if(i===-1)return;msgs.splice(i,1);renderMsgs();simAI();}
 function editMsg(id){const m=msgs.find(x=>x.id===id),idx=msgs.findIndex(x=>x.id===id);if(!m)return;const g=document.getElementById(`mg-${m.id}`);g.innerHTML=`<div class="msg-row" style="flex-direction:row-reverse"><div class="msg-avatar">${IC.user}</div><div style="max-width:540px;width:100%;display:flex;flex-direction:column;gap:8px"><textarea style="width:100%;background:var(--bg4);border:1px solid var(--brand-primary-hover);border-radius:10px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13.5px;padding:11px 13px;resize:none;outline:none;line-height:1.6" id="eta-${id}" rows="2">${eh(m.text)}</textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button style="padding:5px 12px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="renderMsgs()">Cancel</button><button style="padding:5px 12px;border-radius:6px;background:var(--brand-primary);border:none;color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="saveEdit(${id},${idx})">Save &amp; resend</button></div></div></div>`;document.getElementById(`eta-${id}`).focus();}
 function saveEdit(id,idx){const ta=document.getElementById(`eta-${id}`);const val=ta?ta.value.trim():'';if(!val)return;msgs[idx].text=val;msgs=msgs.slice(0,idx+1);renderMsgs();setTimeout(simAI,400);}
-function simAI(){streaming=true;setSendBtnState('stop');document.getElementById('stopBar').classList.add('visible');const id=nMsgId++;const full='Analysing Monese customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;setSendBtnState('send');document.getElementById('stopBar').classList.remove('visible');renderMsgs();}},30);}
+function simAI(){streaming=true;setSendBtnState('stop');document.getElementById('stopBar').classList.add('visible');const id=nMsgId++;const full='Analysing '+getActiveClient().name+' customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;setSendBtnState('send');document.getElementById('stopBar').classList.remove('visible');renderMsgs();}},30);}
 function stopGen(){if(!streaming)return;clearInterval(sTimer);streaming=false;setSendBtnState('send');document.getElementById('stopBar').classList.remove('visible');renderMsgs();showToast('Generation stopped');}
 function setSendBtnState(state){
   const btn=document.getElementById('sendBtn');
@@ -3482,13 +3568,78 @@ function cdPreviewLogo(input){
   reader.readAsDataURL(file);
 }
 
-// Replace the SVG monogram in any .client-logo-mark elements with the uploaded image.
+// Cache the original baseline src AND inline filter style of every header
+// logo <img> the first time we touch it. cdResetLogoInHeader() uses these
+// maps to restore the static markup's default appearance when switching to a
+// tenant that has no wlLogo override. The filter cache matters for the
+// .cw-client-logo img, whose static markup carries `filter:brightness(0)
+// invert(1)` to render the white-on-dark Monese mark — without clearing
+// that filter on apply, an uploaded colored logo would render inverted.
+// WeakMaps keyed by element so cached values are GC'd if the element is removed.
+const _cdOriginalLogoSrc = new WeakMap();
+const _cdOriginalLogoFilter = new WeakMap();
+function _cdCacheOriginalSrc(el){
+  if (!el || _cdOriginalLogoSrc.has(el)) return;
+  _cdOriginalLogoSrc.set(el, el.getAttribute('src') || '');
+  _cdOriginalLogoFilter.set(el, el.style.filter || '');
+}
+
+// Apply an uploaded logo src to every header logo surface:
+//   • .client-logo-img — the real <img> in the top header (static markup)
+//   • .cw-client-logo img — the small chat-window header logo (sidebar)
+//   • .client-logo-mark — legacy/future monogram containers (kept for
+//     forward compatibility; not present in current static markup)
+// Caches the original src per <img> before the first overwrite so reset can
+// restore it. Without this, the previous tenant's uploaded logo would persist
+// in the visible header after a tenant switch.
 function cdApplyLogoToHeader(src){
+  if (!src) return;
+  document.querySelectorAll('.client-logo-img').forEach(el => {
+    _cdCacheOriginalSrc(el);
+    el.setAttribute('src', src);
+    // Clear any inline filter so the uploaded logo renders in its true colors
+    // (e.g. .client-logo-img has no inline filter today, but the same code
+    // path runs for .cw-client-logo img which does — see below).
+    el.style.filter = 'none';
+  });
+  document.querySelectorAll('.cw-client-logo img').forEach(el => {
+    _cdCacheOriginalSrc(el);
+    el.setAttribute('src', src);
+    // The static .cw-client-logo img carries `filter:brightness(0) invert(1)`
+    // to render the Monese mark white. An uploaded tenant logo is already in
+    // its own colors, so clear the filter to avoid inverting it.
+    el.style.filter = 'none';
+  });
   document.querySelectorAll('.client-logo-mark').forEach(el => {
     el.innerHTML = `<img src="${src}" style="height:20px;width:auto;display:block;border-radius:2px;" />`;
     el.style.background = 'transparent';
     el.style.border = 'none';
     el.style.padding = '0';
+  });
+}
+// Undo cdApplyLogoToHeader's writes. Used by setActiveTenant() when switching
+// INTO a tenant that has no wlLogo — without this, the previous tenant's
+// uploaded logo persists in the header. We restore each <img>'s original src
+// (cached on first apply) and clear inline overrides on any monogram
+// containers so the CSS class defaults take over again.
+function cdResetLogoInHeader(){
+  const restore = el => {
+    if (_cdOriginalLogoSrc.has(el)) {
+      el.setAttribute('src', _cdOriginalLogoSrc.get(el));
+    }
+    if (_cdOriginalLogoFilter.has(el)) {
+      const f = _cdOriginalLogoFilter.get(el);
+      if (f) el.style.filter = f;
+      else el.style.removeProperty('filter');
+    }
+  };
+  document.querySelectorAll('.client-logo-img').forEach(restore);
+  document.querySelectorAll('.cw-client-logo img').forEach(restore);
+  document.querySelectorAll('.client-logo-mark').forEach(el => {
+    el.innerHTML = '';
+    el.style.removeProperty('background');
+    el.style.removeProperty('border');
+    el.style.removeProperty('padding');
   });
 }
 
@@ -3566,6 +3717,16 @@ function cdResetWhiteLabel(){
   delete client.wlLogo;
   renderCdWhiteLabel(client);
   applyBrandPalette(client.palette);
+  // If the cleared client is currently visible in the header (either it's the
+  // active tenant or the user is still focused on its detail view), revert the
+  // header <img> back to its original baseline so the just-removed wlLogo
+  // doesn't linger on screen.
+  if (typeof cdResetLogoInHeader === 'function'){
+    const activeId = (typeof ACTIVE_CLIENT_ID !== 'undefined') ? ACTIVE_CLIENT_ID : null;
+    if (client.id === activeId || client.id === DETAIL_CLIENT_ID){
+      cdResetLogoInHeader();
+    }
+  }
   showToast('Reset to defaults');
 }
 
