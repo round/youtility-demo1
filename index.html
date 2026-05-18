@@ -4652,5 +4652,23 @@ function bindGlobalEvents() {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 
+<script src="user-flow.js"></script>
+<script>
+  window.addEventListener('load', () => {
+    UserFlow.play([
+      { say: "Start screen", waitFor: "#startScreen" },
+      { say: "Ask: customers most likely to churn",
+        sel: ".start-pill", text: "Customers most likely to churn" },
+      { say: "Inspect the Reluctant Buyer segment",
+        waitFor: "[id^='ae-widget-']",
+        sel: "[id^='ae-leg-'] > div", text: "Reluctant Buyer" },
+      { say: "Create a campaign for this segment",
+        sel: "[id^='ae-create-btn-']" },
+      { say: "Generate content",
+        sel: "#wizNext", waitForTextEquals: "Generate content" },
+    ]);
+  });
+</script>
+
 </body>
 </html>
