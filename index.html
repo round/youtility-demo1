@@ -861,10 +861,10 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <div class="login-users">
       <div class="login-users-lbl">QUICK ACCESS</div>
       <div class="login-user-row" onclick="quickLogin('demo-admin')">
-        <div class="login-user-av" style="background:var(--brand-primary);">SL</div>
+        <div class="login-user-av" style="background:#4a6741;">SL</div>
         <div>
           <div class="login-user-name">Sarah L.</div>
-          <div class="login-user-role">Marketing Manager</div>
+          <div class="login-user-role">Ledbury · Marketing Manager</div>
         </div>
       </div>
       <div class="login-user-row" onclick="quickLogin('demo-super')">
@@ -1405,14 +1405,18 @@ const USERS = {
     initials: 'DU',
     color: 'var(--brand-primary)',
   },
+  // Sarah is Ledbury's marketing-manager-grade client admin per the Stokes
+  // source ([stokes:2369] client:'LEDBURY', isAdmin:false). We map "client admin"
+  // to role:'admin' + clientId:'ledbury'; the singleTenant/multiTenant gate sits
+  // on the CLIENT record, not the user.
   'demo-admin': {
     id: 'demo-admin',
     name: 'Sarah L.',
-    email: 'sarah@example.com',
+    email: 'sarah@ledbury.com',
     role: 'admin',
-    clientId: 'monese',
+    clientId: 'ledbury',
     initials: 'SL',
-    color: '#7c5cbf',
+    color: '#4a6741',
   },
   'demo-super': {
     id: 'demo-super',
@@ -1422,6 +1426,37 @@ const USERS = {
     clientId: null,
     initials: 'DS',
     color: '#4a7fd4',
+  },
+  // Seeded admins for the remaining multi-tenant clients so the User-management
+  // tab in client detail isn't empty for them. Each tenant carries one admin +
+  // one regular user to demonstrate the role cycle.
+  'ledbury-user': {
+    id: 'ledbury-user', name: 'James M.', email: 'james@ledbury.com',
+    role: 'user', clientId: 'ledbury', initials: 'JM', color: '#6a8f60',
+  },
+  'pockit-admin': {
+    id: 'pockit-admin', name: 'Priya N.', email: 'priya@pockit.com',
+    role: 'admin', clientId: 'pockit', initials: 'PN', color: '#4a7fd4',
+  },
+  'pockit-user': {
+    id: 'pockit-user', name: 'Marcus T.', email: 'marcus@pockit.com',
+    role: 'user', clientId: 'pockit', initials: 'MT', color: '#6b94db',
+  },
+  'virgin-admin': {
+    id: 'virgin-admin', name: 'Olivia K.', email: 'olivia@virginmoney.com',
+    role: 'admin', clientId: 'virginmoney', initials: 'OK', color: '#d0553a',
+  },
+  'virgin-user': {
+    id: 'virgin-user', name: 'Ethan W.', email: 'ethan@virginmoney.com',
+    role: 'user', clientId: 'virginmoney', initials: 'EW', color: '#d97050',
+  },
+  'santander-admin': {
+    id: 'santander-admin', name: 'Laura S.', email: 'laura@santander.co.uk',
+    role: 'admin', clientId: 'santander', initials: 'LS', color: '#e8a020',
+  },
+  'santander-user': {
+    id: 'santander-user', name: 'Carlos R.', email: 'carlos@santander.co.uk',
+    role: 'user', clientId: 'santander', initials: 'CR', color: '#f0b440',
   },
 };
 let CURRENT_USER_ID = 'monese-demo';
@@ -1752,7 +1787,24 @@ function setActiveTenant(clientId){
   injectClientCopy();
   // 4. Admin-link visibility depends on the new tenant's enabledFeatures.admin.
   if (typeof updateAdminNavVisibility === 'function') updateAdminNavVisibility();
-  // 5. Pristine chat seed (only the welcome message, no real turns yet) gets
+  // 5. Per-tenant data swap: SEGS, CDATA, homeChats. SEGS/CDATA are live
+  //    `let` bindings, so reassigning here propagates to every renderer's
+  //    next read. homeChats is mutated in-place via splice so existing
+  //    references (e.g. inside closures) stay valid.
+  if (typeof SEGS_BY_TENANT !== 'undefined') {
+    SEGS  = SEGS_BY_TENANT[next.id]  || SEGS_BY_TENANT.monese;
+  }
+  if (typeof CDATA_BY_TENANT !== 'undefined') {
+    CDATA = CDATA_BY_TENANT[next.id] || CDATA_BY_TENANT.monese;
+  }
+  if (typeof homeChats !== 'undefined' && typeof HOME_CHATS_BY_TENANT !== 'undefined') {
+    const seed = HOME_CHATS_BY_TENANT[next.id] || HOME_CHATS_BY_TENANT.monese;
+    homeChats.splice(0, homeChats.length, ...seed.map(c => ({...c})));
+    if (typeof renderHomeList === 'function' && document.getElementById('homeList')) {
+      renderHomeList();
+    }
+  }
+  // 6. Pristine chat seed (only the welcome message, no real turns yet) gets
   //    regenerated so a freshly-switched user doesn't open the chat to a
   //    "Welcome back to <previous tenant>" greeting. Real chat history stays.
   if (typeof rebuildChatSeedIfPristine === 'function') rebuildChatSeedIfPristine();
@@ -1761,14 +1813,16 @@ function setActiveTenant(clientId){
 document.addEventListener('DOMContentLoaded', injectClientCopy);
 
 // ── DATASOURCE DATA ──
+// Sources are global (Stokes parity — [stokes:2114]). Status state is shared
+// across tenants by design; per-tenant differentiation lives in CLIENTS, not here.
 const DS_SOURCES = [
-  {id:'sf',   clientId:'monese', name:'Salesforce CRM',    type:'REST API',       icon:'☁️',  status:'connected', selected:true},
-  {id:'hs',   clientId:'monese', name:'HubSpot CRM',       type:'REST API',       icon:'◆',   status:'idle'},
-  {id:'em',   clientId:'monese', name:'Email platform',    type:'SMTP / API',     icon:'✉',   status:'connected'},
-  {id:'sms',  clientId:'monese', name:'SMS gateway',       type:'REST API',       icon:'💬',  status:'error'},
-  {id:'web',  clientId:'monese', name:'Web visit logs',    type:'Event stream',   icon:'🌐',  status:'connected'},
-  {id:'call', clientId:'monese', name:'Outbound call mgmt',type:'Database / JDBC',icon:'📞',  status:'idle'},
-  {id:'ivr',  clientId:'monese', name:'Inbound IVR system',type:'Database / JDBC',icon:'📲',  status:'idle'},
+  {id:'sf',   name:'Salesforce CRM',    type:'REST API',       icon:'☁️',  status:'connected', selected:true},
+  {id:'hs',   name:'HubSpot CRM',       type:'REST API',       icon:'◆',   status:'idle'},
+  {id:'em',   name:'Email platform',    type:'SMTP / API',     icon:'✉',   status:'connected'},
+  {id:'sms',  name:'SMS gateway',       type:'REST API',       icon:'💬',  status:'error'},
+  {id:'web',  name:'Web visit logs',    type:'Event stream',   icon:'🌐',  status:'connected'},
+  {id:'call', name:'Outbound call mgmt',type:'Database / JDBC',icon:'📞',  status:'idle'},
+  {id:'ivr',  name:'Inbound IVR system',type:'Database / JDBC',icon:'📲',  status:'idle'},
 ];
 const DS_STATUS_COLORS = {connected:'#2ea86a', error:'#d0553a', idle:'#555a72'};
 let dsSelected = 'sf';
@@ -1922,13 +1976,32 @@ function switchCwTab(tab){cwCur=tab;['report','create'].forEach(t=>{document.get
 // ══ WIZARD ══
 const WLBL=['Campaign brief','Confirm segments','Review content'];
 let wizStep=1;
-const SEGS=[
-  {id:'loyal',  name:'Loyal Active Users',    size:'22,400', selected:true, desc:'Transacted 5+ times last month. Multi-product engagement across account, Pots or Cash Advance. Strong brand affinity.', signals:['Tx frequency HIGH','Multi-product YES','App engagement HIGH'],types:['high','high','high'],note:'Highest LTV. Lead with new features and exclusive previews, not promotions.'},
-  {id:'lapsed', name:'Lapsed 60-Day',          size:'31,200', selected:true, desc:'Previously active users with no transactions in 60+ days. Reactivate with a fee waiver or fresh feature hook.', signals:['Days since tx HIGH','Fee sensitivity HIGH','Login rate MID'],types:['low','high','mid'],note:'Strong reactivation ROI. Free transfer offer or feature spotlight works well.'},
-  {id:'browse',  name:'High Browse / Low Activity', size:'18,900', selected:false, desc:'Signed up but minimal transactions. Need an onboarding nudge to make the first top-up or transfer.', signals:['Session depth HIGH','Conversion rate LOW','Interest: Transfers'],types:['high','low','mid'],note:'Address friction directly. Product walkthrough and trust signals recommended.'},
-  {id:'new',     name:'New Signups',       size:'8,700',  selected:false, desc:'Joined in last 30 days. No transactions yet. Introduce key features before any cross-sell push.', signals:['Signup age <30d','No tx history','Source: organic/referral'],types:['mid','mid','high'],note:'Introduce the product first. Avoid promo-led messaging to protect long-term value perception.'},
-];
-const CDATA={
+// Per-tenant SEGS keyed by client id. Monese is canonical (financial product
+// language); Ledbury preserves Stokes's apparel/retail segments verbatim.
+// setActiveTenant() rebinds the live `SEGS` reference to the active tenant's
+// list. Tenants not listed here fall back to SEGS_BY_TENANT.monese.
+const SEGS_BY_TENANT = {
+  monese: [
+    {id:'loyal',  name:'Loyal Active Users',    size:'22,400', selected:true, desc:'Transacted 5+ times last month. Multi-product engagement across account, Pots or Cash Advance. Strong brand affinity.', signals:['Tx frequency HIGH','Multi-product YES','App engagement HIGH'],types:['high','high','high'],note:'Highest LTV. Lead with new features and exclusive previews, not promotions.'},
+    {id:'lapsed', name:'Lapsed 60-Day',          size:'31,200', selected:true, desc:'Previously active users with no transactions in 60+ days. Reactivate with a fee waiver or fresh feature hook.', signals:['Days since tx HIGH','Fee sensitivity HIGH','Login rate MID'],types:['low','high','mid'],note:'Strong reactivation ROI. Free transfer offer or feature spotlight works well.'},
+    {id:'browse',  name:'High Browse / Low Activity', size:'18,900', selected:false, desc:'Signed up but minimal transactions. Need an onboarding nudge to make the first top-up or transfer.', signals:['Session depth HIGH','Conversion rate LOW','Interest: Transfers'],types:['high','low','mid'],note:'Address friction directly. Product walkthrough and trust signals recommended.'},
+    {id:'new',     name:'New Signups',       size:'8,700',  selected:false, desc:'Joined in last 30 days. No transactions yet. Introduce key features before any cross-sell push.', signals:['Signup age <30d','No tx history','Source: organic/referral'],types:['mid','mid','high'],note:'Introduce the product first. Avoid promo-led messaging to protect long-term value perception.'},
+  ],
+  ledbury: [
+    {id:'loyal',  name:'Loyal Repeat Buyers',    size:'22,400', selected:true, desc:'Purchased 3+ times in 12 months. High brand affinity, respond to editorial tone and new arrivals.', signals:['Purchase freq HIGH','Avg order $185+','Email engagement HIGH'],types:['high','high','high'],note:'Highest LTV. Lead with newness and exclusivity — not discounts.'},
+    {id:'lapsed', name:'Lapsed 60-Day',          size:'31,200', selected:true, desc:'Previously active customers with no purchase in 60+ days. Price-responsive, re-engage with offers.', signals:['Days since purchase HIGH','Discount sensitivity HIGH','Browse rate MID'],types:['low','high','mid'],note:'Strong re-engagement ROI. Discount or curated edit as reactivation hook.'},
+    {id:'browse',  name:'High Browse / Low Buy', size:'18,900', selected:false, desc:'Frequent site visitors who have not converted. Need a nudge — editorial context or urgency works.', signals:['Session depth HIGH','Conversion rate LOW','Category affinity: Shirts'],types:['high','low','mid'],note:'Address hesitation directly. Product storytelling and social proof recommended.'},
+    {id:'new',     name:'New Subscribers',       size:'8,700',  selected:false, desc:'Joined list in last 30 days. No purchase history. Introduce brand voice before conversion ask.', signals:['List age <30d','No purchase history','Acquisition: organic/referral'],types:['mid','mid','high'],note:'Introduce the brand first. Avoid leading with heavy discount — protects margin perception.'},
+  ],
+};
+// Live binding reassigned by setActiveTenant(). Renderers read SEGS at call
+// time, so reassignment propagates without rewiring callsites.
+let SEGS = SEGS_BY_TENANT.monese;
+// Per-tenant CDATA. Monese carries financial-product copy verbatim; Ledbury
+// is the Stokes apparel/retail content verbatim from [stokes:1410]. Tenants
+// without a per-segment entry fall back to monese via getCdataForSeg().
+const CDATA_BY_TENANT = {
+  monese: {
   loyal:{
     email:{subj:'Travel Money Card is here, your first look',body:`Hi [First Name],
 
@@ -2018,7 +2091,68 @@ CTA: Open the app
 TONE: Friendly, welcoming, simple
 FORMAT: Onboarding push + email sequence`,score:{r:'85%',e:'High',cta:'Open the app'}}
   }
+  },
+  // Ledbury content verbatim from Stokes source [stokes:1410]. Stokes only
+  // populated loyal+lapsed; browse and new fall back to the monese tenant
+  // via getCdataForSeg().
+  ledbury: {
+    loyal:{
+      email:{subj:'All New for Spring — your first look',body:`Hi [First Name],
+
+Spring is here at Ledbury, and the new arrivals are worth pausing for.
+
+Highlights from our Spring collection:
+— The Farwell Gingham — our lightest linen-cotton shirt yet
+— Stretch Canvas Franklin 5-Pocket — the perfect alternative to jeans
+— Spring Stripe Linen — insanely soft, unbelievably breathable
+
+New arrivals are moving fast.
+
+[ Shop New Spring Arrivals ]
+
+The Ledbury Team`,score:{r:'91%',e:'High',cta:'Shop New Arrivals'}},
+      sms:{body:`Ledbury: Spring arrivals are live — The Farwell Gingham, Stretch Canvas Pant & more. First look inside: [link]`,score:{r:'88%',e:'High',cta:'Tap link'}},
+      ad:{body:`HEADLINE: All New for Spring
+SUBHEAD: Lightweight. Insanely soft. Ready now.
+VISUAL: Editorial flat lay — Spring Stripe Linen shirt, Stretch Canvas pant, neutral background
+CTA: Shop New Arrivals
+TONE: Elevated, editorial, confident
+FORMAT: Email header + Instagram feed (1:1)`,score:{r:'89%',e:'High',cta:'Shop New Arrivals'}}
+    },
+    lapsed:{
+      email:{subj:"30% Off Sitewide — it's the right time to come back",body:`Hi [First Name],
+
+We haven't seen you in a while — and we're making it worth your return.
+
+For a limited time: 30% off sitewide with $150 spend.
+
+Best of Spring:
+— The Stretch Canvas Franklin 5-Pocket
+— Sunday Shirting classics
+— New Gingham arrivals
+
+[ Shop 30% Off — Offer Ends Sunday ]
+
+Code applied automatically at checkout.
+
+The Ledbury Team`,score:{r:'89%',e:'High',cta:'Shop 30% Off'}},
+      sms:{body:`Ledbury: 30% off sitewide is back — $150+ spend. Best of spring waiting for you: [link] Ends Sunday.`,score:{r:'86%',e:'High',cta:'Tap link'}},
+      ad:{body:`HEADLINE: 30% Off Sitewide — Ends Sunday
+SUBHEAD: With $150+ spend. Spring's best in stock now.
+VISUAL: Model wearing Spring Stripe shirt and Stretch Canvas pant, outdoor editorial
+CTA: Shop 30% Off
+TONE: Direct, action-led, warm
+FORMAT: Retargeting display + email re-engagement`,score:{r:'87%',e:'High',cta:'Shop 30% Off'}}
+    },
+  },
 };
+// Live binding rebound by setActiveTenant().
+let CDATA = CDATA_BY_TENANT.monese;
+// Lookup helper that falls back to monese for missing per-segment entries
+// (e.g. ledbury has loyal+lapsed only; browse/new inherit from monese).
+function getCdataForSeg(segId){
+  return (CDATA && CDATA[segId]) || CDATA_BY_TENANT.monese[segId] || null;
+}
 let aSegTab=null,aChanTab='email';
 const chanLbls={email:'Email',sms:'SMS',ad:'Ad brief'};
 
@@ -2067,7 +2201,7 @@ function swSeg(id){aSegTab=id;document.querySelectorAll('.otab').forEach(t=>t.cl
 function swChan(ch){aChanTab=ch;renderSplitContent();}
 
 function renderSplitContent(){
-  const d=CDATA[aSegTab];if(!d)return;
+  const d=getCdataForSeg(aSegTab);if(!d)return;
   const chans=Object.keys(d);
   const c=d[aChanTab];if(!c)return;
   function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -2545,7 +2679,25 @@ function bootAudienceExplorer(){
   }
   selC(0);
 }
-const homeChats=[{id:1,title:'Travel Money Card launch performance',time:'Just now',active:true},{id:2,title:'Money Mondays segment analysis',time:'2h ago',active:false},{id:3,title:'Lapsed customer re-engagement',time:'Yesterday',active:false},{id:4,title:'Travel Money Card launch sequencing',time:'2 days ago',active:false}];
+// Per-tenant home conversation seeds. Monese keeps the financial-product
+// flavor; Ledbury preserves Stokes's apparel/retail conversation titles
+// verbatim ([stokes:1923]). setActiveTenant() replaces homeChats contents
+// in-place via splice so existing references stay valid.
+const HOME_CHATS_BY_TENANT = {
+  monese: [
+    {id:1,title:'Travel Money Card launch performance',time:'Just now',active:true},
+    {id:2,title:'Money Mondays segment analysis',time:'2h ago',active:false},
+    {id:3,title:'Lapsed customer re-engagement',time:'Yesterday',active:false},
+    {id:4,title:'Travel Money Card launch sequencing',time:'2 days ago',active:false},
+  ],
+  ledbury: [
+    {id:1,title:'Spring campaign performance review',time:'Just now',active:true},
+    {id:2,title:'Sunday Shirting segment analysis',time:'2h ago',active:false},
+    {id:3,title:'Lapsed customer re-engagement',time:'Yesterday',active:false},
+    {id:4,title:'New arrival launch sequencing',time:'2 days ago',active:false},
+  ],
+};
+const homeChats=HOME_CHATS_BY_TENANT.monese.map(c=>({...c}));
 let nextChatId=5;
 function renderHomeList(){document.getElementById('homeList').innerHTML=homeChats.map(c=>`<div class="sb-item ${c.active?'active':''}" id="hc-${c.id}" onclick="selectChat(${c.id})" oncontextmenu="openHomCtx(event,${c.id})"><div class="sb-item-icon">${IC.chat}</div><div class="sb-item-body"><div class="sb-item-title" id="hct-${c.id}">${c.title}</div><div class="sb-item-time">${c.time}</div></div><div class="sb-item-acts"><button class="sb-item-act" title="Rename" onclick="event.stopPropagation();startChatRename(${c.id})">${IC.pen}</button><button class="sb-item-act del" title="Delete" onclick="event.stopPropagation();deleteChat(${c.id})">${IC.del}</button></div></div>`).join('');}
 function selectChat(id){selectChatAndShow(id);}
@@ -3340,8 +3492,9 @@ function renderCdOverview(client){
 
 // ── DATASOURCE PANEL ──
 function renderCdDataSources(client){
-  const clientId = (client || getDetailClient()).id;
-  const sources  = DS_SOURCES.filter(s => s.clientId === clientId);
+  // DS_SOURCES is global across tenants (Stokes parity). The same source list
+  // renders for every client; differentiation belongs in CLIENTS, not here.
+  const sources  = DS_SOURCES;
   const grid = sources.map(s => {
     const dotColor  = DS_STATUS_COLORS[s.status] || '#555';
     const isSelected = s.id === dsSelected;
@@ -3471,7 +3624,6 @@ const WL_CLIENT_DEFAULTS = {
 // Known domain → palette map for the URL pull-colors demo.
 const WL_BRAND_PALETTES = {
   ledbury:     {primary:'#4a6741', secondary:'#6a8f60', background:'#f5f2ed', accent:'#c8a96e'},
-  petsmart:    {primary:'#E31837', secondary:'#0072CE', background:'#ffffff', accent:'#f5a623'},
   santander:   {primary:'#EC0000', secondary:'#cc0000', background:'#ffffff', accent:'#f5f5f5'},
   monese:      {primary:'#00c389', secondary:'#00a374', background:'#f7faf9', accent:'#1a1a2e'},
   virginmoney: {primary:'#E31837', secondary:'#c01028', background:'#ffffff', accent:'#333333'},
