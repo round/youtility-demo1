@@ -1467,6 +1467,12 @@ function quickLogin(target) {
     showToast('No demo user available for "' + target + '"');
     return;
   }
+  // Note: this function intentionally does NOT mutate ACTIVE_CLIENT_ID. Today
+  // every USERS record is either Monese-tenant or null (super admin), so the
+  // signed-in identity and the active tenant cannot diverge. If a future demo
+  // user is added under a different clientId, a proper tenant-switch pipeline
+  // (re-apply palette, re-inject copy, refresh PRODUCT_NAME) must be wired in
+  // before that switch path becomes reachable.
   CURRENT_USER_ID = matchedId;
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.add('hidden');
