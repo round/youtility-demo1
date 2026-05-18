@@ -1276,9 +1276,9 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <div style="padding:24px 32px;flex:1;overflow-y:auto;">
       <div class="client-detail">
         <div class="client-detail-hdr">
-          <button class="client-detail-back" onclick="closeClientDetail()">
+          <button class="client-detail-back" id="cdpBackBtn" onclick="cdBack()">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
-            All clients
+            <span id="cdpBackBtnLabel">All clients</span>
           </button>
           <div class="client-dot-lg" id="cdpClientDot" style="background:var(--brand-primary);margin-left:8px;"></div>
           <div>
@@ -1646,6 +1646,48 @@ function applyBrandPalette(name){
 }
 applyBrandPalette(getActiveClient().palette);
 
+// Restore branding (palette + saved white-label overrides + uploaded logo)
+// of the signed-in tenant. Called on every detail-view EXIT path so palette/
+// logo edits applied to another client via the detail editor don't leak into
+// the admin shell.
+// Scope: only re-applies what the detail-view editor can mutate (CSS palette
+// vars via applyColorToInterface, and per-tenant uploaded logos via
+// cdApplyLogoToHeader). Tenant copy / PRODUCT_NAME are out of scope — the
+// detail editor never mutates them.
+function restoreActiveTenantBranding(){
+  const client = (typeof getActiveClient === 'function') ? getActiveClient() : null;
+  if(!client) return;
+  // Clear every inline CSS-var override applyColorToInterface can write on
+  // <html> and <body>. Must cover EVERY WL_CSS_MAP target (including --accent2)
+  // plus the companions applyColorToInterface derives (--brand-primary-rgb,
+  // --bg2, --bg3) — otherwise inline body-scope overrides from the editor
+  // would shadow the palette we re-apply below.
+  try {
+    const html = document.documentElement, body = document.body;
+    const targets = (typeof WL_CSS_MAP === 'object' && WL_CSS_MAP) ? Object.values(WL_CSS_MAP) : [];
+    const props = new Set([
+      ...targets,
+      '--brand-primary','--brand-primary-hover','--brand-primary-rgb',
+      '--bg','--bg2','--bg3','--accent2',
+    ]);
+    props.forEach(p => { html.style.removeProperty(p); body && body.style.removeProperty(p); });
+  } catch(e){ /* noop */ }
+  applyBrandPalette(client.palette);
+  // Re-apply the active tenant's OWN saved white-label overrides (if any).
+  // Without this, a client admin who saved their own colors via cdSaveWhiteLabel
+  // would see those colors vanish from the shell the moment they pressed Back.
+  if(client.wlColors && typeof applyColorToInterface === 'function'){
+    Object.entries(client.wlColors).forEach(([t, hex]) => applyColorToInterface(t, hex));
+  }
+  // If the active tenant has its own uploaded logo, re-apply it. Otherwise,
+  // the static header markup carries the default logo; cdApplyLogoToHeader
+  // only mutates .client-logo-mark containers and the active tenant has none
+  // by default, so there is nothing to undo at the <img> level.
+  if(client.wlLogo && typeof cdApplyLogoToHeader === 'function'){
+    cdApplyLogoToHeader(client.wlLogo);
+  }
+}
+
 function injectClientCopy(){
   const client = getActiveClient();
   const name = client.copy.productName || 'Youtility';
@@ -1742,6 +1784,7 @@ const WS_META={home:{name:'Home',color:'#8b90a8',bg:'rgba(139,144,168,.1)',icon:
 function toggleWsDrop(){} // removed
 function switchWs(ws){
   currentWs=ws;
+  const wasInDetail = !!DETAIL_CLIENT_ID;
   DETAIL_CLIENT_ID = null;
   // Show / hide sidebar variants
   const sbH=document.getElementById('sbHome');if(sbH) sbH.style.display=ws==='home'?'':'none';
@@ -1752,6 +1795,9 @@ function switchWs(ws){
   const rV=document.getElementById('reportView');if(rV) rV.style.display=ws==='report'?'flex':'none';
   const aV=document.getElementById('adminView');if(aV) aV.classList.add('hidden');
   const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
+  // Leaving the detail editor: restore the signed-in tenant's branding so palette
+  // overrides applied while editing another client don't leak into the shell.
+  if(wasInDetail && typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
   if(ws==='campaign'){renderCampSb();renderOverview();}
 }
 // (workspace dropdown removed)
@@ -2824,7 +2870,10 @@ function showAdminView(){
   const rV=document.getElementById('reportView');if(rV) rV.style.display='none';
   const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
   const aV=document.getElementById('adminView');if(aV) aV.classList.remove('hidden');
+  const wasInDetail = !!DETAIL_CLIENT_ID;
   DETAIL_CLIENT_ID = null;
+  // Leaving the detail editor: restore the signed-in tenant's branding.
+  if(wasInDetail && typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
   renderAdminClients();
 }
 
@@ -3024,6 +3073,14 @@ function openClientDetail(clientId){
   if (subEl) subEl.textContent = isLive ? 'Live · Active' : 'Setup · Configuring';
   // Show view
   const view = document.getElementById('clientDetailView'); if (view) view.classList.remove('hidden');
+  // Role-aware back-button label: super admins return to the all-clients
+  // list; client admins (Fix 5 modal-level scoping) only see their own
+  // tenant, so the label reflects a simple "Back" exit.
+  const backLbl = document.getElementById('cdpBackBtnLabel');
+  if(backLbl){
+    const u = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+    backLbl.textContent = (u && u.role === 'super') ? 'All clients' : 'Back';
+  }
   // Default tab: overview
   switchCdTab('overview');
   renderCdOverview(client);
@@ -3032,7 +3089,29 @@ function openClientDetail(clientId){
 function closeClientDetail(){
   const view = document.getElementById('clientDetailView'); if (view) view.classList.add('hidden');
   DETAIL_CLIENT_ID = null;
+  // Restore the signed-in tenant's branding before showing the all-clients list
+  // so palette overrides applied while editing don't leak into the admin shell.
+  if(typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
   showAdminView();
+}
+
+// Role-aware back navigation from the client-detail panel.
+// Super admins return to the all-clients list; client admins (who only ever
+// view their own tenant under Fix 5's modal-level scoping) just exit the
+// detail view back to Home — there is no all-clients list for them.
+function cdBack(){
+  const u = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+  const isSuper = !!(u && u.role === 'super');
+  if(isSuper){
+    closeClientDetail();
+    return;
+  }
+  // Client admin (or anyone non-super): hide detail view, restore branding,
+  // route to home rather than the all-tenants admin list.
+  const view = document.getElementById('clientDetailView'); if (view) view.classList.add('hidden');
+  DETAIL_CLIENT_ID = null;
+  if(typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
+  if(typeof switchWs === 'function') switchWs('home');
 }
 
 function switchCdTab(name){
@@ -3373,16 +3452,32 @@ function wireWlInputs(){
 }
 
 // Logo file upload — reads as data URL, previews drop zone text, applies to header.
+// Captures the target client id BEFORE the async FileReader.readAsDataURL so a
+// mid-read tenant switch (closing the detail view, opening another client) can't
+// cause the upload to be saved on the wrong tenant.
 function cdPreviewLogo(input){
   const file = input.files[0]; if (!file) return;
+  const targetClientId = DETAIL_CLIENT_ID || (typeof ACTIVE_CLIENT_ID !== 'undefined' ? ACTIVE_CLIENT_ID : null);
+  if (!targetClientId) return;
   const reader = new FileReader();
   reader.onload = e => {
     const src = e.target.result;
-    const textEl = document.getElementById('cdLogoDropText');
-    if (textEl) textEl.textContent = 'Logo uploaded — click to replace';
-    const client = getDetailClient();
+    // Look up the captured target client at read-completion time; if it was
+    // deleted (or no longer exists), bail without mutating any other tenant.
+    const client = CLIENTS.find(c => c.id === targetClientId);
+    if (!client){
+      if (typeof showToast === 'function') showToast('Upload cancelled — client no longer available');
+      return;
+    }
     client.wlLogo = src;
-    cdApplyLogoToHeader(src);
+    // Only repaint the live header if the editor is still focused on this same
+    // client; otherwise the user has navigated away and we'd briefly stamp the
+    // wrong tenant's mark on whatever shell they're now viewing.
+    if (DETAIL_CLIENT_ID === targetClientId){
+      const textEl = document.getElementById('cdLogoDropText');
+      if (textEl) textEl.textContent = 'Logo uploaded — click to replace';
+      cdApplyLogoToHeader(src);
+    }
   };
   reader.readAsDataURL(file);
 }
