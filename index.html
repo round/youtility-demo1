@@ -1424,7 +1424,9 @@ function updateAdminNavVisibility(){
   if (!adminLink) return;
   const client = getActiveClient();
   const u = getCurrentUser();
-  const show = !!(client && client.enabledFeatures && client.enabledFeatures.admin) && !!(u && isAdminRole(u.role));
+  const isSuper = !!(u && u.role === 'super');
+  const tenantOk = !!(client && client.enabledFeatures && client.enabledFeatures.admin);
+  const show = !!(u && isAdminRole(u.role)) && (isSuper || tenantOk);
   adminLink.style.display = show ? '' : 'none';
 }
 
@@ -2777,7 +2779,9 @@ function renderAdminClients(){
 function showAdminView(){
   const u=getCurrentUser();
   const client=getActiveClient();
-  if(!(client && client.enabledFeatures && client.enabledFeatures.admin) || !(u && isAdminRole(u.role))){
+  const isSuper = !!(u && u.role === 'super');
+  const tenantOk = !!(client && client.enabledFeatures && client.enabledFeatures.admin);
+  if(!(u && isAdminRole(u.role)) || !(isSuper || tenantOk)){
     updateAdminNavVisibility();
     if(typeof switchWs==='function'){ switchWs('home'); } else { const hV0=document.getElementById('homeView');if(hV0) hV0.style.display=''; }
     return;
