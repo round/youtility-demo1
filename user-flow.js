@@ -140,11 +140,17 @@
   }
   function isVisible(el) {
     if (!el || !el.getBoundingClientRect) return false;
+    if (typeof el.checkVisibility === "function") {
+      return el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true });
+    }
     const r = el.getBoundingClientRect();
     if (r.width === 0 && r.height === 0) return false;
     const cs = getComputedStyle(el);
-    return cs.visibility !== "hidden" && cs.display !== "none";
+    if (cs.visibility === "hidden" || cs.display === "none") return false;
+    if (parseFloat(cs.opacity) < 0.1) return false;
+    return true;
   }
+  function nextFrame() { return new Promise(r => requestAnimationFrame(r)); }
   function wait(ms, signal) {
     return new Promise((res, rej) => {
       const t = setTimeout(res, ms);
@@ -275,11 +281,19 @@
         await wait(step.ms || 400, signal);
         return;
       }
-      const el = await resolveTarget(step, signal);
+      let el = await resolveTarget(step, signal);
       if (!el) throw new Error("could not resolve target");
       el.scrollIntoView({ block: "center", inline: "nearest" });
+      await nextFrame();
+      const travelTo = rectCenter(el);
+      await moveCursor(root, cursor, travelTo[0], travelTo[1], signal);
+
+      const live = await resolveTarget(step, signal);
+      el = live && live.isConnected ? live : (el.isConnected ? el : null);
+      if (!el) throw new Error("target detached during travel");
       const [cx, cy] = rectCenter(el);
-      await moveCursor(root, cursor, cx, cy, signal);
+      placeCursor(root, cursor, cx, cy);
+
       if (action === "click") { pulseClick(cursor); fireClick(el); }
       else if (action === "hover") { fireHover(el); }
       else if (action === "type") { await fireType(el, step.text || "", { clear: step.clear, perChar: step.perChar }, signal); }
