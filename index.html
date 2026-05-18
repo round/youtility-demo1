@@ -1770,7 +1770,7 @@ function renderProds(){const filtered=PRODUCTS.filter(p=>!prodFilter||p.name.toL
 function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!p.sel;renderProds();}
 
 // ══ OVERVIEW ══
-function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const brandPri=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()||'#0b72fd';const ucs=[{l:'Promotional',n:8,c:brandPri},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
+function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const brandPri=resolveBrandColor('brand-primary');const ucs=[{l:'Promotional',n:8,c:brandPri},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
 
 // ══ CAMPAIGN WORKSPACE TABS ══
 let cwCur='report';
@@ -2717,8 +2717,8 @@ const REPORTS={
     chartType:'donut',
     chartData:{slices:[
       {label:'Holiday',value:34,color:'#daa520'},
-      {label:'Emergency',value:22,color:'#0b72fd'},
-      {label:'House',value:18,color:'#3892ff'},
+      {label:'Emergency',value:22,color:'brand-primary'},
+      {label:'House',value:18,color:'brand-primary-hover'},
       {label:'Wedding',value:8,color:'#7c5cbf'},
       {label:'Tax',value:6,color:'#2ea86a'},
       {label:'Other',value:12,color:'#a8c8ff'}
@@ -2928,7 +2928,10 @@ function buildHBarChart(data,color){
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:${H+10}px;overflow:visible;">${items}</svg>`;
 }
 function buildDonutChart(data,color){
-  const slices=data.slices;
+  // Resolve every slice color through the same single entry point used by the
+  // report header dot and chart builders, so 'brand-primary' / 'brand-primary-hover'
+  // sentinels follow the active palette and never leak the prior brand's hex.
+  const slices=data.slices.map(s=>({...s,color:resolveBrandColor(s.color)}));
   const total=slices.reduce((a,b)=>a+b.value,0);
   const cx=90,cy=90,r=72,rin=44,W=480,H=200;
   let cumA=-Math.PI/2;
