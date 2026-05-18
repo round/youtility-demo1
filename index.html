@@ -2250,18 +2250,6 @@ const WL_BRAND_PALETTES = {
   default:     {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
 };
 
-// Placeholder header-logo generator for tenants that don't ship a real logo
-// asset. The encoded `#` characters MUST stay `%23` — raw `#` in a data URL
-// terminates the URL fragment and breaks the SVG load.
-function makeMonoLogo(letter, hex, font){
-  const c = (hex || '#666').replace('#','%23');
-  // Font defaults to Montserrat (matches the platform sans). Pass 'Georgia,serif'
-  // for tenants whose brand is heritage-serif (e.g. Ledbury).
-  const f = font || 'Montserrat,sans-serif';
-  const weight = /serif/i.test(f) ? '400' : '700';
-  return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'><rect width='100' height='100' rx='14' fill='" + c + "'/><text x='50' y='68' text-anchor='middle' font-family='" + f + "' font-size='56' font-weight='" + weight + "' fill='%23fff'>" + letter + "</text></svg>";
-}
-
 // ════════════════════════════════════════════════════════════════════════════
 // STATE — all top-level mutable bindings
 // (let declarations + state-shaped consts whose contents mutate at runtime)
@@ -2336,6 +2324,18 @@ const _cdOriginalLogoSrc = new WeakMap();
 const _cdOriginalLogoFilter = new WeakMap();
 
 // ════════════════════════════════════════════════════════════════════════════
+
+// Placeholder header-logo generator for tenants that don't ship a real logo
+// asset. The encoded `#` characters MUST stay `%23` — raw `#` in a data URL
+// terminates the URL fragment and breaks the SVG load.
+function makeMonoLogo(letter, hex, font){
+  const c = (hex || '#666').replace('#','%23');
+  // Font defaults to Montserrat (matches the platform sans). Pass 'Georgia,serif'
+  // for tenants whose brand is heritage-serif (e.g. Ledbury).
+  const f = font || 'Montserrat,sans-serif';
+  const weight = /serif/i.test(f) ? '400' : '700';
+  return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'><rect width='100' height='100' rx='14' fill='" + c + "'/><text x='50' y='68' text-anchor='middle' font-family='" + f + "' font-size='56' font-weight='" + weight + "' fill='%23fff'>" + letter + "</text></svg>";
+}
 
 function getActiveClient(){ return CLIENTS.find(c => c.id === ACTIVE_CLIENT_ID) || CLIENTS[0]; }
 function getDetailClient(){ return (DETAIL_CLIENT_ID && CLIENTS.find(c => c.id === DETAIL_CLIENT_ID)) || getActiveClient(); }
