@@ -2325,6 +2325,40 @@ const _cdOriginalLogoFilter = new WeakMap();
 
 // ════════════════════════════════════════════════════════════════════════════
 
+function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// Expands #rgb to #rrggbb; returns null for anything that isn't a valid hex literal.
+function normalizeHex(hex){
+  if(typeof hex !== 'string') return null;
+  if(/^#[0-9a-fA-F]{3}$/.test(hex)){
+    return '#' + hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3];
+  }
+  return /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : null;
+}
+
+// Returns a hex colour darkened/lightened by pct% (negative = darken).
+function shadeHex(hex, pct){
+  const h = normalizeHex(hex); if(!h) return hex;
+  let r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
+  r = Math.max(0,Math.min(255, r + Math.round(r*pct/100)));
+  g = Math.max(0,Math.min(255, g + Math.round(g*pct/100)));
+  b = Math.max(0,Math.min(255, b + Math.round(b*pct/100)));
+  return '#' + [r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+// Parses a hex literal into the "R G B" triplet that
+// `rgb(var(--brand-primary-rgb) / α)` translucent surfaces expect. Null on bad input.
+function hexToRgbTriplet(hex){
+  const h = normalizeHex(hex); if(!h) return null;
+  return parseInt(h.slice(1,3),16)+' '+parseInt(h.slice(3,5),16)+' '+parseInt(h.slice(5,7),16);
+}
+
+function resolveBrandColor(color){
+  if(color==='brand-primary') return getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()||'#0b72fd';
+  if(color==='brand-primary-hover') return getComputedStyle(document.documentElement).getPropertyValue('--brand-primary-hover').trim()||'#3892ff';
+  return color;
+}
+
 // Placeholder header-logo generator for tenants that don't ship a real logo
 // asset. The encoded `#` characters MUST stay `%23` — raw `#` in a data URL
 // terminates the URL fragment and breaks the SVG load.
@@ -2337,12 +2371,30 @@ function makeMonoLogo(letter, hex, font){
   return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'><rect width='100' height='100' rx='14' fill='" + c + "'/><text x='50' y='68' text-anchor='middle' font-family='" + f + "' font-size='56' font-weight='" + weight + "' fill='%23fff'>" + letter + "</text></svg>";
 }
 
+// Derive avatar initials/color so a USERS record missing those fields
+// can never re-break the sidebar avatar styling.
+function deriveUserInitials(u){
+  if (u && u.initials) return u.initials;
+  const name = (u && u.name) || '';
+  return name.split(/\s+/).filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase() || '?';
+}
+
+function deriveUserColor(u){
+  if (u && u.color) return u.color;
+  return 'var(--brand-primary)';
+}
+
+function isAdminRole(role){ return role === 'admin' || role === 'super'; }
+
 function getActiveClient(){ return CLIENTS.find(c => c.id === ACTIVE_CLIENT_ID) || CLIENTS[0]; }
+
 function getDetailClient(){ return (DETAIL_CLIENT_ID && CLIENTS.find(c => c.id === DETAIL_CLIENT_ID)) || getActiveClient(); }
+
 // Platform name ("Stokes") is constant across tenants but read through
 // getProductName() so a tenant could override via client.copy.productName in
 // future. Used in the chat seed ("Welcome back to Stokes…").
 function getProductName(){ return getActiveClient().copy.productName || 'Stokes'; }
+
 function injectClientFonts(client){
   client = client || getActiveClient();
   if (!client.fontImport) return;
@@ -2354,37 +2406,10 @@ function injectClientFonts(client){
   __LOADED_FONT_HREFS.add(client.fontImport);
 }
 injectClientFonts();
+
 function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
+
 function getDemoUsers(){ return Object.values(USERS); }
-function isAdminRole(role){ return role === 'admin' || role === 'super'; }
-function updateAdminNavVisibility(){
-  const adminLink = document.getElementById('sbLinkAdmin');
-  if (!adminLink) return;
-  const client = getActiveClient();
-  const u = getCurrentUser();
-  const isSuper = !!(u && u.role === 'super');
-  const tenantOk = !!(client && client.enabledFeatures && client.enabledFeatures.admin);
-  const show = !!(u && isAdminRole(u.role)) && (isSuper || tenantOk);
-  adminLink.style.display = show ? '' : 'none';
-}
-
-// Hide the product-verticals dropdown for tenants that have reports disabled
-// (currently Santander). Without this gate, clicking any vertical fires
-// showVerticalReport() against a tenant that has no report templates and
-// silently renders an empty #reportView.
-function updateProjectSwitcherVisibility(){
-  const sw = document.getElementById('projSwitcher');
-  if (!sw) return;
-  const client = getActiveClient();
-  const reportsOn = !!(client && client.enabledFeatures && client.enabledFeatures.reports);
-  sw.style.display = reportsOn ? '' : 'none';
-}
-
-function updateSearchVisibility(){
-  const client = getActiveClient();
-  const on = !(client && client.enabledFeatures && client.enabledFeatures.search === false);
-  document.querySelectorAll('.sb-search-btn').forEach(el => { el.style.display = on ? '' : 'none'; });
-}
 
 // ── AUTH / SESSION ──
 function doLogin() {
@@ -2421,18 +2446,6 @@ function doLogin() {
     }
   }
   quickLogin(targetId);
-}
-
-// Derive avatar initials/color so a USERS record missing those fields
-// can never re-break the sidebar avatar styling.
-function deriveUserInitials(u){
-  if (u && u.initials) return u.initials;
-  const name = (u && u.name) || '';
-  return name.split(/\s+/).filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase() || '?';
-}
-function deriveUserColor(u){
-  if (u && u.color) return u.color;
-  return 'var(--brand-primary)';
 }
 
 // Accept either a USERS id (e.g. 'demo-admin') or a role string (e.g. 'admin').
@@ -2499,121 +2512,6 @@ function signOut() {
   if (loginEl) loginEl.classList.remove('hidden');
 }
 
-// ── ACCOUNT MODAL ──
-function renderClientAcctPanel(u, client){
-    const isSingleTenant = client.mode === 'singleTenant';
-    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
-    const switchTargets = getDemoUsers().filter(other => other.id !== u.id && isAdminRole(other.role));
-    const switchSection = (!isSingleTenant && switchTargets.length > 0) ? `
-    <div class="acct-section-lbl">SWITCH USER</div>
-    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
-    ` : '';
-    const signOutSection = isSingleTenant ? '' : `
-    <div class="acct-divider"></div>
-    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
-    return `
-    <div class="acct-user-card">
-      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
-      <div>
-        <div class="acct-name">${u.name}</div>
-        <div class="acct-role">${client.name} · ${u.role.toUpperCase()}</div>
-        <span class="acct-badge badge-client">CLIENT</span>
-      </div>
-    </div>
-    <div class="acct-section-lbl">ACCOUNT</div>
-    <div class="acct-menu-item" onclick="showToast('Profile settings — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><div class="acct-menu-label">Profile settings</div></div>
-    <div class="acct-menu-item" onclick="showToast('Change password — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div class="acct-menu-label">Change password</div></div>
-    <div class="acct-menu-item" onclick="showToast('Notification preferences — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="acct-menu-label">Notification preferences</div></div>
-    ${switchSection}
-    ${signOutSection}`;
-  }
-
-  function renderAdminAcctPanel(u){
-    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
-    const switchTargets = getDemoUsers().filter(other => other.id !== u.id && !isAdminRole(other.role));
-    const clientListSection = `
-    <div class="acct-section-lbl">CLIENT LIST</div>
-    ${CLIENTS.map(c => `<div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${c.id}')"><div class="admin-client-dot" style="background:${c.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${c.name}</div></div>`).join('')}
-    `;
-    const switchSection = switchTargets.length > 0 ? `
-    <div class="acct-section-lbl">SWITCH USER</div>
-    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name}</div></div>`).join('')}
-    ` : '';
-    return `
-    <div class="acct-user-card">
-      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
-      <div>
-        <div class="acct-name">${u.name}</div>
-        <div class="acct-role">STOKES · ${u.role.toUpperCase()}</div>
-        <span class="acct-badge badge-super">SUPER ADMIN</span>
-      </div>
-    </div>
-    ${clientListSection}
-    ${switchSection}
-    <div class="acct-divider"></div>
-    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
-  }
-
-  function renderClientAdminAcctPanel(u, client){
-    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
-    const switchTargets = getDemoUsers().filter(other => other.id !== u.id);
-    const roleLabel = r => r === 'admin' ? 'Client Admin' : r === 'super' ? 'Super Admin' : 'User';
-    const switchSection = switchTargets.length > 0 ? `
-    <div class="acct-section-lbl">SWITCH USER</div>
-    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${roleLabel(t.role)})</div></div>`).join('')}
-    ` : '';
-    return `
-    <div class="acct-user-card">
-      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
-      <div>
-        <div class="acct-name">${u.name}</div>
-        <div class="acct-role">${client.name} · CLIENT ADMIN</div>
-        <span class="acct-badge badge-client">CLIENT ADMIN</span>
-      </div>
-    </div>
-    <div class="acct-section-lbl">YOUR CLIENT</div>
-    <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}')"><div class="admin-client-dot" style="background:${client.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${client.name}</div></div>
-    ${client.enabledFeatures && client.enabledFeatures.whitelabel ? `
-    <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}','whitelabel')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text2);"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><div class="acct-menu-label">Edit branding</div></div>` : ''}
-    ${switchSection}
-    <div class="acct-divider"></div>
-    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
-  }
-
-  function openAccountModal(){
-    const u = getCurrentUser();
-    if (!u) return;
-    const client = getActiveClient();
-    const titleEl = document.getElementById('acctModalTitle');
-    const bodyEl = document.getElementById('acctModalBody');
-    if (!titleEl || !bodyEl) return;
-    if (u.role === 'super') {
-      titleEl.textContent = 'Admin panel';
-      bodyEl.innerHTML = renderAdminAcctPanel(u);
-    } else if (u.role === 'admin') {
-      titleEl.textContent = 'Admin panel';
-      bodyEl.innerHTML = renderClientAdminAcctPanel(u, client);
-    } else {
-      titleEl.textContent = 'Account';
-      bodyEl.innerHTML = renderClientAcctPanel(u, client);
-    }
-    document.getElementById('accountModal').classList.remove('hidden');
-  }
-
-function closeAccountModal() {
-  document.getElementById('accountModal').classList.add('hidden');
-}
-
-// Close account modal on overlay click or Esc key
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('accountModal').addEventListener('click', function(e) {
-    if (e.target === this) closeAccountModal();
-  });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeAccountModal();
-  });
-});
-
 function applyBrandPalette(name){
   const p = BRAND_PALETTES[name] || BRAND_PALETTES['monese'];
   for (const [k, v] of Object.entries(p)) document.documentElement.style.setProperty(k, v);
@@ -2670,6 +2568,35 @@ function restoreActiveTenantBranding(){
     cdApplyLogoToHeader(client.logo);
   } else if(typeof cdResetLogoInHeader === 'function'){
     cdResetLogoInHeader();
+  }
+}
+
+// Applies a single whitelabel colour token to the live interface.
+// Companion/derived vars must be written at the SAME scope as the canonical var
+// (body level) so the `body.light-mode { --bg2:…; --bg3:…; }` cascade does
+// not shadow our derived values.
+function applyColorToInterface(token, hex){
+  const cssVar = WL_CSS_MAP[token];
+  if(!cssVar) return;
+  if(!normalizeHex(hex)) return;
+  document.documentElement.style.setProperty(cssVar, hex);
+  document.body.style.setProperty(cssVar, hex);
+  // Companion: every `rgb(var(--brand-primary-rgb) / α)` surface depends on this.
+  if(token === 'primary'){
+    const triplet = hexToRgbTriplet(hex);
+    if(triplet){
+      document.documentElement.style.setProperty('--brand-primary-rgb', triplet);
+      document.body.style.setProperty('--brand-primary-rgb', triplet);
+    }
+  }
+  // Derived depth-ramp vars: mirror at body scope so light-mode cannot shadow.
+  if(token === 'background'){
+    const bg2 = shadeHex(hex, -5);
+    const bg3 = shadeHex(hex, -10);
+    document.documentElement.style.setProperty('--bg2', bg2);
+    document.documentElement.style.setProperty('--bg3', bg3);
+    document.body.style.setProperty('--bg2', bg2);
+    document.body.style.setProperty('--bg3', bg3);
   }
 }
 
@@ -2825,61 +2752,34 @@ function setActiveTenant(clientId){
 
 document.addEventListener('DOMContentLoaded', injectClientCopy);
 
-// Expands #rgb to #rrggbb; returns null for anything that isn't a valid hex literal.
-function normalizeHex(hex){
-  if(typeof hex !== 'string') return null;
-  if(/^#[0-9a-fA-F]{3}$/.test(hex)){
-    return '#' + hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3];
-  }
-  return /^#[0-9a-fA-F]{6}$/.test(hex) ? hex : null;
+function updateAdminNavVisibility(){
+  const adminLink = document.getElementById('sbLinkAdmin');
+  if (!adminLink) return;
+  const client = getActiveClient();
+  const u = getCurrentUser();
+  const isSuper = !!(u && u.role === 'super');
+  const tenantOk = !!(client && client.enabledFeatures && client.enabledFeatures.admin);
+  const show = !!(u && isAdminRole(u.role)) && (isSuper || tenantOk);
+  adminLink.style.display = show ? '' : 'none';
 }
 
-// Returns a hex colour darkened/lightened by pct% (negative = darken).
-function shadeHex(hex, pct){
-  const h = normalizeHex(hex); if(!h) return hex;
-  let r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
-  r = Math.max(0,Math.min(255, r + Math.round(r*pct/100)));
-  g = Math.max(0,Math.min(255, g + Math.round(g*pct/100)));
-  b = Math.max(0,Math.min(255, b + Math.round(b*pct/100)));
-  return '#' + [r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+// Hide the product-verticals dropdown for tenants that have reports disabled
+// (currently Santander). Without this gate, clicking any vertical fires
+// showVerticalReport() against a tenant that has no report templates and
+// silently renders an empty #reportView.
+function updateProjectSwitcherVisibility(){
+  const sw = document.getElementById('projSwitcher');
+  if (!sw) return;
+  const client = getActiveClient();
+  const reportsOn = !!(client && client.enabledFeatures && client.enabledFeatures.reports);
+  sw.style.display = reportsOn ? '' : 'none';
 }
 
-// Parses a hex literal into the "R G B" triplet that
-// `rgb(var(--brand-primary-rgb) / α)` translucent surfaces expect. Null on bad input.
-function hexToRgbTriplet(hex){
-  const h = normalizeHex(hex); if(!h) return null;
-  return parseInt(h.slice(1,3),16)+' '+parseInt(h.slice(3,5),16)+' '+parseInt(h.slice(5,7),16);
+function updateSearchVisibility(){
+  const client = getActiveClient();
+  const on = !(client && client.enabledFeatures && client.enabledFeatures.search === false);
+  document.querySelectorAll('.sb-search-btn').forEach(el => { el.style.display = on ? '' : 'none'; });
 }
-
-// Applies a single whitelabel colour token to the live interface.
-// Companion/derived vars must be written at the SAME scope as the canonical var
-// (body level) so the `body.light-mode { --bg2:…; --bg3:…; }` cascade does
-// not shadow our derived values.
-function applyColorToInterface(token, hex){
-  const cssVar = WL_CSS_MAP[token];
-  if(!cssVar) return;
-  if(!normalizeHex(hex)) return;
-  document.documentElement.style.setProperty(cssVar, hex);
-  document.body.style.setProperty(cssVar, hex);
-  // Companion: every `rgb(var(--brand-primary-rgb) / α)` surface depends on this.
-  if(token === 'primary'){
-    const triplet = hexToRgbTriplet(hex);
-    if(triplet){
-      document.documentElement.style.setProperty('--brand-primary-rgb', triplet);
-      document.body.style.setProperty('--brand-primary-rgb', triplet);
-    }
-  }
-  // Derived depth-ramp vars: mirror at body scope so light-mode cannot shadow.
-  if(token === 'background'){
-    const bg2 = shadeHex(hex, -5);
-    const bg3 = shadeHex(hex, -10);
-    document.documentElement.style.setProperty('--bg2', bg2);
-    document.documentElement.style.setProperty('--bg3', bg3);
-    document.body.style.setProperty('--bg2', bg2);
-    document.body.style.setProperty('--bg3', bg3);
-  }
-}
-
 
 // ══ WORKSPACE ══
 function switchWs(ws){
@@ -2908,6 +2808,7 @@ function switchWs(ws){
   if(ws==='campaign'){renderCampSb();renderOverview();}
   if(isCs) renderCS(ws);
 }
+
 // Coming-soon placeholder. Verbatim from Monese_1.1 flow:1889 with the
 // hardcoded "Monese" replaced by the active tenant name — every other
 // behaviour (icon upscale from 14px to 22px, copy template, DOM structure)
@@ -2918,279 +2819,267 @@ function renderCS(ws){
   const m=WS_META[ws]||WS_META.home;
   document.getElementById('csView').innerHTML=`<div class="coming-soon"><div class="cs-icon" style="background:${m.bg}">${m.icon.replace(/width="14" height="14"/g,'width="22" height="22"')}</div><div class="cs-title">${m.name}</div><div class="cs-desc">This workspace is being configured for ${getActiveClient().name}. It will be available in your next release.</div></div>`;
 }
-// (workspace dropdown removed)
-
-function renderCampSb(){const vis=campExp?CAMPS:CAMPS.slice(0,5);const hid=CAMPS.length-5;const rows=vis.map(c=>{const sc=STATUS_COL[c.status]||'#555a72';const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':c.status==='scheduled'?'badge-sched':'badge-draft';return `<div class="camp-item ${activeCampId===c.id?'active':''}" onclick="activeCampId=${c.id};renderCampSb()" oncontextmenu="openCtx(event,${c.id})"><div class="ci-bar" style="background:${sc};opacity:.75"></div><div class="ci-body"><div class="ci-title">${c.title}</div><div class="ci-meta"><div class="ci-time">${c.time}</div><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div></div><div class="ci-act"><button class="ci-act-btn" onclick="event.stopPropagation();startCampRename(${c.id})">${IC.pen}</button><button class="ci-act-btn del" onclick="event.stopPropagation();const idx=CAMPS.findIndex(x=>x.id===${c.id});if(idx!==-1)CAMPS.splice(idx,1);renderCampSb();showToast('Deleted')">${IC.del}</button></div></div>`;}).join('');const more=!campExp&&hid>0?`<div class="show-more" onclick="campExp=true;renderCampSb()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>${hid} older</div>`:'';document.getElementById('campScroll').innerHTML=rows+more;}
-
-// ══ CAMPAIGN TYPE SELECTOR ══
-function selectType(el){document.querySelectorAll('.ct-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedType=el.dataset.type;document.getElementById('promoPanel').style.display=selectedType==='promo'?'':'none';document.getElementById('productPanel').style.display=selectedType==='product'||selectedType==='arrival'?'':'none';document.getElementById('seriesPanel').style.display=selectedType==='series'?'':'none';}
-function selDiscount(el,val){document.querySelectorAll('#discountPills .offer-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');if(val!=='custom')document.getElementById('discPct').value=val;}
-function selUrg(el,v){document.querySelectorAll('.urg-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}
-
-function filterProds(v){prodFilter=v.toLowerCase();renderProds();}
-function renderProds(){const filtered=PRODUCTS.filter(p=>!prodFilter||p.name.toLowerCase().includes(prodFilter)||p.cat.toLowerCase().includes(prodFilter));document.getElementById('prodGrid').innerHTML=filtered.map(p=>`<div class="prod-card ${p.sel?'selected':''}" id="prod-${p.id}" onclick="toggleProd(${p.id})"><div class="prod-img-mock">${p.emoji}</div><div class="prod-sel-check">${IC.chk}</div><div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-cat">${p.cat}</div><div class="prod-price">${p.price}</div></div></div>`).join('');const n=PRODUCTS.filter(x=>x.sel).length;const noun=(getActiveClient().copy.campaignBrief&&getActiveClient().copy.campaignBrief.productNoun)||'product';document.getElementById('prodSelCount').innerHTML=`<span>${n}</span> ${noun}${n!==1?'s':''} selected`;}
-function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!p.sel;renderProds();}
-
-// ══ OVERVIEW ══
-function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const brandPri=resolveBrandColor('brand-primary');const ucs=[{l:'Promotional',n:8,c:brandPri},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
-
-// ══ CAMPAIGN WORKSPACE TABS ══
-function switchCwTab(tab){cwCur=tab;['report','create'].forEach(t=>{document.getElementById(`cwt-${t}`).classList.toggle('active',t===tab);document.getElementById(`cwp-${t}`).classList.toggle('visible',t===tab);});document.getElementById('wizNav').style.display=tab==='create'?'':'none';document.getElementById('gcCard').classList.toggle('active',tab==='report');if(tab==='create'){wizStep=1;renderWizUI();}if(tab==='report')renderOverview();}
-
-// Returns the current tenant's copy for a given segment, or null when the
-// tenant hasn't authored content for it. We deliberately do NOT fall back
-// to monese — that leaked fintech phrasing into Ledbury previews on
-// browse/new (see audit A10). renderSplitContent() renders an explicit
-// "not yet drafted" stub when this returns null.
-function getCdataForSeg(segId){
-  return (CDATA && CDATA[segId]) || null;
-}
-
-function renderWizUI(){[1,2,3].forEach(i=>document.getElementById(`ws${i}`).classList.toggle('visible',i===wizStep));document.getElementById('wizBack').style.display=wizStep===1?'none':'';document.getElementById('wizNext').textContent=wizStep===1?'Continue':wizStep===2?'Generate content':'Export campaign';document.getElementById('wizNext').className=wizStep===3?'wiz-btn finish':'wiz-btn next';document.getElementById('wizInfo').innerHTML=wizStep===2?`<span>${SEGS.filter(s=>s.selected).length} segments selected</span>`:wizStep===3?`<span>${SEGS.filter(s=>s.selected).length} segs</span> · <span>3 channels</span>`:'';renderWizTrack();}
-function renderWizTrack(){document.getElementById('stepTrack').innerHTML=WLBL.map((l,i)=>{const n=i+1,st=n<wizStep?'done':n===wizStep?'active':'pending',icon=st==='done'?IC.chk:n,line=i<WLBL.length-1?`<div class="step-line ${n<wizStep?'done':''}"></div>`:'';return `<div class="step-node"><div class="step-circ ${st}">${icon}</div><div class="step-lbl ${st}">${l}</div></div>${line}`;}).join('');}
-
-function wNext(){
-  if(wizStep===1){wizStep=2;renderWizUI();renderSegs();}
-  else if(wizStep===2){
-    wizStep=3;renderWizUI();renderGenOverlay();
-    sbUserOverride='icon';setSbState('icon');
-    setTimeout(renderOutput,1600);
-  } else exportCamp();
-}
-function wBack(){
-  if(wizStep>1){
-    if(wizStep===3){sbUserOverride=null;applyBreakpoint();}
-    wizStep--;renderWizUI();
-  }
-}
-function exportCamp(){
-  const n=document.getElementById('campName').value||'Untitled campaign';
-  CAMPS.unshift({id:Date.now(),title:n,time:'Just now',status:'draft',type:'Promo',open:null,rev:null,roi:null});
-  renderCampSb();sbUserOverride=null;applyBreakpoint();
-  switchCwTab('report');showToast('Campaign saved');
-}
-function renderSegs(){document.getElementById('segContent').innerHTML=`<p class="seg-intro">${getProductName()} recommended segments for <strong style="color:var(--text)">${getActiveClient().name}</strong> based on purchase behaviour, email engagement, and browse signals. Deselect any you don't want to target.</p><div class="seg-grid">${SEGS.map(s=>{const tags=s.signals.map((t,i)=>`<span class="sig-tag ${s.types[i]}">${t}</span>`).join('');return `<div class="seg-card ${s.selected?'sel':'desel'}" id="sg-${s.id}" onclick="toggleSeg('${s.id}')"><div class="seg-chk">${s.selected?IC.chk:''}</div><div class="seg-name">${s.name}</div><div class="seg-sz">${s.size} customers</div><div class="seg-desc">${s.desc}</div><div class="seg-tags">${tags}</div><div class="seg-note">${s.note}</div></div>`;}).join('')}</div>`;}
-function toggleSeg(id){const s=SEGS.find(x=>x.id===id);if(!s)return;s.selected=!s.selected;const c=document.getElementById(`sg-${id}`);c.className=`seg-card ${s.selected?'sel':'desel'}`;c.querySelector('.seg-chk').innerHTML=s.selected?IC.chk:'';const n=SEGS.filter(x=>x.selected).length;document.getElementById('wizInfo').innerHTML=`<span>${n} segment${n!==1?'s':''} selected</span>`;}
-
-function renderGenOverlay(){
-  document.getElementById('outputContent').innerHTML=`<div class="gen-overlay"><div class="gen-spin"></div><div class="gen-lbl">Generating segment-tailored content for ${getActiveClient().name}</div><div class="gen-sub">Applying ${getProductName()} behavioural profiles...</div></div>`;
-}
-
-function renderOutput(){
-  const sel=SEGS.filter(s=>s.selected);if(!sel.length)return;
-  aSegTab=sel[0].id;aChanTab='email';
-  document.getElementById('outputContent').innerHTML=`
-    <div class="out-tabs" id="outTabs">${sel.map(s=>`<div class="otab ${s.id===aSegTab?'active':''}" onclick="swSeg('${s.id}')">${s.name}</div>`).join('')}</div>
-    <div class="output-split" id="outputSplit">
-      <div class="output-left" id="outputLeft"></div>
-      <div class="output-right" id="outputRight"></div>
-    </div>`;
-  renderSplitContent();
-}
-function swSeg(id){aSegTab=id;document.querySelectorAll('.otab').forEach(t=>t.classList.remove('active'));const s=SEGS.find(x=>x.id===id);if(s)document.querySelectorAll('.otab').forEach(t=>{if(t.textContent.trim()===s.name)t.classList.add('active');});renderSplitContent();}
-function swChan(ch){aChanTab=ch;renderSplitContent();}
-
-function renderSplitContent(){
-  const d=getCdataForSeg(aSegTab);
-  const c=d?d[aChanTab]:null;
-  // Empty state: tenant hasn't authored copy for this segment (or this
-  // segment/channel pair). Render an explicit stub in both panels instead
-  // of leaking another tenant's content. See audit A10.
-  if(!d || !c){
-    const seg=SEGS.find(s=>s.id===aSegTab);
-    const segName=seg?seg.name:'this segment';
-    const tenantName=getActiveClient().name;
-    const stubChans=d?Object.keys(d):['email','sms','ad'];
-    const stub=`<div class="c-block" style="text-align:center;padding:32px 22px;">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--text3);margin-bottom:8px;">CONTENT NOT YET DRAFTED</div>
-      <div style="font-size:12.5px;color:var(--text2);line-height:1.6;max-width:300px;margin:0 auto;">No ${tenantName} copy authored for the <strong style="color:var(--text)">${segName}</strong> segment yet. Switch segments above, or add a template in the ${tenantName} library.</div>
-    </div>`;
-    document.getElementById('outputLeft').innerHTML=`<div class="chan-tabs">${stubChans.map(ch=>`<div class="ctab ${ch===aChanTab?'active':''}" onclick="swChan('${ch}')">${chanLbls[ch]||ch}</div>`).join('')}</div>${stub}`;
-    document.getElementById('outputRight').innerHTML=stub;
-    return;
-  }
-  const chans=Object.keys(d);
-  function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  const scores=`<div class="score-row"><div class="sc-item"><div class="sc-lbl">RELEVANCE</div><div class="sc-val high">${c.score.r}</div></div><div class="sc-item"><div class="sc-lbl">ENGAGEMENT PRED.</div><div class="sc-val ${c.score.e==='High'?'high':'mid'}">${c.score.e}</div></div><div class="sc-item"><div class="sc-lbl">PRIMARY CTA</div><div class="sc-val mid">${c.score.cta}</div></div></div>`;
-  let copyBlocks='';
-  if(aChanTab==='email'){
-    copyBlocks=`<div class="c-block"><div class="cb-hdr"><div class="cb-lbl">SUBJECT LINE</div><div class="cb-acts"><button class="cact" onclick="cpy('subj-${aSegTab}')">${IC.copy} Copy</button><button class="cact" onclick="editBlk('subj-${aSegTab}')">Edit</button></div></div><div class="c-text" id="subj-${aSegTab}">${eh(c.subj||'')}</div></div><div class="c-block"><div class="cb-hdr"><div class="cb-lbl">EMAIL BODY</div><div class="cb-acts"><button class="cact" onclick="cpy('body-${aSegTab}')">${IC.copy} Copy</button><button class="cact" onclick="editBlk('body-${aSegTab}')">Edit</button></div></div><div class="c-text" id="body-${aSegTab}">${eh(c.body)}</div>${scores}</div>`;
-  } else {
-    copyBlocks=`<div class="c-block"><div class="cb-hdr"><div class="cb-lbl">${(chanLbls[aChanTab]||aChanTab).toUpperCase()}</div><div class="cb-acts"><button class="cact" onclick="cpy('body-${aSegTab}-${aChanTab}')">${IC.copy} Copy</button><button class="cact" onclick="editBlk('body-${aSegTab}-${aChanTab}')">Edit</button></div></div><div class="c-text" id="body-${aSegTab}-${aChanTab}">${eh(c.body)}</div>${scores}</div>`;
-  }
-  document.getElementById('outputLeft').innerHTML=`<div class="chan-tabs">${chans.map(ch=>`<div class="ctab ${ch===aChanTab?'active':''}" onclick="swChan('${ch}')">${chanLbls[ch]||ch}</div>`).join('')}</div>${copyBlocks}`;
-  document.getElementById('outputRight').innerHTML=buildPreview(aChanTab,c,aSegTab);
-}
-
-function buildPreview(chan,data,segId){
-  const seg=SEGS.find(s=>s.id===segId)||{};
-  if(chan==='email')return buildEmailPreview(data,seg);
-  if(chan==='sms')  return buildSmsPreview(data,seg);
-  if(chan==='ad')   return buildAdPreview(data,seg);
-  return '';
-}
-
-function buildEmailPreview(data,seg){
-  const copy=getActiveClient().copy||{};
-  const isPromo=seg.id==='lapsed';
-  const heroKey=isPromo?'promo':'launch';
-  const hero=(copy.emailHero&&copy.emailHero[heroKey])||{};
-  const banner=(copy.emailBanner&&copy.emailBanner[heroKey])||'';
-  const nav=copy.emailNav||['Accounts','Pots','Transfer'];
-  const wordmark=copy.emailWordmark||'';
-  const address=copy.emailAddress||'';
-  const subj=data.subj||'';
-  const lines=data.body.split('\n').filter(l=>l.trim());
-  const greeting=lines[0]||'Hi [First Name],';
-  // Stokes used "—" bullets, Monese uses "•" — accept either so per-tenant
-  // CDATA copy renders correctly in the email body list.
-  const listItems=lines.filter(l=>l.startsWith('•')||l.startsWith('—')).map(l=>`<li>${l.replace(/^[•—]\s?/,'').trim()}</li>`).join('');
-  const ctaLine=lines.find(l=>l.includes('['))||'';
-  const signoff=lines[lines.length-1]||copy.emailSignoff||'';
-  return `<div class="preview-label">PREVIEW <span>· Email · ${seg.name||''}</span></div>
-  <div class="email-device">
-    <div class="email-chrome">
-      <div class="email-chrome-dot" style="background:#ff5f56"></div>
-      <div class="email-chrome-dot" style="background:#ffbd2e"></div>
-      <div class="email-chrome-dot" style="background:#27c93f"></div>
-    </div>
-    <div class="email-scroll"><div class="lb-email">
-      <div class="lb-topbar">View in browser</div>
-      <div class="lb-nav">${nav.map(n=>`<a href="#">${n}</a>`).join('')}</div>
-      <div class="lb-wordmark"><div class="lb-wordmark-text">${wordmark}</div></div>
-      <div class="lb-banner"><div class="lb-banner-text">${banner}</div></div>
-      <div class="lb-hero">
-        <div class="lb-hero-product">${hero.label||''}</div>
-        <div class="lb-hero-head">${hero.head||''}</div>
-        <div class="lb-hero-sub">${hero.sub||''}</div>
-        <div class="lb-hero-img"><span class="lb-hero-img-label">${hero.imgLabel||''}</span></div>
-        <button class="lb-cta-btn">${hero.cta||''}</button>
-      </div>
-      <div class="lb-divider"></div>
-      <div class="lb-body-section">
-        <div class="lb-body-text">${greeting}</div>
-        ${listItems?`<ul class="lb-body-list">${listItems}</ul>`:''}
-        <div class="lb-body-text">${ctaLine.replace(/\[|\]/g,'')}</div>
-        <div class="lb-sig">${signoff}</div>
-      </div>
-      <div class="lb-divider"></div>
-      <div class="lb-footer"><div class="lb-footer-text">Subject: <em>${subj}</em><br><br>${address}<br>Unsubscribe · View in browser</div></div>
-    </div></div>
-  </div>`;
-}
-
-function buildSmsPreview(data,seg){
-  const copy=getActiveClient().copy||{};
-  const contact=copy.smsContact||'';
-  const linkHost=copy.smsLinkHost||'';
-  const msg=data.body||'';
-  const t=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
-  return `<div class="preview-label">PREVIEW <span>· SMS · ${seg.name||''}</span></div>
-  <div class="sms-device"><div class="sms-phone-frame"><div class="sms-screen">
-    <div class="sms-status"><span>${t}</span><span>●●●</span></div>
-    <div class="sms-contact"><div class="sms-contact-name">${contact}</div><div class="sms-contact-sub">Marketing · Text STOP to opt out</div></div>
-    <div class="sms-messages">
-      <div class="sms-bubble">${msg.replace(/\[link\]/g,`<span style="color:#7dd3fc;text-decoration:underline">${linkHost}</span>`)}</div>
-      <div class="sms-time">${t}</div>
-    </div>
-    <div class="sms-input-row"><div class="sms-input-mock"><span class="sms-input-mock-text">Text Message</span></div></div>
-  </div></div></div>`;
-}
-
-function buildAdPreview(data,seg){
-  const copy=getActiveClient().copy||{};
-  const def=copy.adDefaults||{};
-  const body=data.body||'';
-  const lines=body.split('\n');
-  const get=key=>{const l=lines.find(x=>x.startsWith(key+':'));return l?l.replace(key+':','').trim():'';};
-  const headline=get('HEADLINE')||def.headline||'';
-  const subhead=get('SUBHEAD')||def.subhead||'';
-  const cta=get('CTA')||def.cta||'';
-  const tone=get('TONE')||def.tone||'';
-  const fmt=get('FORMAT')||def.format||'';
-  const visual=get('VISUAL')||def.visual||'';
-  const imgLabel=def.imgLabel||'';
-  const title=copy.adTitle||'AD CREATIVE BRIEF';
-  return `<div class="preview-label">PREVIEW <span>· Ad brief · ${seg.name||''}</span></div>
-  <div class="ad-brief-card">
-    <div class="ad-brief-header"><div class="ad-brief-title">${title}</div></div>
-    <div class="ad-brief-preview">
-      <div class="ad-mock-img"><span>${imgLabel}</span></div>
-      <div class="ad-mock-headline">${headline}</div>
-      <div class="ad-mock-sub">${subhead}</div>
-      <div class="ad-mock-cta">${cta}</div>
-    </div>
-    <div class="ad-brief-specs">
-      <div class="ad-spec-row"><div class="ad-spec-key">VISUAL</div><div class="ad-spec-val">${visual}</div></div>
-      <div class="ad-spec-row"><div class="ad-spec-key">TONE</div><div class="ad-spec-val">${tone}</div></div>
-      <div class="ad-spec-row"><div class="ad-spec-key">FORMAT</div><div class="ad-spec-val">${fmt}</div></div>
-      <div class="ad-spec-row"><div class="ad-spec-key">SEGMENT</div><div class="ad-spec-val">${seg.name||'(none)'}</div></div>
-    </div>
-  </div>`;
-}
-
-function cpy(id){const el=document.getElementById(id);if(el)navigator.clipboard.writeText(el.textContent).catch(()=>{});showToast('Copied');}
-function editBlk(id){const el=document.getElementById(id);if(!el)return;const orig=el.textContent;const ta=document.createElement('textarea');ta.className='c-edit-ta';ta.value=orig;ta.style.height=el.offsetHeight+'px';el.replaceWith(ta);ta.focus();const done=()=>{const p=document.createElement('div');p.className='c-text';p.id=id;p.textContent=ta.value||orig;ta.replaceWith(p);};ta.addEventListener('blur',done);ta.addEventListener('keydown',e=>{if(e.key==='Escape'){const p=document.createElement('div');p.className='c-text';p.id=id;p.textContent=orig;ta.replaceWith(p);}});}
-
-// ══ START SCREEN ══
-const hr = new Date().getHours();
-document.getElementById('timeOfDay').textContent = hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : 'evening';
 
 function showStartScreen(){
   document.getElementById('startScreen').classList.remove('hidden');
   document.getElementById('messages').classList.add('hidden');
   document.getElementById('chatInputBar').classList.add('hidden');
 }
+
 function showChatView(){
   document.getElementById('startScreen').classList.add('hidden');
   document.getElementById('messages').classList.remove('hidden');
   document.getElementById('chatInputBar').classList.remove('hidden');
 }
+
+// ══ DIVISION SELECTOR ══
+function toggleProjDrop(){
+  projDrop = !projDrop;
+  document.getElementById('projBtn').classList.toggle('open', projDrop);
+  document.getElementById('projDrop').classList.toggle('open', projDrop);
+}
+
+function switchProj(id, name, color, desc){
+  projDrop = false;
+  document.getElementById('projBtn').classList.remove('open');
+  document.getElementById('projDrop').classList.remove('open');
+  document.getElementById('projNameEl').textContent = name;
+  document.getElementById('projIndicator').style.background = color;
+  document.querySelectorAll('.proj-option').forEach(el => el.classList.remove('active'));
+  const opt = document.getElementById(`proj-${id}`);
+  if(opt) opt.classList.add('active');
+  // Navigate to the Overview report for this vertical
+  showVerticalReport(id);
+}
+document.addEventListener('click', e => {
+  if(!document.getElementById('projSwitcher').contains(e.target)){
+    projDrop = false;
+    document.getElementById('projBtn').classList.remove('open');
+    document.getElementById('projDrop').classList.remove('open');
+  }
+});
+
+function showAdminView(){
+  const u=getCurrentUser();
+  const client=getActiveClient();
+  const isSuper = !!(u && u.role === 'super');
+  const tenantOk = !!(client && client.enabledFeatures && client.enabledFeatures.admin);
+  if(!(u && isAdminRole(u.role)) || !(isSuper || tenantOk)){
+    updateAdminNavVisibility();
+    if(typeof switchWs==='function'){ switchWs('home'); } else { const hV0=document.getElementById('homeView');if(hV0) hV0.style.display=''; }
+    return;
+  }
+  const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
+  const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
+  const cS=document.getElementById('csView');if(cS) cS.style.display='none';
+  const rV=document.getElementById('reportView');if(rV) rV.style.display='none';
+  const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
+  const aV=document.getElementById('adminView');if(aV) aV.classList.remove('hidden');
+  const wasInDetail = !!DETAIL_CLIENT_ID;
+  DETAIL_CLIENT_ID = null;
+  // Leaving the detail editor: restore the signed-in tenant's branding.
+  if(wasInDetail && typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
+  renderAdminClients();
+}
+
+function showVerticalReport(verticalId){
+  const _c = (typeof getActiveClient === 'function') ? getActiveClient() : null;
+  if (!(_c && _c.enabledFeatures && _c.enabledFeatures.reports)){
+    // REPORTS data is Monese-specific. Belt-and-suspenders with
+    // updateProjectSwitcherVisibility, which hides the dropdown for any
+    // tenant without reports — but a stray keyboard shortcut or future
+    // call site could still land here.
+    return;
+  }
+  const r=REPORTS[verticalId];
+  if(!r){ console.warn('No report for', verticalId); return; }
+  // Switch view first
+  currentWs='report';
+  const sbH=document.getElementById('sbHome');if(sbH) sbH.style.display='';
+  const sbC=document.getElementById('sbCampaign');if(sbC) sbC.classList.remove('visible');
+  const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
+  const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
+  const cS=document.getElementById('csView');if(cS) cS.style.display='none';
+  const aV2=document.getElementById('adminView');if(aV2) aV2.classList.add('hidden');
+  const rV=document.getElementById('reportView'); if(!rV) return;
+  rV.style.display='flex';
+  rV.innerHTML=buildReportHTML(r);
+}
+
+// ══ THEME TOGGLE ══
+function toggleTheme(){
+  isLight = !isLight;
+  document.body.classList.toggle('light-mode', isLight);
+  document.getElementById('themeIconDark').style.display = isLight ? 'none' : '';
+  document.getElementById('themeIconLight').style.display = isLight ? '' : 'none';
+}
+
+// ══ RESPONSIVE SIDEBAR ══
+function setSbState(state){
+  sbState = state;
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sbOverlay');
+  sb.classList.remove('collapsed','icon-mode');
+  overlay.classList.remove('visible');
+  if(state === 'collapsed'){
+    sb.classList.add('collapsed');
+    // On mobile, show overlay when opening sidebar (collapsed = hidden, so no overlay)
+  }
+  if(state === 'icon') sb.classList.add('icon-mode');
+  // Mobile: overlay when sidebar is open (full or icon on mobile)
+  if(window.innerWidth <= BP_ICON && state !== 'collapsed'){
+    overlay.classList.add('visible');
+  }
+  if(state === 'icon') attachIconTooltips();
+  else detachIconTooltips();
+}
+
+function toggleSb(){
+  if(window.innerWidth <= BP_ICON){
+    // Mobile: toggle between collapsed and full
+    const next = sbState === 'collapsed' ? 'full' : 'collapsed';
+    sbUserOverride = next;
+    setSbState(next);
+  } else {
+    // Desktop: cycle full → icon → collapsed → full
+    const next = sbState === 'full' ? 'icon' : sbState === 'icon' ? 'collapsed' : 'full';
+    sbUserOverride = next;
+    setSbState(next);
+  }
+}
+
+function closeSbOverlay(){
+  sbUserOverride = 'collapsed';
+  setSbState('collapsed');
+}
+
+function applyBreakpoint(){
+  if(sbUserOverride !== null) return;
+  const w = window.innerWidth;
+  if(w >= BP_FULL) setSbState('full');
+  else if(w >= BP_ICON) setSbState('icon');
+  else setSbState('collapsed');
+}
+
+window.addEventListener('resize', () => {
+  if(window.innerWidth >= BP_FULL) sbUserOverride = null;
+  applyBreakpoint();
+});
+
+// ── ICON RAIL TOOLTIPS ──
+function attachIconTooltips() {
+  const tip = document.getElementById('sbTooltip');
+  let hideTimer;
+
+  // Workspace btn
+  // ws tour tip removed (dropdown was removed)
+
+  // New btn
+  const newBtn = document.querySelector('.sb-new-btn');
+  if (newBtn) setTip(newBtn, 'New conversation', tip);
+
+  // Avatar btn
+  document.querySelectorAll('.user-avatar-btn').forEach(el =>
+    setTip(el, 'Dan S. · Settings', tip));
+
+  // Chat items
+  document.querySelectorAll('.sb-item').forEach(el => {
+    const title = el.querySelector('.sb-item-title');
+    if (title) setTip(el, title.textContent.trim(), tip);
+  });
+
+  // Campaign items
+  document.querySelectorAll('.camp-item').forEach(el => {
+    const title = el.querySelector('.ci-title');
+    if (title) setTip(el, title.textContent.trim(), tip);
+  });
+
+  // Global card
+  const gc = document.getElementById('gcCard');
+  if (gc) setTip(gc, 'Performance overview', tip);
+}
+
+function setTip(el, text, tip) {
+  if (!el) return;
+  el._tipText = text;
+  el.addEventListener('mouseenter', onTipEnter);
+  el.addEventListener('mouseleave', onTipLeave);
+}
+
+function onTipEnter(e) {
+  if (sbState !== 'icon') return;
+  const tip = document.getElementById('sbTooltip');
+  tip.textContent = this._tipText;
+  const rect = this.getBoundingClientRect();
+  tip.style.top  = (rect.top + rect.height / 2 - 14) + 'px';
+  tip.classList.add('show');
+}
+
+function onTipLeave() {
+  document.getElementById('sbTooltip').classList.remove('show');
+}
+
+function detachIconTooltips() {
+  document.getElementById('sbTooltip').classList.remove('show');
+  // Mirrors attachIconTooltips' selectors. setTip tags via the `_tipText`
+  // JS property, not a `data-tip` attribute, so we can't query by attribute.
+  const sels = ['.sb-new-btn', '.user-avatar-btn', '.sb-item', '.camp-item', '#gcCard'];
+  sels.forEach(sel => document.querySelectorAll(sel).forEach(el => {
+    el.removeEventListener('mouseenter', onTipEnter);
+    el.removeEventListener('mouseleave', onTipLeave);
+  }));
+}
+
+function renderHomeList(){document.getElementById('homeList').innerHTML=homeChats.map(c=>`<div class="sb-item ${c.active?'active':''}" id="hc-${c.id}" onclick="selectChat(${c.id})" oncontextmenu="openHomCtx(event,${c.id})"><div class="sb-item-icon">${IC.chat}</div><div class="sb-item-body"><div class="sb-item-title" id="hct-${c.id}">${c.title}</div><div class="sb-item-time">${c.time}</div></div><div class="sb-item-acts"><button class="sb-item-act" title="Rename" onclick="event.stopPropagation();startChatRename(${c.id})">${IC.pen}</button><button class="sb-item-act del" title="Delete" onclick="event.stopPropagation();deleteChat(${c.id})">${IC.del}</button></div></div>`).join('');}
+
+function selectChat(id){selectChatAndShow(id);}
+
+function startChatRename(id){const c=homeChats.find(x=>x.id===id);if(!c)return;const titleEl=document.getElementById(`hct-${id}`);const inp=document.createElement('input');inp.className='sb-item-title-input';inp.value=c.title;titleEl.replaceWith(inp);inp.focus();inp.select();const done=()=>{c.title=inp.value.trim()||c.title;renderHomeList();};inp.addEventListener('blur',done);inp.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();done();}if(ev.key==='Escape')renderHomeList();});}
+
+function deleteChat(id){const idx=homeChats.findIndex(x=>x.id===id);const wasActive=homeChats[idx].active;homeChats.splice(idx,1);if(wasActive&&homeChats.length)homeChats[0].active=true;renderHomeList();}
+
+function openHomCtx(e,id){e.preventDefault();e.stopPropagation();homCtxId=id;document.getElementById('ctxRename').onclick=()=>{startChatRename(id);closeCtx();};document.getElementById('ctxDelete').onclick=()=>{deleteChat(id);closeCtx();};const m=document.getElementById('ctxMenu');m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';m.classList.add('visible');}
+
+function newChat(){homeChats.forEach(x=>x.active=false);homeChats.unshift({id:nextChatId++,title:'New conversation',time:'Just now',active:true});renderHomeList();msgs=[];nMsgId=1;streaming=false;showStartScreen();setTimeout(()=>startChatRename(homeChats[0].id),40);}
+
+// Also update selectChat to restore start screen if chat has no messages
+function selectChatAndShow(id){homeChats.forEach(x=>x.active=x.id===id);renderHomeList();msgs=[];nMsgId=1;showStartScreen();}
+
+// Seed welcome message uses the currently-active tenant. Re-runnable: if a
+// cross-tenant switch happens BEFORE the user has chatted (msgs is still just
+// the seed), setActiveTenant() calls rebuildChatSeedIfPristine() so the seed
+// reflects the new tenant. Existing chat history (anything past id=1) is left
+// alone — generated AI messages from earlier in the session stay verbatim.
+function buildChatSeedMessage(){
+  // "Navier-Stokes" is the engine brand from the Stokes source (carried into
+  // every chat seed regardless of tenant); product/tenant names below come
+  // from the active tenant's copy fields.
+  return {id:1, role:'ai', feedback:null, text:`Welcome back to ${getProductName()}.\n\nYou're connected to the Navier-Stokes behavioural layer for ${getActiveClient().name}. Pick a product vertical from the sidebar to see its overview report, or ask me anything here.`};
+}
+
+function rebuildChatSeedIfPristine(){
+  // "Pristine" = only the seed message exists. As soon as there's a real user
+  // turn we leave history untouched.
+  if (typeof msgs === 'undefined' || !Array.isArray(msgs)) return;
+  if (msgs.length !== 1) return;
+  if (msgs[0] && msgs[0].id !== 1) return;
+  msgs[0] = buildChatSeedMessage();
+  if (typeof renderMsgs === 'function') {
+    const el = document.getElementById('messages');
+    if (el) renderMsgs();
+  }
+}
+
 function startPrompt(text){
   document.getElementById('startTa').value = text;
   sendFromStart();
 }
+
 function isAudienceQuery(val){ 
   const q = val.toLowerCase().replace(/[?!.,]/g,'').trim();
   if(q==='who is my best customer') return 'best';
   if(q==='customers most likely to churn'||q==='who is most likely to churn'||q==='who will churn') return 'churn';
   return null;
-}
-
-function injectAudienceExplorer(kind){
-  kind = kind || 'best';
-  const _client = getActiveClient();
-  if (!(_client.enabledFeatures && _client.enabledFeatures.audienceExplorer)){
-    // Tenant disables AE — fall through to the regular AI sim so the chat
-    // still responds rather than silently ignoring the message.
-    setTimeout(simAI,400);
-    return;
-  }
-  const id=nMsgId++;
-  // Brief typing simulation then inject widget
-  streaming=true;
-  document.getElementById('stopBar').classList.add('visible');
-  const _clientName = getActiveClient().name;
-  const analysingText = kind==='churn'
-    ? 'Analysing '+_clientName+' churn-risk profiles...'
-    : 'Analysing '+_clientName+' customer profiles...';
-  const introText = kind==='churn'
-    ? 'Here are the customer mindset profiles most likely to churn for '+_clientName+'.'
-    : 'Here is your customer mindset breakdown for '+_clientName+'.';
-  const placeholder={id,role:'ai',text:analysingText,feedback:null};
-  msgs.push(placeholder); renderMsgs();
-  setTimeout(()=>{
-    streaming=false;
-    document.getElementById('stopBar').classList.remove('visible');
-    // Replace placeholder with widget
-    const idx=msgs.findIndex(m=>m.id===id);
-    if(idx!==-1){
-      msgs[idx]={id,role:'ai',widget:true,feedback:null,widgetHTML:buildAudienceExplorerHTML(id),widgetIntro:introText,widgetKind:kind};
-      renderMsgs();
-      // Boot the audience explorer JS after it's in the DOM
-      bootAudienceExplorer(kind,id);
-    }
-  },1200);
 }
 
 function sendFromStart(){
@@ -3207,6 +3096,7 @@ function sendFromStart(){
 }
 
 function sendFromToolbar(text){const inp=document.getElementById('chatIn');inp.value=text;sendMsg();}
+
 function sendToolbarPrompt(key){
   const n=getActiveClient().name;
   const map={
@@ -3216,6 +3106,7 @@ function sendToolbarPrompt(key){
   };
   if(map[key]) sendFromToolbar(map[key]);
 }
+
 function sendMsg(){
   const inp=document.getElementById('chatIn');
   const val=inp.value.trim();
@@ -3228,32 +3119,10 @@ function sendMsg(){
   if(k) injectAudienceExplorer(k);
   else setTimeout(simAI,400);
 }
-// Seed welcome message uses the currently-active tenant. Re-runnable: if a
-// cross-tenant switch happens BEFORE the user has chatted (msgs is still just
-// the seed), setActiveTenant() calls rebuildChatSeedIfPristine() so the seed
-// reflects the new tenant. Existing chat history (anything past id=1) is left
-// alone — generated AI messages from earlier in the session stay verbatim.
-function buildChatSeedMessage(){
-  // "Navier-Stokes" is the engine brand from the Stokes source (carried into
-  // every chat seed regardless of tenant); product/tenant names below come
-  // from the active tenant's copy fields.
-  return {id:1, role:'ai', feedback:null, text:`Welcome back to ${getProductName()}.\n\nYou're connected to the Navier-Stokes behavioural layer for ${getActiveClient().name}. Pick a product vertical from the sidebar to see its overview report, or ask me anything here.`};
-}
-function rebuildChatSeedIfPristine(){
-  // "Pristine" = only the seed message exists. As soon as there's a real user
-  // turn we leave history untouched.
-  if (typeof msgs === 'undefined' || !Array.isArray(msgs)) return;
-  if (msgs.length !== 1) return;
-  if (msgs[0] && msgs[0].id !== 1) return;
-  msgs[0] = buildChatSeedMessage();
-  if (typeof renderMsgs === 'function') {
-    const el = document.getElementById('messages');
-    if (el) renderMsgs();
-  }
-}
-function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
 function renderMsgs(){const el=document.getElementById('messages');el.innerHTML=msgs.map((m,i)=>m.role==='ai'?rAI(m,i===msgs.length-1):rUser(m)).join('');el.scrollTop=el.scrollHeight;// init any donut charts in widget messages
 msgs.forEach(m=>{if(m.widget&&m.rendered)m.rendered();});}
+
 function rAI(m,last){
   if(m.widget){
     return `<div class="msg-group ai" id="mg-${m.id}">
@@ -3270,17 +3139,29 @@ function rAI(m,last){
   const s=streaming&&last?' streaming':'',uc=m.feedback==='up'?' voted-up':'',dc=m.feedback==='down'?' voted-down':'';
   return `<div class="msg-group ai" id="mg-${m.id}"><div class="msg-row"><div class="msg-avatar">${IC.bot}</div><div class="msg-bubble${s}" id="mb-${m.id}" style="white-space:pre-wrap">${eh(m.text)}</div></div><div class="msg-actions"><button class="act-btn" onclick="cpyMsg(${m.id})">${IC.copy} Copy<span class="tip">Copy</span></button><div class="act-sep"></div><button class="act-btn" onclick="retryMsg(${m.id})">${IC.retry} Retry<span class="tip">Retry</span></button><div class="act-sep"></div><button class="act-btn${uc}" id="up-${m.id}" onclick="vote(${m.id},'up')">${IC.up}<span class="tip">Helpful</span></button><button class="act-btn${dc}" id="dn-${m.id}" onclick="vote(${m.id},'down')">${IC.down}<span class="tip">Not helpful</span></button></div></div>`;
 }
+
 function rUser(m){return `<div class="msg-group user" id="mg-${m.id}"><div class="msg-row"><div class="msg-avatar">${IC.user}</div><div class="msg-bubble" id="mb-${m.id}">${eh(m.text)}</div></div><div class="msg-actions"><button class="act-btn" onclick="editMsg(${m.id})">${IC.edit} Edit<span class="tip">Edit</span></button><div class="act-sep"></div><button class="act-btn" onclick="cpyMsg(${m.id})">${IC.copy} Copy<span class="tip">Copy</span></button></div></div>`;}
+
 function cpyMsg(id){const m=msgs.find(x=>x.id===id);if(m)navigator.clipboard.writeText(m.text).catch(()=>{});showToast('Copied');}
+
 function vote(id,t){const m=msgs.find(x=>x.id===id);if(!m)return;m.feedback=m.feedback===t?null:t;const u=document.getElementById(`up-${id}`),d=document.getElementById(`dn-${id}`);if(u)u.className='act-btn'+(m.feedback==='up'?' voted-up':'');if(d)d.className='act-btn'+(m.feedback==='down'?' voted-down':'');if(m.feedback)showToast(m.feedback==='up'?'Marked helpful':'Feedback noted');}
+
 function retryMsg(id){const i=msgs.findIndex(x=>x.id===id);if(i===-1)return;msgs.splice(i,1);renderMsgs();simAI();}
+
 function editMsg(id){const m=msgs.find(x=>x.id===id),idx=msgs.findIndex(x=>x.id===id);if(!m)return;const g=document.getElementById(`mg-${m.id}`);g.innerHTML=`<div class="msg-row" style="flex-direction:row-reverse"><div class="msg-avatar">${IC.user}</div><div style="max-width:540px;width:100%;display:flex;flex-direction:column;gap:8px"><textarea style="width:100%;background:var(--bg4);border:1px solid var(--brand-primary-hover);border-radius:10px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13.5px;padding:11px 13px;resize:none;outline:none;line-height:1.6" id="eta-${id}" rows="2">${eh(m.text)}</textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button style="padding:5px 12px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="renderMsgs()">Cancel</button><button style="padding:5px 12px;border-radius:6px;background:var(--brand-primary);border:none;color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="saveEdit(${id},${idx})">Save &amp; resend</button></div></div></div>`;document.getElementById(`eta-${id}`).focus();}
+
 function saveEdit(id,idx){const ta=document.getElementById(`eta-${id}`);const val=ta?ta.value.trim():'';if(!val)return;msgs[idx].text=val;msgs=msgs.slice(0,idx+1);renderMsgs();setTimeout(simAI,400);}
+
 function simAI(){streaming=true;document.getElementById('stopBar').classList.add('visible');const id=nMsgId++;const full='Analysing '+getActiveClient().name+' customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;document.getElementById('stopBar').classList.remove('visible');renderMsgs();}},30);}
+
 function stopGen(){if(!streaming)return;clearInterval(sTimer);streaming=false;document.getElementById('stopBar').classList.remove('visible');renderMsgs();showToast('Generation stopped');}
+
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+
 function handleStartKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendFromStart();}}
+
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';}
+
 function autoResizeEl(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,160)+'px';}
 
 // ══ AUDIENCE EXPLORER WIDGET ══
@@ -3288,6 +3169,7 @@ function autoResizeEl(el){el.style.height='auto';el.style.height=Math.min(el.scr
 // closures keyed by message id, so multiple coexisting widgets don't clobber
 // each other via a shared window.* global.
 window._aeReg = window._aeReg || {};
+
 function buildAudienceExplorerHTML(msgId){
   const _copy=(getActiveClient()||{}).copy||{};
   const _aeLbl=_copy.audienceExplorerLabel||'';
@@ -3355,6 +3237,41 @@ function buildAudienceExplorerHTML(msgId){
 </div>`;
 }
 
+function injectAudienceExplorer(kind){
+  kind = kind || 'best';
+  const _client = getActiveClient();
+  if (!(_client.enabledFeatures && _client.enabledFeatures.audienceExplorer)){
+    // Tenant disables AE — fall through to the regular AI sim so the chat
+    // still responds rather than silently ignoring the message.
+    setTimeout(simAI,400);
+    return;
+  }
+  const id=nMsgId++;
+  // Brief typing simulation then inject widget
+  streaming=true;
+  document.getElementById('stopBar').classList.add('visible');
+  const _clientName = getActiveClient().name;
+  const analysingText = kind==='churn'
+    ? 'Analysing '+_clientName+' churn-risk profiles...'
+    : 'Analysing '+_clientName+' customer profiles...';
+  const introText = kind==='churn'
+    ? 'Here are the customer mindset profiles most likely to churn for '+_clientName+'.'
+    : 'Here is your customer mindset breakdown for '+_clientName+'.';
+  const placeholder={id,role:'ai',text:analysingText,feedback:null};
+  msgs.push(placeholder); renderMsgs();
+  setTimeout(()=>{
+    streaming=false;
+    document.getElementById('stopBar').classList.remove('visible');
+    // Replace placeholder with widget
+    const idx=msgs.findIndex(m=>m.id===id);
+    if(idx!==-1){
+      msgs[idx]={id,role:'ai',widget:true,feedback:null,widgetHTML:buildAudienceExplorerHTML(id),widgetIntro:introText,widgetKind:kind};
+      renderMsgs();
+      // Boot the audience explorer JS after it's in the DOM
+      bootAudienceExplorer(kind,id);
+    }
+  },1200);
+}
 
 // Resolve the active tenant's AE config, applying graceful fallback for any
 // missing variant (e.g. Ledbury has no 'churn' set).
@@ -3497,163 +3414,11 @@ function bootAudienceExplorer(kind,msgId){
   }
   selC(0);
 }
-function renderHomeList(){document.getElementById('homeList').innerHTML=homeChats.map(c=>`<div class="sb-item ${c.active?'active':''}" id="hc-${c.id}" onclick="selectChat(${c.id})" oncontextmenu="openHomCtx(event,${c.id})"><div class="sb-item-icon">${IC.chat}</div><div class="sb-item-body"><div class="sb-item-title" id="hct-${c.id}">${c.title}</div><div class="sb-item-time">${c.time}</div></div><div class="sb-item-acts"><button class="sb-item-act" title="Rename" onclick="event.stopPropagation();startChatRename(${c.id})">${IC.pen}</button><button class="sb-item-act del" title="Delete" onclick="event.stopPropagation();deleteChat(${c.id})">${IC.del}</button></div></div>`).join('');}
-function selectChat(id){selectChatAndShow(id);}
-function startChatRename(id){const c=homeChats.find(x=>x.id===id);if(!c)return;const titleEl=document.getElementById(`hct-${id}`);const inp=document.createElement('input');inp.className='sb-item-title-input';inp.value=c.title;titleEl.replaceWith(inp);inp.focus();inp.select();const done=()=>{c.title=inp.value.trim()||c.title;renderHomeList();};inp.addEventListener('blur',done);inp.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();done();}if(ev.key==='Escape')renderHomeList();});}
-function deleteChat(id){const idx=homeChats.findIndex(x=>x.id===id);const wasActive=homeChats[idx].active;homeChats.splice(idx,1);if(wasActive&&homeChats.length)homeChats[0].active=true;renderHomeList();}
-function openHomCtx(e,id){e.preventDefault();e.stopPropagation();homCtxId=id;document.getElementById('ctxRename').onclick=()=>{startChatRename(id);closeCtx();};document.getElementById('ctxDelete').onclick=()=>{deleteChat(id);closeCtx();};const m=document.getElementById('ctxMenu');m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';m.classList.add('visible');}
-function newChat(){homeChats.forEach(x=>x.active=false);homeChats.unshift({id:nextChatId++,title:'New conversation',time:'Just now',active:true});renderHomeList();msgs=[];nMsgId=1;streaming=false;showStartScreen();setTimeout(()=>startChatRename(homeChats[0].id),40);}
 
-// Also update selectChat to restore start screen if chat has no messages
-function selectChatAndShow(id){homeChats.forEach(x=>x.active=x.id===id);renderHomeList();msgs=[];nMsgId=1;showStartScreen();}
-// ══ THEME TOGGLE ══
-function toggleTheme(){
-  isLight = !isLight;
-  document.body.classList.toggle('light-mode', isLight);
-  document.getElementById('themeIconDark').style.display = isLight ? 'none' : '';
-  document.getElementById('themeIconLight').style.display = isLight ? '' : 'none';
-}
+// (workspace dropdown removed)
 
-// ══ DIVISION SELECTOR ══
-function toggleProjDrop(){
-  projDrop = !projDrop;
-  document.getElementById('projBtn').classList.toggle('open', projDrop);
-  document.getElementById('projDrop').classList.toggle('open', projDrop);
-}
-function switchProj(id, name, color, desc){
-  projDrop = false;
-  document.getElementById('projBtn').classList.remove('open');
-  document.getElementById('projDrop').classList.remove('open');
-  document.getElementById('projNameEl').textContent = name;
-  document.getElementById('projIndicator').style.background = color;
-  document.querySelectorAll('.proj-option').forEach(el => el.classList.remove('active'));
-  const opt = document.getElementById(`proj-${id}`);
-  if(opt) opt.classList.add('active');
-  // Navigate to the Overview report for this vertical
-  showVerticalReport(id);
-}
-document.addEventListener('click', e => {
-  if(!document.getElementById('projSwitcher').contains(e.target)){
-    projDrop = false;
-    document.getElementById('projBtn').classList.remove('open');
-    document.getElementById('projDrop').classList.remove('open');
-  }
-});
+function renderCampSb(){const vis=campExp?CAMPS:CAMPS.slice(0,5);const hid=CAMPS.length-5;const rows=vis.map(c=>{const sc=STATUS_COL[c.status]||'#555a72';const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':c.status==='scheduled'?'badge-sched':'badge-draft';return `<div class="camp-item ${activeCampId===c.id?'active':''}" onclick="activeCampId=${c.id};renderCampSb()" oncontextmenu="openCtx(event,${c.id})"><div class="ci-bar" style="background:${sc};opacity:.75"></div><div class="ci-body"><div class="ci-title">${c.title}</div><div class="ci-meta"><div class="ci-time">${c.time}</div><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div></div><div class="ci-act"><button class="ci-act-btn" onclick="event.stopPropagation();startCampRename(${c.id})">${IC.pen}</button><button class="ci-act-btn del" onclick="event.stopPropagation();const idx=CAMPS.findIndex(x=>x.id===${c.id});if(idx!==-1)CAMPS.splice(idx,1);renderCampSb();showToast('Deleted')">${IC.del}</button></div></div>`;}).join('');const more=!campExp&&hid>0?`<div class="show-more" onclick="campExp=true;renderCampSb()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>${hid} older</div>`:'';document.getElementById('campScroll').innerHTML=rows+more;}
 
-// ══ RESPONSIVE SIDEBAR ══
-function setSbState(state){
-  sbState = state;
-  const sb = document.getElementById('sidebar');
-  const overlay = document.getElementById('sbOverlay');
-  sb.classList.remove('collapsed','icon-mode');
-  overlay.classList.remove('visible');
-  if(state === 'collapsed'){
-    sb.classList.add('collapsed');
-    // On mobile, show overlay when opening sidebar (collapsed = hidden, so no overlay)
-  }
-  if(state === 'icon') sb.classList.add('icon-mode');
-  // Mobile: overlay when sidebar is open (full or icon on mobile)
-  if(window.innerWidth <= BP_ICON && state !== 'collapsed'){
-    overlay.classList.add('visible');
-  }
-  if(state === 'icon') attachIconTooltips();
-  else detachIconTooltips();
-}
-
-function toggleSb(){
-  if(window.innerWidth <= BP_ICON){
-    // Mobile: toggle between collapsed and full
-    const next = sbState === 'collapsed' ? 'full' : 'collapsed';
-    sbUserOverride = next;
-    setSbState(next);
-  } else {
-    // Desktop: cycle full → icon → collapsed → full
-    const next = sbState === 'full' ? 'icon' : sbState === 'icon' ? 'collapsed' : 'full';
-    sbUserOverride = next;
-    setSbState(next);
-  }
-}
-
-function closeSbOverlay(){
-  sbUserOverride = 'collapsed';
-  setSbState('collapsed');
-}
-
-function applyBreakpoint(){
-  if(sbUserOverride !== null) return;
-  const w = window.innerWidth;
-  if(w >= BP_FULL) setSbState('full');
-  else if(w >= BP_ICON) setSbState('icon');
-  else setSbState('collapsed');
-}
-
-window.addEventListener('resize', () => {
-  if(window.innerWidth >= BP_FULL) sbUserOverride = null;
-  applyBreakpoint();
-});
-
-// ── ICON RAIL TOOLTIPS ──
-function attachIconTooltips() {
-  const tip = document.getElementById('sbTooltip');
-  let hideTimer;
-
-  // Workspace btn
-  // ws tour tip removed (dropdown was removed)
-
-  // New btn
-  const newBtn = document.querySelector('.sb-new-btn');
-  if (newBtn) setTip(newBtn, 'New conversation', tip);
-
-  // Avatar btn
-  document.querySelectorAll('.user-avatar-btn').forEach(el =>
-    setTip(el, 'Dan S. · Settings', tip));
-
-  // Chat items
-  document.querySelectorAll('.sb-item').forEach(el => {
-    const title = el.querySelector('.sb-item-title');
-    if (title) setTip(el, title.textContent.trim(), tip);
-  });
-
-  // Campaign items
-  document.querySelectorAll('.camp-item').forEach(el => {
-    const title = el.querySelector('.ci-title');
-    if (title) setTip(el, title.textContent.trim(), tip);
-  });
-
-  // Global card
-  const gc = document.getElementById('gcCard');
-  if (gc) setTip(gc, 'Performance overview', tip);
-}
-
-function setTip(el, text, tip) {
-  if (!el) return;
-  el._tipText = text;
-  el.addEventListener('mouseenter', onTipEnter);
-  el.addEventListener('mouseleave', onTipLeave);
-}
-
-function onTipEnter(e) {
-  if (sbState !== 'icon') return;
-  const tip = document.getElementById('sbTooltip');
-  tip.textContent = this._tipText;
-  const rect = this.getBoundingClientRect();
-  tip.style.top  = (rect.top + rect.height / 2 - 14) + 'px';
-  tip.classList.add('show');
-}
-function onTipLeave() {
-  document.getElementById('sbTooltip').classList.remove('show');
-}
-
-function detachIconTooltips() {
-  document.getElementById('sbTooltip').classList.remove('show');
-  // Mirrors attachIconTooltips' selectors. setTip tags via the `_tipText`
-  // JS property, not a `data-tip` attribute, so we can't query by attribute.
-  const sels = ['.sb-new-btn', '.user-avatar-btn', '.sb-item', '.camp-item', '#gcCard'];
-  sels.forEach(sel => document.querySelectorAll(sel).forEach(el => {
-    el.removeEventListener('mouseenter', onTipEnter);
-    el.removeEventListener('mouseleave', onTipLeave);
-  }));
-}
 // Inline rename for a campaign sidebar item. Mirrors startChatRename for
 // home chats — finds the .ci-title under the campaign row, replaces it
 // with an input, commits on blur / Enter, cancels on Escape.
@@ -3675,97 +3440,232 @@ function startCampRename(id){
     if (ev.key === 'Escape') renderCampSb();
   });
 }
-function openCtx(e,id){
-  e.preventDefault(); e.stopPropagation(); ctxTgt=id;
-  document.getElementById('ctxRename').onclick=()=>{closeCtx();startCampRename(id);};
-  document.getElementById('ctxDelete').onclick=()=>{
-    const idx=CAMPS.findIndex(c=>c.id===id); if(idx!==-1)CAMPS.splice(idx,1);
-    renderCampSb(); closeCtx(); showToast('Deleted');
-  };
-  const m=document.getElementById('ctxMenu');
-  m.style.left=e.clientX+'px'; m.style.top=e.clientY+'px';
-  m.classList.add('visible');
-}
-function closeCtx(){document.getElementById('ctxMenu').classList.remove('visible');ctxTgt=null;}
-document.getElementById('ctxMenu').addEventListener('click',e=>e.stopPropagation());
-document.addEventListener('click',closeCtx);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx();});
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800);}
 
-// INIT
-document.body.classList.add('light-mode');
-document.getElementById('themeIconDark').style.display = 'none';
-document.getElementById('themeIconLight').style.display = '';
-renderProds();
-switchWs('home');
-renderHomeList();
-showStartScreen();
-applyBreakpoint();
+// ══ CAMPAIGN TYPE SELECTOR ══
+function selectType(el){document.querySelectorAll('.ct-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedType=el.dataset.type;document.getElementById('promoPanel').style.display=selectedType==='promo'?'':'none';document.getElementById('productPanel').style.display=selectedType==='product'||selectedType==='arrival'?'':'none';document.getElementById('seriesPanel').style.display=selectedType==='series'?'':'none';}
 
-// SEARCH CONVERSATIONS MODAL
-function openSearchModal(){
-  const _c = (typeof getActiveClient === 'function') ? getActiveClient() : null;
-  if (_c && _c.enabledFeatures && _c.enabledFeatures.search === false) return;
-  const ov=document.getElementById('searchModalOverlay');
-  ov.classList.add('open');
-  const inp=document.getElementById('searchModalInput');
-  inp.value='';
-  renderSearchModal('');
-  setTimeout(()=>inp.focus(),50);
+function selDiscount(el,val){document.querySelectorAll('#discountPills .offer-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');if(val!=='custom')document.getElementById('discPct').value=val;}
+
+function selUrg(el,v){document.querySelectorAll('.urg-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}
+
+function filterProds(v){prodFilter=v.toLowerCase();renderProds();}
+
+function renderProds(){const filtered=PRODUCTS.filter(p=>!prodFilter||p.name.toLowerCase().includes(prodFilter)||p.cat.toLowerCase().includes(prodFilter));document.getElementById('prodGrid').innerHTML=filtered.map(p=>`<div class="prod-card ${p.sel?'selected':''}" id="prod-${p.id}" onclick="toggleProd(${p.id})"><div class="prod-img-mock">${p.emoji}</div><div class="prod-sel-check">${IC.chk}</div><div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-cat">${p.cat}</div><div class="prod-price">${p.price}</div></div></div>`).join('');const n=PRODUCTS.filter(x=>x.sel).length;const noun=(getActiveClient().copy.campaignBrief&&getActiveClient().copy.campaignBrief.productNoun)||'product';document.getElementById('prodSelCount').innerHTML=`<span>${n}</span> ${noun}${n!==1?'s':''} selected`;}
+
+function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!p.sel;renderProds();}
+
+// ══ OVERVIEW ══
+function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const brandPri=resolveBrandColor('brand-primary');const ucs=[{l:'Promotional',n:8,c:brandPri},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
+
+// ══ CAMPAIGN WORKSPACE TABS ══
+function switchCwTab(tab){cwCur=tab;['report','create'].forEach(t=>{document.getElementById(`cwt-${t}`).classList.toggle('active',t===tab);document.getElementById(`cwp-${t}`).classList.toggle('visible',t===tab);});document.getElementById('wizNav').style.display=tab==='create'?'':'none';document.getElementById('gcCard').classList.toggle('active',tab==='report');if(tab==='create'){wizStep=1;renderWizUI();}if(tab==='report')renderOverview();}
+
+// Returns the current tenant's copy for a given segment, or null when the
+// tenant hasn't authored content for it. We deliberately do NOT fall back
+// to monese — that leaked fintech phrasing into Ledbury previews on
+// browse/new (see audit A10). renderSplitContent() renders an explicit
+// "not yet drafted" stub when this returns null.
+function getCdataForSeg(segId){
+  return (CDATA && CDATA[segId]) || null;
 }
-function closeSearchModal(){
-  document.getElementById('searchModalOverlay').classList.remove('open');
+
+function renderWizUI(){[1,2,3].forEach(i=>document.getElementById(`ws${i}`).classList.toggle('visible',i===wizStep));document.getElementById('wizBack').style.display=wizStep===1?'none':'';document.getElementById('wizNext').textContent=wizStep===1?'Continue':wizStep===2?'Generate content':'Export campaign';document.getElementById('wizNext').className=wizStep===3?'wiz-btn finish':'wiz-btn next';document.getElementById('wizInfo').innerHTML=wizStep===2?`<span>${SEGS.filter(s=>s.selected).length} segments selected</span>`:wizStep===3?`<span>${SEGS.filter(s=>s.selected).length} segs</span> · <span>3 channels</span>`:'';renderWizTrack();}
+
+function renderWizTrack(){document.getElementById('stepTrack').innerHTML=WLBL.map((l,i)=>{const n=i+1,st=n<wizStep?'done':n===wizStep?'active':'pending',icon=st==='done'?IC.chk:n,line=i<WLBL.length-1?`<div class="step-line ${n<wizStep?'done':''}"></div>`:'';return `<div class="step-node"><div class="step-circ ${st}">${icon}</div><div class="step-lbl ${st}">${l}</div></div>${line}`;}).join('');}
+
+function wNext(){
+  if(wizStep===1){wizStep=2;renderWizUI();renderSegs();}
+  else if(wizStep===2){
+    wizStep=3;renderWizUI();renderGenOverlay();
+    sbUserOverride='icon';setSbState('icon');
+    setTimeout(renderOutput,1600);
+  } else exportCamp();
 }
-function filterSearchModal(){
-  const q=document.getElementById('searchModalInput').value.trim();
-  renderSearchModal(q);
+
+function wBack(){
+  if(wizStep>1){
+    if(wizStep===3){sbUserOverride=null;applyBreakpoint();}
+    wizStep--;renderWizUI();
+  }
 }
-function renderSearchModal(q){
-  const list=document.getElementById('searchModalList');
-  const lbl=document.getElementById('searchModalLbl');
-  const count=document.getElementById('searchModalCount');
-  // Scope: homeChats is the active tenant's conversation list. Search matches
-  // both the title and the snippet (Stokes parity — [stokes:2406]).
-  // Falls back to [] gracefully if homeChats is unavailable.
-  const all=(typeof homeChats!=='undefined')?homeChats:[];
-  const ql=q.toLowerCase();
-  const filtered=q?all.filter(c=>
-    (c.title||'').toLowerCase().includes(ql) ||
-    (c.snippet||'').toLowerCase().includes(ql)
-  ):all;
-  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  lbl.textContent=q?`MATCHES FOR "${q.toUpperCase()}"`:'RECENT CONVERSATIONS';
-  count.textContent=`${filtered.length} result${filtered.length===1?'':'s'}`;
-  if(!filtered.length){
-    list.innerHTML=q
-      ? `<div class="search-modal-empty">No conversations found for "${esc(q)}"</div>`
-      : '<div class="search-modal-empty">No conversations match that search.</div>';
+
+function exportCamp(){
+  const n=document.getElementById('campName').value||'Untitled campaign';
+  CAMPS.unshift({id:Date.now(),title:n,time:'Just now',status:'draft',type:'Promo',open:null,rev:null,roi:null});
+  renderCampSb();sbUserOverride=null;applyBreakpoint();
+  switchCwTab('report');showToast('Campaign saved');
+}
+
+function renderSegs(){document.getElementById('segContent').innerHTML=`<p class="seg-intro">${getProductName()} recommended segments for <strong style="color:var(--text)">${getActiveClient().name}</strong> based on purchase behaviour, email engagement, and browse signals. Deselect any you don't want to target.</p><div class="seg-grid">${SEGS.map(s=>{const tags=s.signals.map((t,i)=>`<span class="sig-tag ${s.types[i]}">${t}</span>`).join('');return `<div class="seg-card ${s.selected?'sel':'desel'}" id="sg-${s.id}" onclick="toggleSeg('${s.id}')"><div class="seg-chk">${s.selected?IC.chk:''}</div><div class="seg-name">${s.name}</div><div class="seg-sz">${s.size} customers</div><div class="seg-desc">${s.desc}</div><div class="seg-tags">${tags}</div><div class="seg-note">${s.note}</div></div>`;}).join('')}</div>`;}
+
+function toggleSeg(id){const s=SEGS.find(x=>x.id===id);if(!s)return;s.selected=!s.selected;const c=document.getElementById(`sg-${id}`);c.className=`seg-card ${s.selected?'sel':'desel'}`;c.querySelector('.seg-chk').innerHTML=s.selected?IC.chk:'';const n=SEGS.filter(x=>x.selected).length;document.getElementById('wizInfo').innerHTML=`<span>${n} segment${n!==1?'s':''} selected</span>`;}
+
+function renderGenOverlay(){
+  document.getElementById('outputContent').innerHTML=`<div class="gen-overlay"><div class="gen-spin"></div><div class="gen-lbl">Generating segment-tailored content for ${getActiveClient().name}</div><div class="gen-sub">Applying ${getProductName()} behavioural profiles...</div></div>`;
+}
+
+function renderOutput(){
+  const sel=SEGS.filter(s=>s.selected);if(!sel.length)return;
+  aSegTab=sel[0].id;aChanTab='email';
+  document.getElementById('outputContent').innerHTML=`
+    <div class="out-tabs" id="outTabs">${sel.map(s=>`<div class="otab ${s.id===aSegTab?'active':''}" onclick="swSeg('${s.id}')">${s.name}</div>`).join('')}</div>
+    <div class="output-split" id="outputSplit">
+      <div class="output-left" id="outputLeft"></div>
+      <div class="output-right" id="outputRight"></div>
+    </div>`;
+  renderSplitContent();
+}
+
+function swSeg(id){aSegTab=id;document.querySelectorAll('.otab').forEach(t=>t.classList.remove('active'));const s=SEGS.find(x=>x.id===id);if(s)document.querySelectorAll('.otab').forEach(t=>{if(t.textContent.trim()===s.name)t.classList.add('active');});renderSplitContent();}
+
+function swChan(ch){aChanTab=ch;renderSplitContent();}
+
+function renderSplitContent(){
+  const d=getCdataForSeg(aSegTab);
+  const c=d?d[aChanTab]:null;
+  // Empty state: tenant hasn't authored copy for this segment (or this
+  // segment/channel pair). Render an explicit stub in both panels instead
+  // of leaking another tenant's content. See audit A10.
+  if(!d || !c){
+    const seg=SEGS.find(s=>s.id===aSegTab);
+    const segName=seg?seg.name:'this segment';
+    const tenantName=getActiveClient().name;
+    const stubChans=d?Object.keys(d):['email','sms','ad'];
+    const stub=`<div class="c-block" style="text-align:center;padding:32px 22px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--text3);margin-bottom:8px;">CONTENT NOT YET DRAFTED</div>
+      <div style="font-size:12.5px;color:var(--text2);line-height:1.6;max-width:300px;margin:0 auto;">No ${tenantName} copy authored for the <strong style="color:var(--text)">${segName}</strong> segment yet. Switch segments above, or add a template in the ${tenantName} library.</div>
+    </div>`;
+    document.getElementById('outputLeft').innerHTML=`<div class="chan-tabs">${stubChans.map(ch=>`<div class="ctab ${ch===aChanTab?'active':''}" onclick="swChan('${ch}')">${chanLbls[ch]||ch}</div>`).join('')}</div>${stub}`;
+    document.getElementById('outputRight').innerHTML=stub;
     return;
   }
-  list.innerHTML=filtered.map(c=>{
-    const snip=c.snippet?`<div class="search-modal-item-snippet">${esc(c.snippet)}</div>`:'';
-    return `<div class="search-modal-item" onclick="searchModalSelect(${c.id})">
-    <svg class="search-modal-item-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-    <div class="search-modal-item-body">
-      <div class="search-modal-item-title">${esc(c.title)}</div>
-      ${snip}
-      <div class="search-modal-item-time">${esc(c.time)}</div>
+  const chans=Object.keys(d);
+  function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  const scores=`<div class="score-row"><div class="sc-item"><div class="sc-lbl">RELEVANCE</div><div class="sc-val high">${c.score.r}</div></div><div class="sc-item"><div class="sc-lbl">ENGAGEMENT PRED.</div><div class="sc-val ${c.score.e==='High'?'high':'mid'}">${c.score.e}</div></div><div class="sc-item"><div class="sc-lbl">PRIMARY CTA</div><div class="sc-val mid">${c.score.cta}</div></div></div>`;
+  let copyBlocks='';
+  if(aChanTab==='email'){
+    copyBlocks=`<div class="c-block"><div class="cb-hdr"><div class="cb-lbl">SUBJECT LINE</div><div class="cb-acts"><button class="cact" onclick="cpy('subj-${aSegTab}')">${IC.copy} Copy</button><button class="cact" onclick="editBlk('subj-${aSegTab}')">Edit</button></div></div><div class="c-text" id="subj-${aSegTab}">${eh(c.subj||'')}</div></div><div class="c-block"><div class="cb-hdr"><div class="cb-lbl">EMAIL BODY</div><div class="cb-acts"><button class="cact" onclick="cpy('body-${aSegTab}')">${IC.copy} Copy</button><button class="cact" onclick="editBlk('body-${aSegTab}')">Edit</button></div></div><div class="c-text" id="body-${aSegTab}">${eh(c.body)}</div>${scores}</div>`;
+  } else {
+    copyBlocks=`<div class="c-block"><div class="cb-hdr"><div class="cb-lbl">${(chanLbls[aChanTab]||aChanTab).toUpperCase()}</div><div class="cb-acts"><button class="cact" onclick="cpy('body-${aSegTab}-${aChanTab}')">${IC.copy} Copy</button><button class="cact" onclick="editBlk('body-${aSegTab}-${aChanTab}')">Edit</button></div></div><div class="c-text" id="body-${aSegTab}-${aChanTab}">${eh(c.body)}</div>${scores}</div>`;
+  }
+  document.getElementById('outputLeft').innerHTML=`<div class="chan-tabs">${chans.map(ch=>`<div class="ctab ${ch===aChanTab?'active':''}" onclick="swChan('${ch}')">${chanLbls[ch]||ch}</div>`).join('')}</div>${copyBlocks}`;
+  document.getElementById('outputRight').innerHTML=buildPreview(aChanTab,c,aSegTab);
+}
+
+function buildPreview(chan,data,segId){
+  const seg=SEGS.find(s=>s.id===segId)||{};
+  if(chan==='email')return buildEmailPreview(data,seg);
+  if(chan==='sms')  return buildSmsPreview(data,seg);
+  if(chan==='ad')   return buildAdPreview(data,seg);
+  return '';
+}
+
+function buildEmailPreview(data,seg){
+  const copy=getActiveClient().copy||{};
+  const isPromo=seg.id==='lapsed';
+  const heroKey=isPromo?'promo':'launch';
+  const hero=(copy.emailHero&&copy.emailHero[heroKey])||{};
+  const banner=(copy.emailBanner&&copy.emailBanner[heroKey])||'';
+  const nav=copy.emailNav||['Accounts','Pots','Transfer'];
+  const wordmark=copy.emailWordmark||'';
+  const address=copy.emailAddress||'';
+  const subj=data.subj||'';
+  const lines=data.body.split('\n').filter(l=>l.trim());
+  const greeting=lines[0]||'Hi [First Name],';
+  // Stokes used "—" bullets, Monese uses "•" — accept either so per-tenant
+  // CDATA copy renders correctly in the email body list.
+  const listItems=lines.filter(l=>l.startsWith('•')||l.startsWith('—')).map(l=>`<li>${l.replace(/^[•—]\s?/,'').trim()}</li>`).join('');
+  const ctaLine=lines.find(l=>l.includes('['))||'';
+  const signoff=lines[lines.length-1]||copy.emailSignoff||'';
+  return `<div class="preview-label">PREVIEW <span>· Email · ${seg.name||''}</span></div>
+  <div class="email-device">
+    <div class="email-chrome">
+      <div class="email-chrome-dot" style="background:#ff5f56"></div>
+      <div class="email-chrome-dot" style="background:#ffbd2e"></div>
+      <div class="email-chrome-dot" style="background:#27c93f"></div>
+    </div>
+    <div class="email-scroll"><div class="lb-email">
+      <div class="lb-topbar">View in browser</div>
+      <div class="lb-nav">${nav.map(n=>`<a href="#">${n}</a>`).join('')}</div>
+      <div class="lb-wordmark"><div class="lb-wordmark-text">${wordmark}</div></div>
+      <div class="lb-banner"><div class="lb-banner-text">${banner}</div></div>
+      <div class="lb-hero">
+        <div class="lb-hero-product">${hero.label||''}</div>
+        <div class="lb-hero-head">${hero.head||''}</div>
+        <div class="lb-hero-sub">${hero.sub||''}</div>
+        <div class="lb-hero-img"><span class="lb-hero-img-label">${hero.imgLabel||''}</span></div>
+        <button class="lb-cta-btn">${hero.cta||''}</button>
+      </div>
+      <div class="lb-divider"></div>
+      <div class="lb-body-section">
+        <div class="lb-body-text">${greeting}</div>
+        ${listItems?`<ul class="lb-body-list">${listItems}</ul>`:''}
+        <div class="lb-body-text">${ctaLine.replace(/\[|\]/g,'')}</div>
+        <div class="lb-sig">${signoff}</div>
+      </div>
+      <div class="lb-divider"></div>
+      <div class="lb-footer"><div class="lb-footer-text">Subject: <em>${subj}</em><br><br>${address}<br>Unsubscribe · View in browser</div></div>
+    </div></div>
+  </div>`;
+}
+
+function buildSmsPreview(data,seg){
+  const copy=getActiveClient().copy||{};
+  const contact=copy.smsContact||'';
+  const linkHost=copy.smsLinkHost||'';
+  const msg=data.body||'';
+  const t=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
+  return `<div class="preview-label">PREVIEW <span>· SMS · ${seg.name||''}</span></div>
+  <div class="sms-device"><div class="sms-phone-frame"><div class="sms-screen">
+    <div class="sms-status"><span>${t}</span><span>●●●</span></div>
+    <div class="sms-contact"><div class="sms-contact-name">${contact}</div><div class="sms-contact-sub">Marketing · Text STOP to opt out</div></div>
+    <div class="sms-messages">
+      <div class="sms-bubble">${msg.replace(/\[link\]/g,`<span style="color:#7dd3fc;text-decoration:underline">${linkHost}</span>`)}</div>
+      <div class="sms-time">${t}</div>
+    </div>
+    <div class="sms-input-row"><div class="sms-input-mock"><span class="sms-input-mock-text">Text Message</span></div></div>
+  </div></div></div>`;
+}
+
+function buildAdPreview(data,seg){
+  const copy=getActiveClient().copy||{};
+  const def=copy.adDefaults||{};
+  const body=data.body||'';
+  const lines=body.split('\n');
+  const get=key=>{const l=lines.find(x=>x.startsWith(key+':'));return l?l.replace(key+':','').trim():'';};
+  const headline=get('HEADLINE')||def.headline||'';
+  const subhead=get('SUBHEAD')||def.subhead||'';
+  const cta=get('CTA')||def.cta||'';
+  const tone=get('TONE')||def.tone||'';
+  const fmt=get('FORMAT')||def.format||'';
+  const visual=get('VISUAL')||def.visual||'';
+  const imgLabel=def.imgLabel||'';
+  const title=copy.adTitle||'AD CREATIVE BRIEF';
+  return `<div class="preview-label">PREVIEW <span>· Ad brief · ${seg.name||''}</span></div>
+  <div class="ad-brief-card">
+    <div class="ad-brief-header"><div class="ad-brief-title">${title}</div></div>
+    <div class="ad-brief-preview">
+      <div class="ad-mock-img"><span>${imgLabel}</span></div>
+      <div class="ad-mock-headline">${headline}</div>
+      <div class="ad-mock-sub">${subhead}</div>
+      <div class="ad-mock-cta">${cta}</div>
+    </div>
+    <div class="ad-brief-specs">
+      <div class="ad-spec-row"><div class="ad-spec-key">VISUAL</div><div class="ad-spec-val">${visual}</div></div>
+      <div class="ad-spec-row"><div class="ad-spec-key">TONE</div><div class="ad-spec-val">${tone}</div></div>
+      <div class="ad-spec-row"><div class="ad-spec-key">FORMAT</div><div class="ad-spec-val">${fmt}</div></div>
+      <div class="ad-spec-row"><div class="ad-spec-key">SEGMENT</div><div class="ad-spec-val">${seg.name||'(none)'}</div></div>
     </div>
   </div>`;
-  }).join('');
 }
-function searchModalSelect(id){
-  closeSearchModal();
-  if(typeof selectChat==='function') selectChat(id);
-}
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    const ov=document.getElementById('searchModalOverlay');
-    if(ov&&ov.classList.contains('open')) closeSearchModal();
-  }
-});
 
+function cpy(id){const el=document.getElementById(id);if(el)navigator.clipboard.writeText(el.textContent).catch(()=>{});showToast('Copied');}
 
+function editBlk(id){const el=document.getElementById(id);if(!el)return;const orig=el.textContent;const ta=document.createElement('textarea');ta.className='c-edit-ta';ta.value=orig;ta.style.height=el.offsetHeight+'px';el.replaceWith(ta);ta.focus();const done=()=>{const p=document.createElement('div');p.className='c-text';p.id=id;p.textContent=ta.value||orig;ta.replaceWith(p);};ta.addEventListener('blur',done);ta.addEventListener('keydown',e=>{if(e.key==='Escape'){const p=document.createElement('div');p.className='c-text';p.id=id;p.textContent=orig;ta.replaceWith(p);}});}
+
+// ══ START SCREEN ══
+const hr = new Date().getHours();
+document.getElementById('timeOfDay').textContent = hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : 'evening';
 
 function renderAdminClients(){
   const listEl = document.getElementById('adminClientList');
@@ -3783,53 +3683,6 @@ function renderAdminClients(){
       <svg class="admin-client-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
     </div>`;
   }).join('');
-}
-
-function showAdminView(){
-  const u=getCurrentUser();
-  const client=getActiveClient();
-  const isSuper = !!(u && u.role === 'super');
-  const tenantOk = !!(client && client.enabledFeatures && client.enabledFeatures.admin);
-  if(!(u && isAdminRole(u.role)) || !(isSuper || tenantOk)){
-    updateAdminNavVisibility();
-    if(typeof switchWs==='function'){ switchWs('home'); } else { const hV0=document.getElementById('homeView');if(hV0) hV0.style.display=''; }
-    return;
-  }
-  const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
-  const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
-  const cS=document.getElementById('csView');if(cS) cS.style.display='none';
-  const rV=document.getElementById('reportView');if(rV) rV.style.display='none';
-  const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
-  const aV=document.getElementById('adminView');if(aV) aV.classList.remove('hidden');
-  const wasInDetail = !!DETAIL_CLIENT_ID;
-  DETAIL_CLIENT_ID = null;
-  // Leaving the detail editor: restore the signed-in tenant's branding.
-  if(wasInDetail && typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
-  renderAdminClients();
-}
-
-function showVerticalReport(verticalId){
-  const _c = (typeof getActiveClient === 'function') ? getActiveClient() : null;
-  if (!(_c && _c.enabledFeatures && _c.enabledFeatures.reports)){
-    // REPORTS data is Monese-specific. Belt-and-suspenders with
-    // updateProjectSwitcherVisibility, which hides the dropdown for any
-    // tenant without reports — but a stray keyboard shortcut or future
-    // call site could still land here.
-    return;
-  }
-  const r=REPORTS[verticalId];
-  if(!r){ console.warn('No report for', verticalId); return; }
-  // Switch view first
-  currentWs='report';
-  const sbH=document.getElementById('sbHome');if(sbH) sbH.style.display='';
-  const sbC=document.getElementById('sbCampaign');if(sbC) sbC.classList.remove('visible');
-  const hV=document.getElementById('homeView');if(hV) hV.style.display='none';
-  const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
-  const cS=document.getElementById('csView');if(cS) cS.style.display='none';
-  const aV2=document.getElementById('adminView');if(aV2) aV2.classList.add('hidden');
-  const rV=document.getElementById('reportView'); if(!rV) return;
-  rV.style.display='flex';
-  rV.innerHTML=buildReportHTML(r);
 }
 
 function buildReportHTML(r){
@@ -3868,11 +3721,6 @@ function buildReportHTML(r){
   </div>`;
 }
 
-function resolveBrandColor(color){
-  if(color==='brand-primary') return getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()||'#0b72fd';
-  if(color==='brand-primary-hover') return getComputedStyle(document.documentElement).getPropertyValue('--brand-primary-hover').trim()||'#3892ff';
-  return color;
-}
 function buildChart(type,data,color){
   const c=resolveBrandColor(color);
   if(type==='line') return buildLineChart(data,c);
@@ -3881,6 +3729,7 @@ function buildChart(type,data,color){
   if(type==='donut') return buildDonutChart(data,c);
   return '';
 }
+
 function buildLineChart(data,color){
   const W=720,H=200,PL=46,PR=18,PT=14,PB=30;
   const w=W-PL-PR,h=H-PT-PB;
@@ -3910,6 +3759,7 @@ function buildLineChart(data,color){
     ${xLabels}
   </svg>`;
 }
+
 function buildBarChart(data,color){
   const W=720,H=200,PL=46,PR=18,PT=14,PB=30;
   const w=W-PL-PR,h=H-PT-PB;
@@ -3931,6 +3781,7 @@ function buildBarChart(data,color){
   }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:240px;overflow:visible;">${gridLines}${bars}${xLabels}</svg>`;
 }
+
 function buildHBarChart(data,color){
   const W=720,LH=34,PT=10,PB=4,LBL_W=140,VAL_W=84;
   const rows=data.rows.length,H=PT+PB+rows*LH;
@@ -3947,6 +3798,7 @@ function buildHBarChart(data,color){
   }).join('');
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:${H+10}px;overflow:visible;">${items}</svg>`;
 }
+
 function buildDonutChart(data,color){
   // Resolve every slice color through the same single entry point used by the
   // report header dot and chart builders, so 'brand-primary' / 'brand-primary-hover'
@@ -4085,6 +3937,44 @@ function switchCdTab(name){
   if (name === 'users') renderCdUsers(getDetailClient());
 }
 
+function renderCdOverview(client){
+  const feat = client.enabledFeatures || {};
+  const mode       = client.mode  || '—';
+  const palette    = client.palette || '—';
+  const reportsOn  = feat.reports   ? 'Yes' : 'No';
+  const campaignsOn = feat.campaigns ? 'Yes' : 'No';
+  const adminOn    = feat.admin     ? 'Yes' : 'No';
+  const overviewEl = document.getElementById('cdpTabOverview');
+  if (!overviewEl) return;
+  overviewEl.innerHTML = `
+    <div class="cd-kpi-row">
+      <div class="cd-kpi"><div class="cd-kpi-lbl">MODE</div><div class="cd-kpi-val" style="font-size:13px;">${mode}</div><div class="cd-kpi-sub">tenant configuration</div></div>
+      <div class="cd-kpi"><div class="cd-kpi-lbl">PALETTE</div><div class="cd-kpi-val" style="font-size:13px;">${palette}</div><div class="cd-kpi-sub">brand theme</div></div>
+      <div class="cd-kpi"><div class="cd-kpi-lbl">REPORTS</div><div class="cd-kpi-val" style="font-size:13px;">${reportsOn}</div><div class="cd-kpi-sub">feature flag</div></div>
+    </div>
+    <div style="font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:8px;">FEATURE STATUS</div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.campaigns ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Campaigns</div>
+      <div class="cd-status-val" style="color:${feat.campaigns ? '#2ea86a' : 'var(--text3)'};">${campaignsOn.toUpperCase()}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.admin ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Admin panel</div>
+      <div class="cd-status-val" style="color:${feat.admin ? '#2ea86a' : 'var(--text3)'};">${adminOn.toUpperCase()}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.whitelabel ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">Whitelabel</div>
+      <div class="cd-status-val" style="color:${feat.whitelabel ? '#2ea86a' : 'var(--text3)'};">${feat.whitelabel ? 'YES' : 'NO'}</div>
+    </div>
+    <div class="cd-status-row">
+      <div class="cd-status-dot" style="background:${feat.userManagement ? '#2ea86a' : '#555a72'};"></div>
+      <div class="cd-status-label">User management</div>
+      <div class="cd-status-val" style="color:${feat.userManagement ? '#2ea86a' : 'var(--text3)'};">${feat.userManagement ? 'YES' : 'NO'}</div>
+    </div>`;
+}
+
 function renderCdUsers(client){
   client = client || getDetailClient();
   const listEl = document.getElementById('cdpUsersList');
@@ -4171,44 +4061,6 @@ function addUser(clientId){
   USERS[id] = {id, name:name.trim(), email:email.trim(), role:'user', clientId, initials, color};
   renderCdUsers(getDetailClient());
   showToast('User ' + name.trim() + ' added');
-}
-
-function renderCdOverview(client){
-  const feat = client.enabledFeatures || {};
-  const mode       = client.mode  || '—';
-  const palette    = client.palette || '—';
-  const reportsOn  = feat.reports   ? 'Yes' : 'No';
-  const campaignsOn = feat.campaigns ? 'Yes' : 'No';
-  const adminOn    = feat.admin     ? 'Yes' : 'No';
-  const overviewEl = document.getElementById('cdpTabOverview');
-  if (!overviewEl) return;
-  overviewEl.innerHTML = `
-    <div class="cd-kpi-row">
-      <div class="cd-kpi"><div class="cd-kpi-lbl">MODE</div><div class="cd-kpi-val" style="font-size:13px;">${mode}</div><div class="cd-kpi-sub">tenant configuration</div></div>
-      <div class="cd-kpi"><div class="cd-kpi-lbl">PALETTE</div><div class="cd-kpi-val" style="font-size:13px;">${palette}</div><div class="cd-kpi-sub">brand theme</div></div>
-      <div class="cd-kpi"><div class="cd-kpi-lbl">REPORTS</div><div class="cd-kpi-val" style="font-size:13px;">${reportsOn}</div><div class="cd-kpi-sub">feature flag</div></div>
-    </div>
-    <div style="font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:8px;">FEATURE STATUS</div>
-    <div class="cd-status-row">
-      <div class="cd-status-dot" style="background:${feat.campaigns ? '#2ea86a' : '#555a72'};"></div>
-      <div class="cd-status-label">Campaigns</div>
-      <div class="cd-status-val" style="color:${feat.campaigns ? '#2ea86a' : 'var(--text3)'};">${campaignsOn.toUpperCase()}</div>
-    </div>
-    <div class="cd-status-row">
-      <div class="cd-status-dot" style="background:${feat.admin ? '#2ea86a' : '#555a72'};"></div>
-      <div class="cd-status-label">Admin panel</div>
-      <div class="cd-status-val" style="color:${feat.admin ? '#2ea86a' : 'var(--text3)'};">${adminOn.toUpperCase()}</div>
-    </div>
-    <div class="cd-status-row">
-      <div class="cd-status-dot" style="background:${feat.whitelabel ? '#2ea86a' : '#555a72'};"></div>
-      <div class="cd-status-label">Whitelabel</div>
-      <div class="cd-status-val" style="color:${feat.whitelabel ? '#2ea86a' : 'var(--text3)'};">${feat.whitelabel ? 'YES' : 'NO'}</div>
-    </div>
-    <div class="cd-status-row">
-      <div class="cd-status-dot" style="background:${feat.userManagement ? '#2ea86a' : '#555a72'};"></div>
-      <div class="cd-status-label">User management</div>
-      <div class="cd-status-val" style="color:${feat.userManagement ? '#2ea86a' : 'var(--text3)'};">${feat.userManagement ? 'YES' : 'NO'}</div>
-    </div>`;
 }
 
 // ── DATASOURCE PANEL ──
@@ -4464,6 +4316,7 @@ function cdApplyLogoToHeader(src){
     el.style.padding = '0';
   });
 }
+
 // Undo cdApplyLogoToHeader's writes. Used by setActiveTenant() when switching
 // INTO a tenant that has no wlLogo — without this, the previous tenant's
 // uploaded logo persists in the header. We restore each <img>'s original src
@@ -4577,6 +4430,216 @@ function cdResetWhiteLabel(){
   showToast('Reset to defaults');
 }
 
+// SEARCH CONVERSATIONS MODAL
+function openSearchModal(){
+  const _c = (typeof getActiveClient === 'function') ? getActiveClient() : null;
+  if (_c && _c.enabledFeatures && _c.enabledFeatures.search === false) return;
+  const ov=document.getElementById('searchModalOverlay');
+  ov.classList.add('open');
+  const inp=document.getElementById('searchModalInput');
+  inp.value='';
+  renderSearchModal('');
+  setTimeout(()=>inp.focus(),50);
+}
+
+function closeSearchModal(){
+  document.getElementById('searchModalOverlay').classList.remove('open');
+}
+
+function filterSearchModal(){
+  const q=document.getElementById('searchModalInput').value.trim();
+  renderSearchModal(q);
+}
+
+function renderSearchModal(q){
+  const list=document.getElementById('searchModalList');
+  const lbl=document.getElementById('searchModalLbl');
+  const count=document.getElementById('searchModalCount');
+  // Scope: homeChats is the active tenant's conversation list. Search matches
+  // both the title and the snippet (Stokes parity — [stokes:2406]).
+  // Falls back to [] gracefully if homeChats is unavailable.
+  const all=(typeof homeChats!=='undefined')?homeChats:[];
+  const ql=q.toLowerCase();
+  const filtered=q?all.filter(c=>
+    (c.title||'').toLowerCase().includes(ql) ||
+    (c.snippet||'').toLowerCase().includes(ql)
+  ):all;
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  lbl.textContent=q?`MATCHES FOR "${q.toUpperCase()}"`:'RECENT CONVERSATIONS';
+  count.textContent=`${filtered.length} result${filtered.length===1?'':'s'}`;
+  if(!filtered.length){
+    list.innerHTML=q
+      ? `<div class="search-modal-empty">No conversations found for "${esc(q)}"</div>`
+      : '<div class="search-modal-empty">No conversations match that search.</div>';
+    return;
+  }
+  list.innerHTML=filtered.map(c=>{
+    const snip=c.snippet?`<div class="search-modal-item-snippet">${esc(c.snippet)}</div>`:'';
+    return `<div class="search-modal-item" onclick="searchModalSelect(${c.id})">
+    <svg class="search-modal-item-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <div class="search-modal-item-body">
+      <div class="search-modal-item-title">${esc(c.title)}</div>
+      ${snip}
+      <div class="search-modal-item-time">${esc(c.time)}</div>
+    </div>
+  </div>`;
+  }).join('');
+}
+
+function searchModalSelect(id){
+  closeSearchModal();
+  if(typeof selectChat==='function') selectChat(id);
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    const ov=document.getElementById('searchModalOverlay');
+    if(ov&&ov.classList.contains('open')) closeSearchModal();
+  }
+});
+
+// ── ACCOUNT MODAL ──
+function renderClientAcctPanel(u, client){
+    const isSingleTenant = client.mode === 'singleTenant';
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = getDemoUsers().filter(other => other.id !== u.id && isAdminRole(other.role));
+    const switchSection = (!isSingleTenant && switchTargets.length > 0) ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
+    ` : '';
+    const signOutSection = isSingleTenant ? '' : `
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">${client.name} · ${u.role.toUpperCase()}</div>
+        <span class="acct-badge badge-client">CLIENT</span>
+      </div>
+    </div>
+    <div class="acct-section-lbl">ACCOUNT</div>
+    <div class="acct-menu-item" onclick="showToast('Profile settings — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><div class="acct-menu-label">Profile settings</div></div>
+    <div class="acct-menu-item" onclick="showToast('Change password — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div class="acct-menu-label">Change password</div></div>
+    <div class="acct-menu-item" onclick="showToast('Notification preferences — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="acct-menu-label">Notification preferences</div></div>
+    ${switchSection}
+    ${signOutSection}`;
+  }
+
+  function renderAdminAcctPanel(u){
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = getDemoUsers().filter(other => other.id !== u.id && !isAdminRole(other.role));
+    const clientListSection = `
+    <div class="acct-section-lbl">CLIENT LIST</div>
+    ${CLIENTS.map(c => `<div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${c.id}')"><div class="admin-client-dot" style="background:${c.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${c.name}</div></div>`).join('')}
+    `;
+    const switchSection = switchTargets.length > 0 ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name}</div></div>`).join('')}
+    ` : '';
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">STOKES · ${u.role.toUpperCase()}</div>
+        <span class="acct-badge badge-super">SUPER ADMIN</span>
+      </div>
+    </div>
+    ${clientListSection}
+    ${switchSection}
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+  }
+
+  function renderClientAdminAcctPanel(u, client){
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = getDemoUsers().filter(other => other.id !== u.id);
+    const roleLabel = r => r === 'admin' ? 'Client Admin' : r === 'super' ? 'Super Admin' : 'User';
+    const switchSection = switchTargets.length > 0 ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${roleLabel(t.role)})</div></div>`).join('')}
+    ` : '';
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">${client.name} · CLIENT ADMIN</div>
+        <span class="acct-badge badge-client">CLIENT ADMIN</span>
+      </div>
+    </div>
+    <div class="acct-section-lbl">YOUR CLIENT</div>
+    <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}')"><div class="admin-client-dot" style="background:${client.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${client.name}</div></div>
+    ${client.enabledFeatures && client.enabledFeatures.whitelabel ? `
+    <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}','whitelabel')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text2);"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><div class="acct-menu-label">Edit branding</div></div>` : ''}
+    ${switchSection}
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+  }
+
+  function openAccountModal(){
+    const u = getCurrentUser();
+    if (!u) return;
+    const client = getActiveClient();
+    const titleEl = document.getElementById('acctModalTitle');
+    const bodyEl = document.getElementById('acctModalBody');
+    if (!titleEl || !bodyEl) return;
+    if (u.role === 'super') {
+      titleEl.textContent = 'Admin panel';
+      bodyEl.innerHTML = renderAdminAcctPanel(u);
+    } else if (u.role === 'admin') {
+      titleEl.textContent = 'Admin panel';
+      bodyEl.innerHTML = renderClientAdminAcctPanel(u, client);
+    } else {
+      titleEl.textContent = 'Account';
+      bodyEl.innerHTML = renderClientAcctPanel(u, client);
+    }
+    document.getElementById('accountModal').classList.remove('hidden');
+  }
+
+function closeAccountModal() {
+  document.getElementById('accountModal').classList.add('hidden');
+}
+
+// Close account modal on overlay click or Esc key
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('accountModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAccountModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAccountModal();
+  });
+});
+
+function openCtx(e,id){
+  e.preventDefault(); e.stopPropagation(); ctxTgt=id;
+  document.getElementById('ctxRename').onclick=()=>{closeCtx();startCampRename(id);};
+  document.getElementById('ctxDelete').onclick=()=>{
+    const idx=CAMPS.findIndex(c=>c.id===id); if(idx!==-1)CAMPS.splice(idx,1);
+    renderCampSb(); closeCtx(); showToast('Deleted');
+  };
+  const m=document.getElementById('ctxMenu');
+  m.style.left=e.clientX+'px'; m.style.top=e.clientY+'px';
+  m.classList.add('visible');
+}
+
+function closeCtx(){document.getElementById('ctxMenu').classList.remove('visible');ctxTgt=null;}
+document.getElementById('ctxMenu').addEventListener('click',e=>e.stopPropagation());
+document.addEventListener('click',closeCtx);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx();});
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800);}
+
+// INIT
+document.body.classList.add('light-mode');
+document.getElementById('themeIconDark').style.display = 'none';
+document.getElementById('themeIconLight').style.display = '';
+renderProds();
+switchWs('home');
+renderHomeList();
+showStartScreen();
+applyBreakpoint();
 </script>
 
 </body>
