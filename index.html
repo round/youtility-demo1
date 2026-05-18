@@ -1079,6 +1079,10 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
           </div>
         </div>
         <div class="start-pills">
+          <div class="start-pill" onclick="startPrompt('Who is my best customer?')" style="border-color:rgb(var(--brand-primary-rgb) / .4);color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .07);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Who is my best customer?
+          </div>
           <div class="start-pill" onclick="switchWs('campaign')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             New campaign
@@ -1369,7 +1373,7 @@ const CLIENTS = [
     // logo omitted: monese uses the static header PNG, preserved via the
     // boot-time cache so cdResetLogoInHeader restores it byte-identically.
     copy: { productName: 'Monese' },
-    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: false, whitelabel: false, userManagement: false },
+    enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: false, whitelabel: false, userManagement: false },
   },
   {
     id: 'ledbury',
@@ -1381,7 +1385,7 @@ const CLIENTS = [
     status: 'live',
     logo: makeMonoLogo('L', '#4a6741'),
     copy: { productName: 'Ledbury' },
-    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+    enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
     id: 'pockit',
@@ -1393,7 +1397,7 @@ const CLIENTS = [
     status: 'live',
     logo: makeMonoLogo('P', '#4a7fd4'),
     copy: { productName: 'Pockit' },
-    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+    enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
     id: 'virginmoney',
@@ -1405,7 +1409,7 @@ const CLIENTS = [
     status: 'live',
     logo: makeMonoLogo('V', '#d0553a'),
     copy: { productName: 'Virgin Money' },
-    enabledFeatures: { reports: true, search: true, campaigns: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+    enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
     id: 'santander',
@@ -1417,7 +1421,7 @@ const CLIENTS = [
     status: 'setup',
     logo: makeMonoLogo('S', '#e8a020'),
     copy: { productName: 'Santander UK' },
-    enabledFeatures: { reports: false, search: true, campaigns: true, audienceExplorer: false, admin: true, whitelabel: true, userManagement: true },
+    enabledFeatures: { reports: false, search: true, audienceExplorer: false, admin: true, whitelabel: true, userManagement: true },
   },
 ];
 let ACTIVE_CLIENT_ID = 'monese';
@@ -1536,6 +1540,12 @@ function updateProjectSwitcherVisibility(){
   const client = getActiveClient();
   const reportsOn = !!(client && client.enabledFeatures && client.enabledFeatures.reports);
   sw.style.display = reportsOn ? '' : 'none';
+}
+
+function updateSearchVisibility(){
+  const client = getActiveClient();
+  const on = !(client && client.enabledFeatures && client.enabledFeatures.search === false);
+  document.querySelectorAll('.sb-search-btn').forEach(el => { el.style.display = on ? '' : 'none'; });
 }
 
 // ── AUTH / SESSION ──
@@ -1931,6 +1941,8 @@ function setActiveTenant(clientId){
   if (typeof updateAdminNavVisibility === 'function') updateAdminNavVisibility();
   // 4b. Project-verticals dropdown hidden for tenants without reports.
   if (typeof updateProjectSwitcherVisibility === 'function') updateProjectSwitcherVisibility();
+  // 4c. Sidebar search button hidden for tenants without search.
+  if (typeof updateSearchVisibility === 'function') updateSearchVisibility();
   // 5. Per-tenant data swap: SEGS, CDATA, homeChats. SEGS/CDATA are live
   //    `let` bindings, so reassigning here propagates to every renderer's
   //    next read. homeChats is mutated in-place via splice so existing
@@ -2486,6 +2498,13 @@ function isAudienceQuery(val){
 
 function injectAudienceExplorer(kind){
   kind = kind || 'best';
+  const _client = getActiveClient();
+  if (!(_client.enabledFeatures && _client.enabledFeatures.audienceExplorer)){
+    // Tenant disables AE — fall through to the regular AI sim so the chat
+    // still responds rather than silently ignoring the message.
+    setTimeout(simAI,400);
+    return;
+  }
   const id=nMsgId++;
   // Brief typing simulation then inject widget
   streaming=true;
@@ -3086,6 +3105,8 @@ applyBreakpoint();
 
 // SEARCH CONVERSATIONS MODAL
 function openSearchModal(){
+  const _c = (typeof getActiveClient === 'function') ? getActiveClient() : null;
+  if (_c && _c.enabledFeatures && _c.enabledFeatures.search === false) return;
   const ov=document.getElementById('searchModalOverlay');
   ov.classList.add('open');
   const inp=document.getElementById('searchModalInput');
@@ -3496,6 +3517,7 @@ function buildDonutChart(data,color){
     }
     updateAdminNavVisibility();
     if (typeof updateProjectSwitcherVisibility === 'function') updateProjectSwitcherVisibility();
+    if (typeof updateSearchVisibility === 'function') updateSearchVisibility();
   })();
 
 /* ── CLIENT DETAIL PANEL ── */
@@ -3592,9 +3614,17 @@ const ROLE_BADGE_STYLES = {
 
 function renderCdUsers(client){
   client = client || getDetailClient();
-  const clientUsers = Object.values(USERS).filter(u => u.clientId === client.id);
   const listEl = document.getElementById('cdpUsersList');
   if (!listEl) return;
+  if (!(client.enabledFeatures && client.enabledFeatures.userManagement)){
+    listEl.innerHTML = `
+      <div style="padding:32px 16px;text-align:center;color:var(--text3);font-size:12.5px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.09em;margin-bottom:6px;">USER MANAGEMENT</div>
+        <div>User management is not enabled for this client.</div>
+      </div>`;
+    return;
+  }
+  const clientUsers = Object.values(USERS).filter(u => u.clientId === client.id);
 
   function rowHtml(u){
     const bs = ROLE_BADGE_STYLES[u.role] || ROLE_BADGE_STYLES.user;
@@ -3626,7 +3656,12 @@ function renderCdUsers(client){
 function cycleUserRole(userId){
   const u = USERS[userId];
   if (!u) return;
-  u.role = ROLE_CYCLE[u.role] || 'user';
+  // Role floor: only super admins can promote anyone to 'super'. Client admins
+  // cycling roles in their own tenant skip past 'super' back to 'user'.
+  let next = ROLE_CYCLE[u.role] || 'user';
+  const me = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
+  if (next === 'super' && !(me && me.role === 'super')) next = 'user';
+  u.role = next;
   // Re-render just this row
   const rowEl = document.getElementById('urow-'+userId);
   if (rowEl){
