@@ -1424,7 +1424,9 @@ const CLIENTS = [
       audienceExplorerLabel: 'LEDBURY',
       audiencePopulation: '84,320',
     },
-    enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+    // reports:false until per-tenant REPORTS data is wired. The shared REPORTS
+    // map is Monese-specific (Travel Money Card, Pots, Cash Advance verticals).
+    enabledFeatures: { reports: false, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
     id: 'pockit',
@@ -1453,7 +1455,7 @@ const CLIENTS = [
       audienceExplorerLabel: 'POCKIT',
       audiencePopulation: '84,320',
     },
-    enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+    enabledFeatures: { reports: false, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
     id: 'virginmoney',
@@ -1482,7 +1484,7 @@ const CLIENTS = [
       audienceExplorerLabel: 'VIRGIN MONEY',
       audiencePopulation: '84,320',
     },
-    enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
+    enabledFeatures: { reports: false, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
     id: 'santander',
@@ -3449,6 +3451,14 @@ function showAdminView(){
 }
 
 function showVerticalReport(verticalId){
+  const _c = (typeof getActiveClient === 'function') ? getActiveClient() : null;
+  if (!(_c && _c.enabledFeatures && _c.enabledFeatures.reports)){
+    // REPORTS data is Monese-specific. Belt-and-suspenders with
+    // updateProjectSwitcherVisibility, which hides the dropdown for any
+    // tenant without reports — but a stray keyboard shortcut or future
+    // call site could still land here.
+    return;
+  }
   const r=REPORTS[verticalId];
   if(!r){ console.warn('No report for', verticalId); return; }
   // Switch view first
