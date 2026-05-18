@@ -2487,10 +2487,10 @@ function injectAudienceExplorer(kind){
     // Replace placeholder with widget
     const idx=msgs.findIndex(m=>m.id===id);
     if(idx!==-1){
-      msgs[idx]={id,role:'ai',widget:true,feedback:null,widgetHTML:buildAudienceExplorerHTML(),widgetIntro:introText,widgetKind:kind};
+      msgs[idx]={id,role:'ai',widget:true,feedback:null,widgetHTML:buildAudienceExplorerHTML(id),widgetIntro:introText,widgetKind:kind};
       renderMsgs();
       // Boot the audience explorer JS after it's in the DOM
-      bootAudienceExplorer(kind);
+      bootAudienceExplorer(kind,id);
     }
   },1200);
 }
@@ -2597,8 +2597,12 @@ function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrol
 function autoResizeEl(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,160)+'px';}
 
 // ══ AUDIENCE EXPLORER WIDGET ══
-function buildAudienceExplorerHTML(){
-  return `<div id="ae-widget" style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;max-width:100%;">
+// Per-message registry: each AE widget instance stores its selC/selS/launch
+// closures keyed by message id, so multiple coexisting widgets don't clobber
+// each other via a shared window.* global.
+window._aeReg = window._aeReg || {};
+function buildAudienceExplorerHTML(msgId){
+  return `<div id="ae-widget-${msgId}" style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;max-width:100%;">
   <div style="padding:11px 16px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text);">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--brand-primary)"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -2606,7 +2610,7 @@ function buildAudienceExplorerHTML(){
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
       <div style="font-size:10px;color:var(--text3);letter-spacing:.05em;">POPULATION: <b style="color:var(--text2)">84,320</b> &nbsp;·&nbsp; <b style="color:var(--text2)">MONESE</b></div>
-      <button id="ae-create-btn" onclick="window._aeLaunchCampaign()" style="display:flex;align-items:center;gap:6px;padding:6px 13px;background:var(--brand-primary);border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:background .15s;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
+      <button id="ae-create-btn-${msgId}" onclick="window._aeReg[${msgId}]&&window._aeReg[${msgId}].launch()" style="display:flex;align-items:center;gap:6px;padding:6px 13px;background:var(--brand-primary);border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:background .15s;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Create campaign
       </button>
@@ -2617,43 +2621,43 @@ function buildAudienceExplorerHTML(){
       <div style="padding:12px 14px 10px;display:flex;flex-direction:column;align-items:center;border-bottom:1px solid var(--border);">
         <div style="width:100%;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text3);margin-bottom:8px;text-align:left;">MINDSET PROFILES</div>
         <div style="position:relative;width:180px;height:180px;">
-          <svg id="ae-donut" width="180" height="180" viewBox="-90 -90 180 180" style="overflow:visible;cursor:pointer;"><g id="ae-slices"></g>
-            <text id="ae-clbl" y="-12" text-anchor="middle" font-size="7" font-weight="700" letter-spacing="1" fill="var(--text3)" font-family="Montserrat,sans-serif"></text>
-            <text id="ae-cct" y="12" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" font-family="Montserrat,sans-serif"></text>
+          <svg id="ae-donut-${msgId}" width="180" height="180" viewBox="-90 -90 180 180" style="overflow:visible;cursor:pointer;"><g id="ae-slices-${msgId}"></g>
+            <text id="ae-clbl-${msgId}" y="-12" text-anchor="middle" font-size="7" font-weight="700" letter-spacing="1" fill="var(--text3)" font-family="Montserrat,sans-serif"></text>
+            <text id="ae-cct-${msgId}" y="12" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" font-family="Montserrat,sans-serif"></text>
           </svg>
         </div>
-        <div id="ae-leg" style="width:100%;margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
-        <div id="ae-vbadge" style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;border:1.5px solid var(--brand-primary);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--brand-primary);margin-top:8px;background:rgb(var(--brand-primary-rgb) / .09);"></div>
+        <div id="ae-leg-${msgId}" style="width:100%;margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
+        <div id="ae-vbadge-${msgId}" style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;border:1.5px solid var(--brand-primary);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--brand-primary);margin-top:8px;background:rgb(var(--brand-primary-rgb) / .09);"></div>
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px 5px;border-bottom:1px solid var(--border);">
-        <span id="ae-slbl" style="font-size:9px;font-weight:700;letter-spacing:.09em;color:var(--text3);"></span>
+        <span id="ae-slbl-${msgId}" style="font-size:9px;font-weight:700;letter-spacing:.09em;color:var(--text3);"></span>
         <span style="font-size:10px;font-weight:500;color:var(--text2);">50</span>
       </div>
-      <div id="ae-slist" style="overflow-y:auto;max-height:190px;"></div>
+      <div id="ae-slist-${msgId}" style="overflow-y:auto;max-height:190px;"></div>
     </div>
     <div style="display:flex;flex-direction:column;min-width:0;">
       <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border);">
         <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:5px;">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--brand-primary)"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-          <span id="ae-pid"></span>
+          <span id="ae-pid-${msgId}"></span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div id="ae-ppill" style="display:inline-flex;padding:3px 10px;border-radius:20px;border:1.5px solid var(--brand-primary);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--brand-primary);"></div>
-          <div style="font-size:10.5px;color:var(--text3);">Match Confidence: <b id="ae-pconf" style="color:var(--text2);"></b></div>
+          <div id="ae-ppill-${msgId}" style="display:inline-flex;padding:3px 10px;border-radius:20px;border:1.5px solid var(--brand-primary);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--brand-primary);"></div>
+          <div style="font-size:10.5px;color:var(--text3);">Match Confidence: <b id="ae-pconf-${msgId}" style="color:var(--text2);"></b></div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;flex:1;min-height:0;overflow-y:auto;">
         <div style="padding:13px 14px;">
           <div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text3);margin-bottom:11px;">PSYCHOGRAPHIC DIMENSIONS</div>
-          <div id="ae-dims"></div>
+          <div id="ae-dims-${msgId}"></div>
         </div>
-        <div id="ae-mkt" style="padding:0 14px 13px;display:flex;flex-direction:column;gap:10px;"></div>
+        <div id="ae-mkt-${msgId}" style="padding:0 14px 13px;display:flex;flex-direction:column;gap:10px;"></div>
       </div>
     </div>
   </div>
   <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgb(var(--brand-primary-rgb) / .04);">
-    <div style="font-size:10.5px;color:var(--text2);">Targeting <b id="ae-footer-seg" style="color:var(--text);"></b> &nbsp;·&nbsp; <span id="ae-footer-ct" style="color:var(--text3);"></span> customers in this segment</div>
-    <button onclick="window._aeLaunchCampaign()" style="display:flex;align-items:center;gap:7px;padding:7px 16px;background:var(--brand-primary);border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;transition:background .15s;letter-spacing:.02em;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
+    <div style="font-size:10.5px;color:var(--text2);">Targeting <b id="ae-footer-seg-${msgId}" style="color:var(--text);"></b> &nbsp;·&nbsp; <span id="ae-footer-ct-${msgId}" style="color:var(--text3);"></span> customers in this segment</div>
+    <button onclick="window._aeReg[${msgId}]&&window._aeReg[${msgId}].launch()" style="display:flex;align-items:center;gap:7px;padding:7px 16px;background:var(--brand-primary);border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;transition:background .15s;letter-spacing:.02em;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Create campaign for this segment
     </button>
@@ -2661,7 +2665,7 @@ function buildAudienceExplorerHTML(){
 </div>`;
 }
 
-function bootAudienceExplorer(kind){
+function bootAudienceExplorer(kind,msgId){
   kind = kind || 'best';
   // "Best customer" view: the high-value, high-engagement clusters lead.
   // "Churn risk" view: the same six clusters, re-weighted so churn-prone
@@ -2702,7 +2706,7 @@ function bootAudienceExplorer(kind){
   function sp(sa,ea,r,inn){const[x1,y1]=pt(sa,r),[x2,y2]=pt(ea,r),[ix1,iy1]=pt(sa,inn),[ix2,iy2]=pt(ea,inn);const lg=ea-sa>Math.PI?1:0;return `M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r},0,${lg},1,${x2.toFixed(2)},${y2.toFixed(2)} L${ix2.toFixed(2)},${iy2.toFixed(2)} A${inn},${inn},0,${lg},0,${ix1.toFixed(2)},${iy1.toFixed(2)} Z`;}
 
   function bDonut(){
-    const sg=document.getElementById('ae-slices');if(!sg)return;sg.innerHTML='';
+    const sg=document.getElementById('ae-slices-'+msgId);if(!sg)return;sg.innerHTML='';
     let ang=0;
     AEC.forEach((c,i)=>{
       const sw=c.pct*2*Math.PI,en=ang+sw,act=i===aC;
@@ -2719,63 +2723,58 @@ function bootAudienceExplorer(kind){
       sg.appendChild(path);ang=en;
     });
     const c=AEC[aC],ls=c.short.split('\n');
-    const cl=document.getElementById('ae-clbl');if(!cl)return;cl.innerHTML='';
+    const cl=document.getElementById('ae-clbl-'+msgId);if(!cl)return;cl.innerHTML='';
     if(ls.length===1){cl.setAttribute('y','-10');cl.textContent=ls[0];}
     else{cl.setAttribute('y','-16');cl.textContent=ls[0];const t2=document.createElementNS('http://www.w3.org/2000/svg','tspan');t2.setAttribute('x','0');t2.setAttribute('dy','11');t2.textContent=ls[1];cl.appendChild(t2);}
-    const ct=document.getElementById('ae-cct');if(ct)ct.textContent=c.count.toLocaleString();
+    const ct=document.getElementById('ae-cct-'+msgId);if(ct)ct.textContent=c.count.toLocaleString();
   }
   function bLeg(){
-    const el=document.getElementById('ae-leg');if(!el)return;
-    el.innerHTML=AEC.map((c,i)=>`<div onclick="window._aeSelC(${i})" style="display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:5px;cursor:pointer;background:${i===aC?'rgb(var(--brand-primary-rgb) / .09)':'transparent'};">
+    const el=document.getElementById('ae-leg-'+msgId);if(!el)return;
+    el.innerHTML=AEC.map((c,i)=>`<div onclick="window._aeReg[${msgId}]&&window._aeReg[${msgId}].selC(${i})" style="display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:5px;cursor:pointer;background:${i===aC?'rgb(var(--brand-primary-rgb) / .09)':'transparent'};">
       <div style="width:8px;height:8px;border-radius:50%;background:${c.color};flex-shrink:0;${i===aC?'box-shadow:0 0 0 2px '+c.hi:''}"></div>
       <div style="font-size:9.5px;color:${i===aC?'var(--text)':'var(--text2)'};flex:1;font-weight:${i===aC?'600':'400'}">${c.name}</div>
       <div style="font-size:9px;color:var(--text3);">${c.count.toLocaleString()}</div>
     </div>`).join('');
   }
-  window._aeSelC=function(i){selC(i);};
-  window._aeLaunchCampaign=function(){
+  function launchCampaign(){
     const c=AEC[aC];
-    // Switch to campaign workspace, open create tab, pre-set segment name
     switchWs('campaign');
     switchCwTab('create');
-    // Pre-fill campaign name with segment
     setTimeout(()=>{
       const nm=document.getElementById('campName');
       if(nm&&!nm.value) nm.value=c.name+': Targeted Campaign';
-      // Advance to step 2 with this segment pre-selected
-      // Map AE cluster index to SEGS
       const segMap={0:'loyal',1:'lapsed',2:'browse',3:'loyal',4:'lapsed',5:'new'};
       const targetSeg=segMap[aC]||'loyal';
       SEGS.forEach(s=>s.selected=s.id===targetSeg);
       wizStep=2; renderWizUI(); renderSegs();
       showToast('Segment pre-loaded: '+c.name);
     },300);
-  };
+  }
   function selC(i){aC=i;aS=0;const c=AEC[i];
-    const vb=document.getElementById('ae-vbadge');if(vb)vb.textContent='VIEWING: '+c.name.toUpperCase();
-    const sl=document.getElementById('ae-slbl');if(sl)sl.textContent='SAMPLE: '+c.name.toUpperCase();
-    const fs=document.getElementById('ae-footer-seg');if(fs)fs.textContent=c.name;
-    const fc=document.getElementById('ae-footer-ct');if(fc)fc.textContent=c.count.toLocaleString();
+    const vb=document.getElementById('ae-vbadge-'+msgId);if(vb)vb.textContent='VIEWING: '+c.name.toUpperCase();
+    const sl=document.getElementById('ae-slbl-'+msgId);if(sl)sl.textContent='SAMPLE: '+c.name.toUpperCase();
+    const fs=document.getElementById('ae-footer-seg-'+msgId);if(fs)fs.textContent=c.name;
+    const fc=document.getElementById('ae-footer-ct-'+msgId);if(fc)fc.textContent=c.count.toLocaleString();
     bDonut();bLeg();bSamps();selS(0);
   }
   function bSamps(){
-    const el=document.getElementById('ae-slist');if(!el)return;
-    el.innerHTML=AESAMP.map((s,i)=>`<div onclick="window._aeSelS(${i})" style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;cursor:pointer;border-left:2.5px solid ${i===aS?'var(--brand-primary)':'transparent'};background:${i===aS?'rgb(var(--brand-primary-rgb) / .06)':'transparent'};transition:background .1s;">
+    const el=document.getElementById('ae-slist-'+msgId);if(!el)return;
+    el.innerHTML=AESAMP.map((s,i)=>`<div onclick="window._aeReg[${msgId}]&&window._aeReg[${msgId}].selS(${i})" style="display:flex;align-items:center;justify-content:space-between;padding:6px 12px;cursor:pointer;border-left:2.5px solid ${i===aS?'var(--brand-primary)':'transparent'};background:${i===aS?'rgb(var(--brand-primary-rgb) / .06)':'transparent'};transition:background .1s;">
       <div style="font-size:9.5px;color:var(--text);font-weight:500;line-height:1.4;">${s.id.slice(0,18)}·<br>${s.id.slice(18)}</div>
       <div style="font-size:9px;color:var(--text3);text-align:right;">Match:<br><b style="color:var(--text2);">${Math.round(s.match*100)}%</b></div>
     </div>`).join('');
   }
-  window._aeSelS=function(i){selS(i);};
   function selS(i){aS=i;const s=AESAMP[i],c=AEC[aC];
-    const pid=document.getElementById('ae-pid');if(pid)pid.textContent=s.id;
-    const pp=document.getElementById('ae-ppill');if(pp)pp.textContent=c.name.toUpperCase();
-    const pc=document.getElementById('ae-pconf');if(pc)pc.textContent=s.match;
+    const pid=document.getElementById('ae-pid-'+msgId);if(pid)pid.textContent=s.id;
+    const pp=document.getElementById('ae-ppill-'+msgId);if(pp)pp.textContent=c.name.toUpperCase();
+    const pc=document.getElementById('ae-pconf-'+msgId);if(pc)pc.textContent=s.match;
     bSamps();bDims();bMkt();
   }
+  window._aeReg[msgId]={selC:selC,selS:selS,launch:launchCampaign};
   function bDims(){
     const base=AEDV[aC],col=AEC[aC].color;
     const vals=base.map(v=>Math.min(1,Math.max(.05,v+(Math.random()*.14-.07))));
-    const el=document.getElementById('ae-dims');if(!el)return;
+    const el=document.getElementById('ae-dims-'+msgId);if(!el)return;
     el.innerHTML=AED.map((d,i)=>{const p=Math.round(vals[i]*100),dt=Math.round(base[i]*100);
       return `<div style="display:flex;align-items:center;gap:7px;margin-bottom:8px;">
         <div style="font-size:9.5px;color:var(--text2);width:104px;flex-shrink:0;text-align:right;line-height:1.3;">${d}</div>
@@ -2790,7 +2789,7 @@ function bootAudienceExplorer(kind){
   function bMkt(){
     const m=AEMKT[aC],col=AEC[aC].color;
     const eH=Math.round((m.em/100)*40),sH=Math.round((m.sm/100)*40);
-    const el=document.getElementById('ae-mkt');if(!el)return;
+    const el=document.getElementById('ae-mkt-'+msgId);if(!el)return;
     el.innerHTML=`<div style="background:var(--bg4);border-radius:8px;padding:9px 11px;">
       <div style="font-size:8px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:6px;">TIMING</div>
       <span style="display:inline-flex;padding:2px 7px;border-radius:5px;background:var(--bg5);border:0.5px solid var(--border2);font-size:9px;color:var(--text2);margin:0 4px 3px 0;"><b style="color:var(--text);margin-right:3px;">Window</b>${m.t.b}</span>
