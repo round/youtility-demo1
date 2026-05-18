@@ -581,15 +581,15 @@ git add youtility.html
 git commit -m "feat: port login screen DOM+CSS from Stokes (hidden in singleTenant mode)"
 ```
 
-### Task 12: Port `signIn` / `signOut` JS
+### Task 12: Port `doLogin` / `quickLogin` / `signOut` JS
 
 **Files:**
 - Modify: `youtility.html`
-- Reference: `stokes-ledbury-mvp.html` lines 2399+ (`signOut`), search for `signIn` similarly
+- Reference: `stokes-ledbury-mvp.html` lines 2374+ (`doLogin`), 2381+ (`quickLogin`), 2399+ (`signOut`)
 
 - [ ] **Step 1: Read source JS.**
 
-Read `stokes-ledbury-mvp.html` around line 2399 to capture `signOut`. Search for `function signIn`, `function showLogin`, or `quickLogin` and read those.
+Read `stokes-ledbury-mvp.html` around lines 2374–2405 to capture `doLogin`, `quickLogin`, and `signOut`. Also grep for any `showLogin` helper.
 
 - [ ] **Step 2: Paste functions into `youtility.html`.**
 
@@ -623,7 +623,7 @@ git add youtility.html
 git commit -m "feat: port signIn/signOut and singleTenant login gating"
 ```
 
-### Task 13: Verify login flow end-to-end
+### Task 13: Verify login flow end-to-end (no persistent code changes)
 
 **Files:**
 - Modify: `youtility.html` (test edits only, reverted at end)
@@ -654,12 +654,9 @@ Open `youtility.html`. Login screen visible. Enter any credentials (or click any
 
 Remove the `test-mt` entry. Restore `ACTIVE_CLIENT_ID = 'monese'`. Confirm Monese still loads without login.
 
-- [ ] **Step 4: Commit.**
+- [ ] **Step 4: Record verification only (no commit required if no file changes).**
 
-```bash
-git add youtility.html
-git commit -m "test: verify singleTenant skips login, multiTenant requires it"
-```
+This task is a verification pass; after Step 3's revert there should be nothing to commit. If you intentionally kept any non-test improvement (e.g. a small bootstrap fix you discovered while testing), stage and commit only that file with a descriptive message — do not run `git add`/`git commit` on an empty working tree.
 
 ---
 
@@ -1265,7 +1262,7 @@ git commit -m "chore: final cleanup of brand-name leakage"
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
 | A Stokes-only CSS rule conflicts with a Monese-only class (same selector, different intent) | Medium | Medium | Phase 1 inventory must list every selector in both files; cross-reference before pasting. Stokes uses `cd-*`, `acct-*`, `wl-*`, `admin-client-*` — all prefixed; unlikely to collide. |
-| Stokes JS expects a global that Monese doesn't have (`SEARCH_DATA`, `DS_SOURCES` keyed by client) | High | Low-Medium | Each port task explicitly notes the dependent globals; introduce shims (`SEARCH_DATA[getActiveClient().id] || []`). |
+| Stokes JS expects a global that Monese doesn't have (`SEARCH_DATA`, `DS_SOURCES` keyed by client) | High | Low-Medium | Each port task explicitly notes the dependent globals; introduce shims (e.g. `SEARCH_DATA[getActiveClient().id] \|\| []`). |
 | Search modal's z-index (9999) collides with Stokes account dropdown or admin overlay | Low | Low | Audit z-indices in Task 26 / 29 row #18 / row #19. |
 | Monese has subtle workspace behaviors not covered by feature inventory | Medium | Medium | Phase 1 forces enumeration of every `id=` and `function`. If something gets missed, regression matrix row #4-5 will catch it. |
 | Inter font dropped from base CSS breaks Monese headings if dynamic injector races render | Low | Low | Inject font link synchronously at top of bootstrap, before first render. |
