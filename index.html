@@ -1468,13 +1468,6 @@ function quickLogin(target) {
     return;
   }
   CURRENT_USER_ID = matchedId;
-  // Keep tenant context aligned with the signed-in identity. Super-admin
-  // records (clientId: null) leave ACTIVE_CLIENT_ID untouched so the super
-  // admin keeps viewing whichever client they were last inspecting.
-  const matchedUser = USERS[matchedId];
-  if (matchedUser && matchedUser.clientId && CLIENTS.some(c => c.id === matchedUser.clientId)) {
-    ACTIVE_CLIENT_ID = matchedUser.clientId;
-  }
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.add('hidden');
   const u = getCurrentUser();
