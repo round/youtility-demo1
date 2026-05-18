@@ -2261,21 +2261,88 @@ function makeMonoLogo(letter, hex, font){
   const weight = /serif/i.test(f) ? '400' : '700';
   return "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'><rect width='100' height='100' rx='14' fill='" + c + "'/><text x='50' y='68' text-anchor='middle' font-family='" + f + "' font-size='56' font-weight='" + weight + "' fill='%23fff'>" + letter + "</text></svg>";
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// STATE — all top-level mutable bindings
+// (let declarations + state-shaped consts whose contents mutate at runtime)
+// Sub-groups: session · font-cache · sidebar/shell · workspace ·
+//             campaigns/wizard · chat · datasource · floating-UI ·
+//             client-detail logo cache
+// ════════════════════════════════════════════════════════════════════════════
+
+// ── Tenant / session ──
 let ACTIVE_CLIENT_ID = 'monese';
-function getActiveClient(){ return CLIENTS.find(c => c.id === ACTIVE_CLIENT_ID) || CLIENTS[0]; }
 // Tracks which client the admin has open in the client-detail panel.
 // Separate from ACTIVE_CLIENT_ID so admin-side reads/writes don't mutate the
 // signed-in user's tenant (e.g. saving Ledbury whitelabel must not touch Monese).
 let DETAIL_CLIENT_ID = null;
+let CURRENT_USER_ID = 'monese-demo';
+
+// ── Font cache ──
+// Load a tenant's font stylesheet once (per stylesheet href). Re-runnable: on
+// repeat tenant switches we skip already-loaded sheets so the document head
+// doesn't fill with duplicate <link> tags.
+const __LOADED_FONT_HREFS = new Set();
+
+// ── Sidebar / UI shell ──
+let sbState = 'full', sbUserOverride = null;
+let isLight = true;
+let projDrop = false;
+
+// ── Workspace ──
+let currentWs='home';
+let cwCur='report';
+
+// ── Campaigns / wizard ──
+const CAMPS = [...CAMPS_BY_TENANT.monese];
+let activeCampId=101;
+let campExp=false;
+let selectedType='promo';
+const PRODUCTS = PRODUCTS_BY_TENANT.monese.map(p => ({...p}));
+let prodFilter='';
+let wizStep=1;
+// Live binding reassigned by setActiveTenant(). Renderers read SEGS at call
+// time, so reassignment propagates without rewiring callsites.
+let SEGS = SEGS_BY_TENANT.monese;
+// Live binding rebound by setActiveTenant().
+let CDATA = CDATA_BY_TENANT.monese;
+let aSegTab=null,aChanTab='email';
+
+// ── Chat ──
+const homeChats=HOME_CHATS_BY_TENANT.monese.map(c=>({...c}));
+let msgs=[buildChatSeedMessage()];
+let nMsgId=2,streaming=false,sTimer=null;
+let nextChatId=5;
+
+// ── Datasource panel ──
+let dsSelected = 'sf';
+let dsConnTab  = 'connection';
+
+// ── Floating UI ──
+let ctxTgt=null;
+let homCtxId=null;
+let toastT;
+
+// ── Client-detail logo cache ──
+// Cache the original baseline src AND inline filter style of every header
+// logo <img> the first time we touch it. cdResetLogoInHeader() uses these
+// maps to restore the static markup's default appearance when switching to a
+// tenant that has no wlLogo override. The filter cache matters for the
+// .cw-client-logo img, whose static markup carries `filter:brightness(0)
+// invert(1)` to render the white-on-dark Monese mark — without clearing
+// that filter on apply, an uploaded colored logo would render inverted.
+// WeakMaps keyed by element so cached values are GC'd if the element is removed.
+const _cdOriginalLogoSrc = new WeakMap();
+const _cdOriginalLogoFilter = new WeakMap();
+
+// ════════════════════════════════════════════════════════════════════════════
+
+function getActiveClient(){ return CLIENTS.find(c => c.id === ACTIVE_CLIENT_ID) || CLIENTS[0]; }
 function getDetailClient(){ return (DETAIL_CLIENT_ID && CLIENTS.find(c => c.id === DETAIL_CLIENT_ID)) || getActiveClient(); }
 // Platform name ("Stokes") is constant across tenants but read through
 // getProductName() so a tenant could override via client.copy.productName in
 // future. Used in the chat seed ("Welcome back to Stokes…").
 function getProductName(){ return getActiveClient().copy.productName || 'Stokes'; }
-// Load a tenant's font stylesheet once (per stylesheet href). Re-runnable: on
-// repeat tenant switches we skip already-loaded sheets so the document head
-// doesn't fill with duplicate <link> tags.
-const __LOADED_FONT_HREFS = new Set();
 function injectClientFonts(client){
   client = client || getActiveClient();
   if (!client.fontImport) return;
@@ -2287,7 +2354,6 @@ function injectClientFonts(client){
   __LOADED_FONT_HREFS.add(client.fontImport);
 }
 injectClientFonts();
-let CURRENT_USER_ID = 'monese-demo';
 function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
 function getDemoUsers(){ return Object.values(USERS); }
 function isAdminRole(role){ return role === 'admin' || role === 'super'; }
@@ -2759,9 +2825,6 @@ function setActiveTenant(clientId){
 
 document.addEventListener('DOMContentLoaded', injectClientCopy);
 
-let dsSelected = 'sf';
-let dsConnTab  = 'connection';
-
 // Expands #rgb to #rrggbb; returns null for anything that isn't a valid hex literal.
 function normalizeHex(hex){
   if(typeof hex !== 'string') return null;
@@ -2819,7 +2882,6 @@ function applyColorToInterface(token, hex){
 
 
 // ══ WORKSPACE ══
-let currentWs='home';
 function switchWs(ws){
   currentWs=ws;
   const wasInDetail = !!DETAIL_CLIENT_ID;
@@ -2858,18 +2920,13 @@ function renderCS(ws){
 }
 // (workspace dropdown removed)
 
-const CAMPS = [...CAMPS_BY_TENANT.monese];
-let campExp=false,activeCampId=101;
 function renderCampSb(){const vis=campExp?CAMPS:CAMPS.slice(0,5);const hid=CAMPS.length-5;const rows=vis.map(c=>{const sc=STATUS_COL[c.status]||'#555a72';const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':c.status==='scheduled'?'badge-sched':'badge-draft';return `<div class="camp-item ${activeCampId===c.id?'active':''}" onclick="activeCampId=${c.id};renderCampSb()" oncontextmenu="openCtx(event,${c.id})"><div class="ci-bar" style="background:${sc};opacity:.75"></div><div class="ci-body"><div class="ci-title">${c.title}</div><div class="ci-meta"><div class="ci-time">${c.time}</div><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div></div><div class="ci-act"><button class="ci-act-btn" onclick="event.stopPropagation();startCampRename(${c.id})">${IC.pen}</button><button class="ci-act-btn del" onclick="event.stopPropagation();const idx=CAMPS.findIndex(x=>x.id===${c.id});if(idx!==-1)CAMPS.splice(idx,1);renderCampSb();showToast('Deleted')">${IC.del}</button></div></div>`;}).join('');const more=!campExp&&hid>0?`<div class="show-more" onclick="campExp=true;renderCampSb()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>${hid} older</div>`:'';document.getElementById('campScroll').innerHTML=rows+more;}
 
 // ══ CAMPAIGN TYPE SELECTOR ══
-let selectedType='promo';
 function selectType(el){document.querySelectorAll('.ct-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedType=el.dataset.type;document.getElementById('promoPanel').style.display=selectedType==='promo'?'':'none';document.getElementById('productPanel').style.display=selectedType==='product'||selectedType==='arrival'?'':'none';document.getElementById('seriesPanel').style.display=selectedType==='series'?'':'none';}
 function selDiscount(el,val){document.querySelectorAll('#discountPills .offer-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');if(val!=='custom')document.getElementById('discPct').value=val;}
 function selUrg(el,v){document.querySelectorAll('.urg-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}
 
-const PRODUCTS = PRODUCTS_BY_TENANT.monese.map(p => ({...p}));
-let prodFilter='';
 function filterProds(v){prodFilter=v.toLowerCase();renderProds();}
 function renderProds(){const filtered=PRODUCTS.filter(p=>!prodFilter||p.name.toLowerCase().includes(prodFilter)||p.cat.toLowerCase().includes(prodFilter));document.getElementById('prodGrid').innerHTML=filtered.map(p=>`<div class="prod-card ${p.sel?'selected':''}" id="prod-${p.id}" onclick="toggleProd(${p.id})"><div class="prod-img-mock">${p.emoji}</div><div class="prod-sel-check">${IC.chk}</div><div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-cat">${p.cat}</div><div class="prod-price">${p.price}</div></div></div>`).join('');const n=PRODUCTS.filter(x=>x.sel).length;const noun=(getActiveClient().copy.campaignBrief&&getActiveClient().copy.campaignBrief.productNoun)||'product';document.getElementById('prodSelCount').innerHTML=`<span>${n}</span> ${noun}${n!==1?'s':''} selected`;}
 function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!p.sel;renderProds();}
@@ -2878,15 +2935,8 @@ function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!
 function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const brandPri=resolveBrandColor('brand-primary');const ucs=[{l:'Promotional',n:8,c:brandPri},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
 
 // ══ CAMPAIGN WORKSPACE TABS ══
-let cwCur='report';
 function switchCwTab(tab){cwCur=tab;['report','create'].forEach(t=>{document.getElementById(`cwt-${t}`).classList.toggle('active',t===tab);document.getElementById(`cwp-${t}`).classList.toggle('visible',t===tab);});document.getElementById('wizNav').style.display=tab==='create'?'':'none';document.getElementById('gcCard').classList.toggle('active',tab==='report');if(tab==='create'){wizStep=1;renderWizUI();}if(tab==='report')renderOverview();}
 
-let wizStep=1;
-// Live binding reassigned by setActiveTenant(). Renderers read SEGS at call
-// time, so reassignment propagates without rewiring callsites.
-let SEGS = SEGS_BY_TENANT.monese;
-// Live binding rebound by setActiveTenant().
-let CDATA = CDATA_BY_TENANT.monese;
 // Returns the current tenant's copy for a given segment, or null when the
 // tenant hasn't authored content for it. We deliberately do NOT fall back
 // to monese — that leaked fintech phrasing into Ledbury previews on
@@ -2895,7 +2945,6 @@ let CDATA = CDATA_BY_TENANT.monese;
 function getCdataForSeg(segId){
   return (CDATA && CDATA[segId]) || null;
 }
-let aSegTab=null,aChanTab='email';
 
 function renderWizUI(){[1,2,3].forEach(i=>document.getElementById(`ws${i}`).classList.toggle('visible',i===wizStep));document.getElementById('wizBack').style.display=wizStep===1?'none':'';document.getElementById('wizNext').textContent=wizStep===1?'Continue':wizStep===2?'Generate content':'Export campaign';document.getElementById('wizNext').className=wizStep===3?'wiz-btn finish':'wiz-btn next';document.getElementById('wizInfo').innerHTML=wizStep===2?`<span>${SEGS.filter(s=>s.selected).length} segments selected</span>`:wizStep===3?`<span>${SEGS.filter(s=>s.selected).length} segs</span> · <span>3 channels</span>`:'';renderWizTrack();}
 function renderWizTrack(){document.getElementById('stepTrack').innerHTML=WLBL.map((l,i)=>{const n=i+1,st=n<wizStep?'done':n===wizStep?'active':'pending',icon=st==='done'?IC.chk:n,line=i<WLBL.length-1?`<div class="step-line ${n<wizStep?'done':''}"></div>`:'';return `<div class="step-node"><div class="step-circ ${st}">${icon}</div><div class="step-lbl ${st}">${l}</div></div>${line}`;}).join('');}
@@ -3202,8 +3251,6 @@ function rebuildChatSeedIfPristine(){
     if (el) renderMsgs();
   }
 }
-let msgs=[buildChatSeedMessage()];
-let nMsgId=2,streaming=false,sTimer=null;
 function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function renderMsgs(){const el=document.getElementById('messages');el.innerHTML=msgs.map((m,i)=>m.role==='ai'?rAI(m,i===msgs.length-1):rUser(m)).join('');el.scrollTop=el.scrollHeight;// init any donut charts in widget messages
 msgs.forEach(m=>{if(m.widget&&m.rendered)m.rendered();});}
@@ -3450,20 +3497,16 @@ function bootAudienceExplorer(kind,msgId){
   }
   selC(0);
 }
-const homeChats=HOME_CHATS_BY_TENANT.monese.map(c=>({...c}));
-let nextChatId=5;
 function renderHomeList(){document.getElementById('homeList').innerHTML=homeChats.map(c=>`<div class="sb-item ${c.active?'active':''}" id="hc-${c.id}" onclick="selectChat(${c.id})" oncontextmenu="openHomCtx(event,${c.id})"><div class="sb-item-icon">${IC.chat}</div><div class="sb-item-body"><div class="sb-item-title" id="hct-${c.id}">${c.title}</div><div class="sb-item-time">${c.time}</div></div><div class="sb-item-acts"><button class="sb-item-act" title="Rename" onclick="event.stopPropagation();startChatRename(${c.id})">${IC.pen}</button><button class="sb-item-act del" title="Delete" onclick="event.stopPropagation();deleteChat(${c.id})">${IC.del}</button></div></div>`).join('');}
 function selectChat(id){selectChatAndShow(id);}
 function startChatRename(id){const c=homeChats.find(x=>x.id===id);if(!c)return;const titleEl=document.getElementById(`hct-${id}`);const inp=document.createElement('input');inp.className='sb-item-title-input';inp.value=c.title;titleEl.replaceWith(inp);inp.focus();inp.select();const done=()=>{c.title=inp.value.trim()||c.title;renderHomeList();};inp.addEventListener('blur',done);inp.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();done();}if(ev.key==='Escape')renderHomeList();});}
 function deleteChat(id){const idx=homeChats.findIndex(x=>x.id===id);const wasActive=homeChats[idx].active;homeChats.splice(idx,1);if(wasActive&&homeChats.length)homeChats[0].active=true;renderHomeList();}
-let homCtxId=null;
 function openHomCtx(e,id){e.preventDefault();e.stopPropagation();homCtxId=id;document.getElementById('ctxRename').onclick=()=>{startChatRename(id);closeCtx();};document.getElementById('ctxDelete').onclick=()=>{deleteChat(id);closeCtx();};const m=document.getElementById('ctxMenu');m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';m.classList.add('visible');}
 function newChat(){homeChats.forEach(x=>x.active=false);homeChats.unshift({id:nextChatId++,title:'New conversation',time:'Just now',active:true});renderHomeList();msgs=[];nMsgId=1;streaming=false;showStartScreen();setTimeout(()=>startChatRename(homeChats[0].id),40);}
 
 // Also update selectChat to restore start screen if chat has no messages
 function selectChatAndShow(id){homeChats.forEach(x=>x.active=x.id===id);renderHomeList();msgs=[];nMsgId=1;showStartScreen();}
 // ══ THEME TOGGLE ══
-let isLight = true;
 function toggleTheme(){
   isLight = !isLight;
   document.body.classList.toggle('light-mode', isLight);
@@ -3472,7 +3515,6 @@ function toggleTheme(){
 }
 
 // ══ DIVISION SELECTOR ══
-let projDrop = false;
 function toggleProjDrop(){
   projDrop = !projDrop;
   document.getElementById('projBtn').classList.toggle('open', projDrop);
@@ -3499,8 +3541,6 @@ document.addEventListener('click', e => {
 });
 
 // ══ RESPONSIVE SIDEBAR ══
-let sbState = 'full', sbUserOverride = null;
-
 function setSbState(state){
   sbState = state;
   const sb = document.getElementById('sidebar');
@@ -3614,7 +3654,6 @@ function detachIconTooltips() {
     el.removeEventListener('mouseleave', onTipLeave);
   }));
 }
-let ctxTgt=null;
 // Inline rename for a campaign sidebar item. Mirrors startChatRename for
 // home chats — finds the .ci-title under the campaign row, replaces it
 // with an input, commits on blur / Enter, cancels on Escape.
@@ -3651,7 +3690,6 @@ function closeCtx(){document.getElementById('ctxMenu').classList.remove('visible
 document.getElementById('ctxMenu').addEventListener('click',e=>e.stopPropagation());
 document.addEventListener('click',closeCtx);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx();});
-let toastT;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800);}
 
 // INIT
@@ -4387,16 +4425,6 @@ function cdPreviewLogo(input){
   reader.readAsDataURL(file);
 }
 
-// Cache the original baseline src AND inline filter style of every header
-// logo <img> the first time we touch it. cdResetLogoInHeader() uses these
-// maps to restore the static markup's default appearance when switching to a
-// tenant that has no wlLogo override. The filter cache matters for the
-// .cw-client-logo img, whose static markup carries `filter:brightness(0)
-// invert(1)` to render the white-on-dark Monese mark — without clearing
-// that filter on apply, an uploaded colored logo would render inverted.
-// WeakMaps keyed by element so cached values are GC'd if the element is removed.
-const _cdOriginalLogoSrc = new WeakMap();
-const _cdOriginalLogoFilter = new WeakMap();
 function _cdCacheOriginalSrc(el){
   if (!el || _cdOriginalLogoSrc.has(el)) return;
   _cdOriginalLogoSrc.set(el, el.getAttribute('src') || '');
