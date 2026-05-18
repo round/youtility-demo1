@@ -669,7 +669,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
 .client-logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0;}
 .client-logo-mark{width:28px;height:28px;border-radius:6px;background:var(--brand-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .client-logo-img{height:24px;width:auto;display:block;flex-shrink:0;}
-body.dark-mode .client-logo-img{filter:brightness(1.08);}
+body:not(.light-mode) .client-logo-img{filter:brightness(1.08);}
 .client-wordmark{display:flex;flex-direction:column;gap:1px;}
 .client-wordmark-name{font-family:'Inter','Montserrat',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--brand-primary);text-transform:lowercase;line-height:1;}
 .client-wordmark-tag{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.14em;color:var(--text3);text-transform:uppercase;line-height:1;}
@@ -973,7 +973,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
        disabled. Restored here as disabled to preserve the visual element from
        both sources without committing to multi-workspace routing yet. -->
   <div class="ws-switcher" id="wsSwitcher" style="opacity:.45;pointer-events:none;position:relative;" title="Coming soon"><span class="coming-soon-tag">COMING SOON</span>
-    <div class="ws-btn" id="wsBtn" onclick="toggleWsDrop()">
+    <div class="ws-btn" id="wsBtn">
       <div class="ws-icon" id="wsIconEl"></div>
       <div class="ws-text"><div class="ws-label">WORKSPACE</div><div class="ws-name" id="wsNameEl">Home</div></div>
       <svg class="ws-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1608,7 +1608,6 @@ const USERS = {
 };
 let CURRENT_USER_ID = 'monese-demo';
 function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
-function hasRole(...roles){ const u = getCurrentUser(); return u && roles.includes(u.role); }
 function getDemoUsers(){ return Object.values(USERS); }
 function isAdminRole(role){ return role === 'admin' || role === 'super'; }
 function updateAdminNavVisibility(){
@@ -2148,7 +2147,6 @@ const IC={bot:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" strok
 // ══ WORKSPACE ══
 let currentWs='home',wsDrop=false;
 const WS_META={home:{name:'Home',color:'#8b90a8',bg:'rgba(139,144,168,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b90a8" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`},campaign:{name:'Marketing Spend',color:'var(--brand-primary-hover)',bg:'rgb(var(--brand-primary-rgb) / .12)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--brand-primary-hover)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`},churn:{name:'Churn Prevention',color:'#d0553a',bg:'rgba(208,85,58,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},engage:{name:'Engagement',color:'#e8a020',bg:'rgba(232,160,32,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`},ltv:{name:'Lifetime Value',color:'#4a7fd4',bg:'rgba(74,127,212,.08)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`}};
-function toggleWsDrop(){} // removed
 function switchWs(ws){
   currentWs=ws;
   const wasInDetail = !!DETAIL_CLIENT_ID;
@@ -3104,11 +3102,6 @@ window.addEventListener('resize', () => {
 });
 
 // ── ICON RAIL TOOLTIPS ──
-const TOOLTIPS = [
-  { sel: '.sb-new-btn',  text: 'New conversation'  },
-  { sel: '.user-avatar-btn', text: 'Dan S. · Settings' },
-];
-
 function attachIconTooltips() {
   const tip = document.getElementById('sbTooltip');
   let hideTimer;
@@ -3162,10 +3155,13 @@ function onTipLeave() {
 
 function detachIconTooltips() {
   document.getElementById('sbTooltip').classList.remove('show');
-  document.querySelectorAll('[data-tip]').forEach(el => {
+  // Mirrors attachIconTooltips' selectors. setTip tags via the `_tipText`
+  // JS property, not a `data-tip` attribute, so we can't query by attribute.
+  const sels = ['.sb-new-btn', '.user-avatar-btn', '.sb-item', '.camp-item', '#gcCard'];
+  sels.forEach(sel => document.querySelectorAll(sel).forEach(el => {
     el.removeEventListener('mouseenter', onTipEnter);
     el.removeEventListener('mouseleave', onTipLeave);
-  });
+  }));
 }
 let ctxTgt=null;
 // Inline rename for a campaign sidebar item. Mirrors startChatRename for
@@ -3204,7 +3200,6 @@ function closeCtx(){document.getElementById('ctxMenu').classList.remove('visible
 document.getElementById('ctxMenu').addEventListener('click',e=>e.stopPropagation());
 document.addEventListener('click',closeCtx);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx();});
-function renderCS(ws){const m=WS_META[ws]||WS_META.home;document.getElementById('csView').innerHTML=`<div class="coming-soon"><div class="cs-icon" style="background:${m.bg}">${m.icon.replace(/width="14" height="14"/g,'width="22" height="22"')}</div><div class="cs-title">${m.name}</div><div class="cs-desc">This workspace is being configured for Monese. It will be available in your next release.</div></div>`;}
 let toastT;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800);}
 
@@ -4058,10 +4053,10 @@ function renderCdWhiteLabel(client){
     </div>
     <div class="wl-section">
       <div class="wl-lbl">BRAND COLOUR TOKENS</div>
-      <div class="wl-color-field"><div class="wl-color-label">Primary</div><div class="wl-color-preview" id="cdcp-primary" style="background:${saved.primary};"></div><input class="wl-color-hex" id="cdp-wlinput-primary"    value="${saved.primary}"    oninput="cdUpdateSwatch('primary',this.value)"    /></div>
-      <div class="wl-color-field"><div class="wl-color-label">Secondary</div><div class="wl-color-preview" id="cdcp-secondary" style="background:${saved.secondary};"></div><input class="wl-color-hex" id="cdp-wlinput-secondary"  value="${saved.secondary}"  oninput="cdUpdateSwatch('secondary',this.value)"  /></div>
-      <div class="wl-color-field"><div class="wl-color-label">Background</div><div class="wl-color-preview" id="cdcp-background" style="background:${saved.background};"></div><input class="wl-color-hex" id="cdp-wlinput-background" value="${saved.background}" oninput="cdUpdateSwatch('background',this.value)" /></div>
-      <div class="wl-color-field"><div class="wl-color-label">Accent</div><div class="wl-color-preview" id="cdcp-accent" style="background:${saved.accent};"></div><input class="wl-color-hex" id="cdp-wlinput-accent"    value="${saved.accent}"    oninput="cdUpdateSwatch('accent',this.value)"    /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Primary</div><div class="wl-color-preview" id="cdcp-primary" style="background:${saved.primary};"></div><input class="wl-color-hex" id="cdp-wlinput-primary"    value="${saved.primary}"    /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Secondary</div><div class="wl-color-preview" id="cdcp-secondary" style="background:${saved.secondary};"></div><input class="wl-color-hex" id="cdp-wlinput-secondary"  value="${saved.secondary}"  /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Background</div><div class="wl-color-preview" id="cdcp-background" style="background:${saved.background};"></div><input class="wl-color-hex" id="cdp-wlinput-background" value="${saved.background}" /></div>
+      <div class="wl-color-field"><div class="wl-color-label">Accent</div><div class="wl-color-preview" id="cdcp-accent" style="background:${saved.accent};"></div><input class="wl-color-hex" id="cdp-wlinput-accent"    value="${saved.accent}"    /></div>
     </div>
     <button class="wl-save-btn" onclick="cdSaveWhiteLabel()">Save white label settings</button>
     <button class="wl-save-btn" style="margin-top:8px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);" onclick="cdResetWhiteLabel()">Reset to defaults</button>`;
@@ -4075,7 +4070,9 @@ function cdUpdateSwatch(token, hex){
   if (WL_CSS_MAP[token]) applyColorToInterface(token, hex);
 }
 
-// Bind oninput events (belt-and-suspenders alongside the inline oninput attrs).
+// Sole live-update path for the white-label color inputs. Previously the
+// inputs also carried inline oninput="cdUpdateSwatch(...)" attrs — both
+// handlers ran on every keystroke, redundantly applying the same color.
 function wireWlInputs(){
   ['primary','secondary','background','accent'].forEach(t => {
     const input = document.getElementById('cdp-wlinput-' + t);
