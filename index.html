@@ -852,7 +852,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
 
     <div class="login-field">
       <label>EMAIL</label>
-      <input type="email" id="loginEmail" placeholder="you@example.com" />
+      <input type="email" id="loginEmail" placeholder="sarah@ledbury.com" />
     </div>
     <div class="login-field">
       <label>PASSWORD</label>
@@ -963,6 +963,48 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
           <div class="proj-opt-name">Business</div>
           <div class="proj-opt-desc">Business accounts and tools</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE SWITCHER (disabled, COMING SOON parity with stokes-ledbury-mvp:857).
+       Monese source had this active with 5 live workspaces; Stokes shipped it
+       disabled. Restored here as disabled to preserve the visual element from
+       both sources without committing to multi-workspace routing yet. -->
+  <div class="ws-switcher" id="wsSwitcher" style="opacity:.45;pointer-events:none;position:relative;" title="Coming soon"><span class="coming-soon-tag">COMING SOON</span>
+    <div class="ws-btn" id="wsBtn" onclick="toggleWsDrop()">
+      <div class="ws-icon" id="wsIconEl"></div>
+      <div class="ws-text"><div class="ws-label">WORKSPACE</div><div class="ws-name" id="wsNameEl">Home</div></div>
+      <svg class="ws-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="ws-dropdown" id="wsDrop">
+      <div class="ws-drop-label">SWITCH WORKSPACE</div>
+      <div class="ws-option active" id="ws-home" onclick="switchWs('home')">
+        <div class="ws-opt-icon" style="background:rgba(139,144,168,.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b90a8" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <div class="ws-opt-body"><div class="ws-opt-name">Home</div><div class="ws-opt-desc">Chat and general use</div></div>
+        <span class="ws-opt-badge badge-live">LIVE</span>
+      </div>
+      <div class="ws-divider"></div>
+      <div class="ws-drop-label">USE CASES</div>
+      <div class="ws-option" id="ws-campaign" onclick="switchWs('campaign')">
+        <div class="ws-opt-icon" style="background:rgba(74,103,65,.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a8f60" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="ws-opt-body"><div class="ws-opt-name">Marketing Spend</div><div class="ws-opt-desc">Segment-tailored campaigns</div></div>
+        <span class="ws-opt-badge badge-live">LIVE</span>
+      </div>
+      <div class="ws-option" id="ws-churn" onclick="switchWs('churn')">
+        <div class="ws-opt-icon" style="background:rgba(208,85,58,.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <div class="ws-opt-body"><div class="ws-opt-name">Churn Prevention</div><div class="ws-opt-desc">Retention and win-back</div></div>
+        <span class="ws-opt-badge badge-soon">SOON</span>
+      </div>
+      <div class="ws-option" id="ws-engage" onclick="switchWs('engage')">
+        <div class="ws-opt-icon" style="background:rgba(232,160,32,.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <div class="ws-opt-body"><div class="ws-opt-name">Engagement</div><div class="ws-opt-desc">Next best action</div></div>
+        <span class="ws-opt-badge badge-soon">SOON</span>
+      </div>
+      <div class="ws-option" id="ws-ltv" onclick="switchWs('ltv')">
+        <div class="ws-opt-icon" style="background:rgba(74,127,212,.08)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+        <div class="ws-opt-body"><div class="ws-opt-name">Lifetime Value</div><div class="ws-opt-desc">Cross-sell and upsell</div></div>
+        <span class="ws-opt-badge badge-soon">SOON</span>
       </div>
     </div>
   </div>
@@ -1476,14 +1518,52 @@ function updateAdminNavVisibility(){
   adminLink.style.display = show ? '' : 'none';
 }
 
+// Hide the product-verticals dropdown for tenants that have reports disabled
+// (currently Santander). Without this gate, clicking any vertical fires
+// showVerticalReport() against a tenant that has no report templates and
+// silently renders an empty #reportView.
+function updateProjectSwitcherVisibility(){
+  const sw = document.getElementById('projSwitcher');
+  if (!sw) return;
+  const client = getActiveClient();
+  const reportsOn = !!(client && client.enabledFeatures && client.enabledFeatures.reports);
+  sw.style.display = reportsOn ? '' : 'none';
+}
+
 // ── AUTH / SESSION ──
 function doLogin() {
   const email = (document.getElementById('loginEmail') || {}).value || '';
-  // Demo heuristic: route to a known demo identity based on the email.
   const lc = email.toLowerCase();
   let targetId = 'monese-demo';
-  if (lc.includes('youtility') || lc.includes('super')) targetId = 'demo-super';
-  else if (lc.includes('admin')) targetId = 'demo-admin';
+  // Super-admin / Youtility staff first — these win over tenant matching
+  // because they're cross-tenant identities.
+  if (lc.includes('youtility') || lc.includes('super')) {
+    targetId = 'demo-super';
+  } else {
+    // Tenant routing: extract the host part of the email and try matching it
+    // against CLIENTS in two ways:
+    //   1. exact id match (priya@pockit.com → 'pockit' → CLIENTS.pockit)
+    //   2. host substring contains client id (sarah@virginmoney.com → virginmoney)
+    // If a tenant matches, prefer an admin-role user for that tenant, then
+    // any user. Falls through to the legacy 'admin' substring → demo-admin
+    // route only when no tenant match lands.
+    const at = lc.indexOf('@');
+    const host = at >= 0 ? lc.slice(at + 1).split('.')[0] : '';
+    let matchedClient = null;
+    if (host) {
+      matchedClient =
+        CLIENTS.find(c => c.id === host) ||
+        CLIENTS.find(c => host.includes(c.id));
+    }
+    if (matchedClient) {
+      const tenantUsers = Object.values(USERS).filter(u => u.clientId === matchedClient.id);
+      const adminUser = tenantUsers.find(u => u.role === 'admin');
+      const pick = adminUser || tenantUsers[0];
+      if (pick) targetId = pick.id;
+    } else if (lc.includes('admin')) {
+      targetId = 'demo-admin';
+    }
+  }
   quickLogin(targetId);
 }
 
@@ -1539,11 +1619,26 @@ function quickLogin(target) {
     showToast('Welcome back, ' + u.name.split(' ')[0]);
   }
   updateAdminNavVisibility();
+  // Super-admin auto-route: dropping a Youtility super into the chat shell of
+  // whatever tenant was last active is disorienting — their canonical home is
+  // the admin client list. Defer to next tick so any in-flight setActiveTenant
+  // DOM writes (palette, copy injection) settle first.
+  if (u && u.role === 'super' && typeof showAdminView === 'function') {
+    setTimeout(showAdminView, 0);
+  }
 }
 
 function signOut() {
   CURRENT_USER_ID = '';
   if (typeof closeAccountModal === 'function') closeAccountModal();
+  // singleTenant clients (e.g. Monese) bypass the login screen at boot, so
+  // surfacing it here on sign-out is a one-way trapdoor: the user can never
+  // get back in without reloading. For those clients we suppress the login
+  // overlay and just close the modal; the next "sign in" would have to come
+  // from a different flow (e.g. account-modal switch user). multiTenant
+  // clients keep the original behaviour.
+  const client = (typeof getActiveClient === 'function') ? getActiveClient() : null;
+  if (client && client.mode === 'singleTenant') return;
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.remove('hidden');
 }
@@ -1622,6 +1717,8 @@ function renderClientAcctPanel(u, client){
     </div>
     <div class="acct-section-lbl">YOUR CLIENT</div>
     <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}')"><div class="admin-client-dot" style="background:${client.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${client.name}</div></div>
+    ${client.enabledFeatures && client.enabledFeatures.whitelabel ? `
+    <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}','whitelabel')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text2);"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><div class="acct-menu-label">Edit branding</div></div>` : ''}
     ${switchSection}
     <div class="acct-divider"></div>
     <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
@@ -1819,6 +1916,8 @@ function setActiveTenant(clientId){
   injectClientCopy();
   // 4. Admin-link visibility depends on the new tenant's enabledFeatures.admin.
   if (typeof updateAdminNavVisibility === 'function') updateAdminNavVisibility();
+  // 4b. Project-verticals dropdown hidden for tenants without reports.
+  if (typeof updateProjectSwitcherVisibility === 'function') updateProjectSwitcherVisibility();
   // 5. Per-tenant data swap: SEGS, CDATA, homeChats. SEGS/CDATA are live
   //    `let` bindings, so reassigning here propagates to every renderer's
   //    next read. homeChats is mutated in-place via splice so existing
@@ -2566,8 +2665,22 @@ function buildAudienceExplorerHTML(){
 </div>`;
 }
 
-function bootAudienceExplorer(){
-  const AEC=[
+function bootAudienceExplorer(kind){
+  kind = kind || 'best';
+  // "Best customer" view: the high-value, high-engagement clusters lead.
+  // "Churn risk" view: the same six clusters, re-weighted so churn-prone
+  // segments (Process Fearing, Disorganized Buyer, Reluctant Buyer) lead.
+  // Counts and percentages differ by intent; colors and names are stable
+  // because they're the same six clusters being viewed through a different
+  // lens — not a different segmentation.
+  const AEC = kind === 'churn' ? [
+    {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:23800,pct:.282,color:'#d0553a',hi:'#a83a22'},
+    {name:'Disorganized Buyer',      short:'DISORGANIZED\nBUYER',      count:18200,pct:.216,color:'#daa520',hi:'#b8860b'},
+    {name:'Reluctant Buyer',         short:'RELUCTANT\nBUYER',         count:14500,pct:.172,color:'#7c5cbf',hi:'#5c40a0'},
+    {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:12100,pct:.143,color:'#3892ff',hi:'#0b72fd'},
+    {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count: 9400,pct:.111,color:'#0b72fd',hi:'#0858c4'},
+    {name:'Long-Term Cost Conscious',short:'COST\nCONSCIOUS',          count: 6320,pct:.075,color:'#a8c8ff',hi:'#7fb0ff'},
+  ] : [
     {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count:27000,pct:.320,color:'#0b72fd',hi:'#0858c4'},
     {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:18500,pct:.219,color:'#3892ff',hi:'#0b72fd'},
     {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:15200,pct:.180,color:'#5fa8ff',hi:'#3892ff'},
@@ -3340,11 +3453,12 @@ function buildDonutChart(data,color){
       loginEl.classList.remove('hidden');
     }
     updateAdminNavVisibility();
+    if (typeof updateProjectSwitcherVisibility === 'function') updateProjectSwitcherVisibility();
   })();
 
 /* ── CLIENT DETAIL PANEL ── */
 
-function openClientDetail(clientId){
+function openClientDetail(clientId, targetTab){
   const client = CLIENTS.find(c => c.id === clientId);
   if (!client) return;
   DETAIL_CLIENT_ID = client.id;
@@ -3371,8 +3485,13 @@ function openClientDetail(clientId){
     const u = (typeof getCurrentUser === 'function') ? getCurrentUser() : null;
     backLbl.textContent = (u && u.role === 'super') ? 'All clients' : 'Back';
   }
-  // Default tab: overview
-  switchCdTab('overview');
+  // Open to the requested tab if it's a known one + enabled for this tenant;
+  // otherwise default to overview.
+  const allowed = ['overview','datasource','whitelabel','users'];
+  const tabKey = (targetTab && allowed.indexOf(targetTab) !== -1) ? targetTab : 'overview';
+  switchCdTab(tabKey);
+  // Always render overview at boot so the panel has a baseline; switchCdTab
+  // will then surface the target tab's content.
   renderCdOverview(client);
 }
 
