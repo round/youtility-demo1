@@ -2779,6 +2779,9 @@ function showAdminView(){
   const client=getActiveClient();
   if(!(client && client.enabledFeatures && client.enabledFeatures.admin) || !(u && isAdminRole(u.role))){
     updateAdminNavVisibility();
+    const cW0=document.getElementById('campWs');if(cW0) cW0.classList.remove('visible');
+    const cS0=document.getElementById('csView');if(cS0) cS0.style.display='none';
+    const rV0=document.getElementById('reportView');if(rV0) rV0.style.display='none';
     const dV=document.getElementById('clientDetailView');if(dV) dV.classList.add('hidden');
     const aV0=document.getElementById('adminView');if(aV0) aV0.classList.add('hidden');
     const hV0=document.getElementById('homeView');if(hV0) hV0.style.display='';
