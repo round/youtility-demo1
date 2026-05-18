@@ -46,7 +46,7 @@ Also examine these for the "send/stop button state improvements" the reviewer ca
 
 ## File structure
 
-```
+```text
 youtility-demo1/
 ├── Monese_1.1 flow.html             [read-only source]
 ├── stokes-ledbury-mvp.html          [read-only source]
@@ -159,7 +159,7 @@ Fill the tables exhaustively. The "find by grep" placeholders must resolve to co
 
 - [ ] **Step 4: Verify completeness.**
 
-Read the inventory back. For every `function ` declaration in Stokes that is not in the "Shared" or "Stokes-only" tables, add a row. For every `id="…"` in Stokes that is not in the tables, add a row. Same for Monese. The inventory must account for every distinct surface in both files.
+Read the inventory back. For every `function` declaration in Stokes that is not in the "Shared" or "Stokes-only" tables, add a row. For every `id="…"` in Stokes that is not in the tables, add a row. Same for Monese. The inventory must account for every distinct surface in both files.
 
 - [ ] **Step 5: Commit.**
 
@@ -548,7 +548,7 @@ First feature module. Wired off by default for Monese (`mode: singleTenant`); de
 
 - [ ] **Step 1: Read source CSS block.**
 
-Read `stokes-ledbury-mvp.html` from line 620 to the next `/* ── ` section header. Capture the full `.login-screen`, `.login-card`, `.login-input`, `.login-btn`, etc. block.
+Read `stokes-ledbury-mvp.html` from line 620 to the next `/* ──` section header. Capture the full `.login-screen`, `.login-card`, `.login-input`, `.login-btn`, etc. block.
 
 - [ ] **Step 2: Replace any `--ledbury` or `--monese` references in the block with `var(--brand-primary)` / `var(--brand-primary-hover)`.**
 
@@ -595,6 +595,13 @@ Read `stokes-ledbury-mvp.html` around lines 2374–2405 to capture `doLogin`, `q
 
 Place them immediately after `getCurrentUser` / `hasRole` from Task 7. Replace any direct DOM mutations that referenced Ledbury-specific class names with the generic equivalents.
 
+> **Porting rule (applies to every Stokes JS port from here on):** Stokes references a global `let currentUser`. That global does NOT exist in the merged file — Task 7 replaced it with `CURRENT_USER_ID` + `getCurrentUser()`. In every block you paste from Stokes:
+>
+> - Replace every read `currentUser` → `getCurrentUser()`.
+> - Replace every assignment `currentUser = <userId>` → `CURRENT_USER_ID = <userId>; updateAvatarUI();`.
+>
+> Missing this rule produces `ReferenceError: currentUser is not defined` the first time the surface is exercised. This applies to Tasks 12, 15, 17, 23, and any later port that touches user/role state.
+
 - [ ] **Step 3: Add bootstrap gate.**
 
 At the very end of the main `<script>` block (after all other globals/handlers), add:
@@ -620,7 +627,7 @@ After reload, login screen IS shown. Sign in works (or shows a stub form — the
 
 ```bash
 git add youtility.html
-git commit -m "feat: port signIn/signOut and singleTenant login gating"
+git commit -m "feat: port doLogin/quickLogin/signOut and singleTenant login gating"
 ```
 
 ### Task 13: Verify login flow end-to-end (no persistent code changes)
@@ -697,7 +704,7 @@ git commit -m "feat: port account modal CSS (.acct-*) from Stokes"
 
 - [ ] **Step 3: Paste DOM into `youtility.html` right before `</body>`.**
 
-- [ ] **Step 4: Paste JS handlers into the main `<script>` block, near `signIn`/`signOut`.**
+- [ ] **Step 4: Paste JS handlers into the main `<script>` block, near `doLogin`/`quickLogin`/`signOut`.**
 
 - [ ] **Step 5: Wire the trigger.**
 
@@ -763,7 +770,7 @@ The admin view must have `class="admin-view hidden"` initially.
 
 - [ ] **Step 4: Paste render JS into the main `<script>`.**
 
-If the Stokes version reads from `CLIENTS`, no edits needed. If it references Ledbury-specific copy strings, generalize them.
+Apply the Task 12 porting rule: replace every `currentUser` read with `getCurrentUser()` and every `currentUser =` assignment with `CURRENT_USER_ID = <id>; updateAvatarUI();`. `renderAdminPanel` in particular depends on `currentUser.isAdmin`, not just `CLIENTS`. If it references Ledbury-specific copy strings, generalize them.
 
 - [ ] **Step 5: Add sidebar nav entry, gated on `enabledFeatures.admin`.**
 
@@ -926,6 +933,11 @@ grep -nE "id=\"whitelabel|class=\"wl-|applyColorToInterface|onLogoUpload|saveWhi
 ```
 
 - [ ] **Step 2: Port DOM into client detail view as the Whitelabel tab.**
+
+> **Duplicate ID warning:** Stokes ships the whitelabel editor in BOTH `#wlModal` (lines 1312–1328) and inside `renderCdWhiteLabel()` (lines 2315–2345), with the same input IDs (`#wlinput-primary`, `#wlinput-secondary`, `#wlinput-background`, `#wlinput-accent`) in both. `wireWlInputs()` uses `getElementById()`, which returns only the first match — porting both DOMs verbatim silently breaks half the editor. Choose one:
+>
+> - **(a) Recommended:** do NOT port `#wlModal`. Render the editor only into the tab; update any `openWhiteLabel()` callers to navigate to the client-detail Whitelabel tab instead of opening a modal.
+> - **(b)** Prefix the tab instance's IDs with `cd-` (e.g. `id="cd-wlinput-primary"`) and update `renderCdWhiteLabel()` + `wireWlInputs()` to read those prefixed IDs.
 
 - [ ] **Step 3: Port JS handlers: color picker change → `applyColorToInterface`; logo upload → file-to-data-URL → injected into CSS var; save → update `CLIENTS[i].palette` / logo URL in memory.**
 
