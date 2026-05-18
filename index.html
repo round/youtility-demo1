@@ -2405,7 +2405,6 @@ function injectClientFonts(client){
   document.head.appendChild(linkEl);
   __LOADED_FONT_HREFS.add(client.fontImport);
 }
-injectClientFonts();
 
 function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
 
@@ -2516,11 +2515,6 @@ function applyBrandPalette(name){
   const p = BRAND_PALETTES[name] || BRAND_PALETTES['monese'];
   for (const [k, v] of Object.entries(p)) document.documentElement.style.setProperty(k, v);
 }
-// Boot: apply the default tenant's palette immediately so the shell paints with
-// the right colors before any further init runs. setActiveTenant() takes over
-// from here for any runtime tenant switch (see quickLogin and onward).
-applyBrandPalette(getActiveClient().palette);
-
 // Restore branding (palette + saved white-label overrides + uploaded logo)
 // of the signed-in tenant. Called on every detail-view EXIT path so palette/
 // logo edits applied to another client via the detail editor don't leak into
@@ -2750,8 +2744,6 @@ function setActiveTenant(clientId){
   if (typeof rebuildChatSeedIfPristine === 'function') rebuildChatSeedIfPristine();
 }
 
-document.addEventListener('DOMContentLoaded', injectClientCopy);
-
 function updateAdminNavVisibility(){
   const adminLink = document.getElementById('sbLinkAdmin');
   if (!adminLink) return;
@@ -2851,14 +2843,6 @@ function switchProj(id, name, color, desc){
   // Navigate to the Overview report for this vertical
   showVerticalReport(id);
 }
-document.addEventListener('click', e => {
-  if(!document.getElementById('projSwitcher').contains(e.target)){
-    projDrop = false;
-    document.getElementById('projBtn').classList.remove('open');
-    document.getElementById('projDrop').classList.remove('open');
-  }
-});
-
 function showAdminView(){
   const u=getCurrentUser();
   const client=getActiveClient();
@@ -2960,11 +2944,6 @@ function applyBreakpoint(){
   else if(w >= BP_ICON) setSbState('icon');
   else setSbState('collapsed');
 }
-
-window.addEventListener('resize', () => {
-  if(window.innerWidth >= BP_FULL) sbUserOverride = null;
-  applyBreakpoint();
-});
 
 // ── ICON RAIL TOOLTIPS ──
 function attachIconTooltips() {
@@ -4490,13 +4469,6 @@ function searchModalSelect(id){
   closeSearchModal();
   if(typeof selectChat==='function') selectChat(id);
 }
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    const ov=document.getElementById('searchModalOverlay');
-    if(ov&&ov.classList.contains('open')) closeSearchModal();
-  }
-});
-
 // ── ACCOUNT MODAL ──
 function renderClientAcctPanel(u, client){
     const isSingleTenant = client.mode === 'singleTenant';
@@ -4602,16 +4574,6 @@ function closeAccountModal() {
   document.getElementById('accountModal').classList.add('hidden');
 }
 
-// Close account modal on overlay click or Esc key
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('accountModal').addEventListener('click', function(e) {
-    if (e.target === this) closeAccountModal();
-  });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeAccountModal();
-  });
-});
-
 function openCtx(e,id){
   e.preventDefault(); e.stopPropagation(); ctxTgt=id;
   document.getElementById('ctxRename').onclick=()=>{closeCtx();startCampRename(id);};
@@ -4625,21 +4587,61 @@ function openCtx(e,id){
 }
 
 function closeCtx(){document.getElementById('ctxMenu').classList.remove('visible');ctxTgt=null;}
-document.getElementById('ctxMenu').addEventListener('click',e=>e.stopPropagation());
-document.addEventListener('click',closeCtx);
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx();});
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),1800);}
 
-// INIT
-document.body.classList.add('light-mode');
-document.getElementById('themeIconDark').style.display = 'none';
-document.getElementById('themeIconLight').style.display = '';
-renderProds();
-switchWs('home');
-renderHomeList();
-showStartScreen();
-applyBreakpoint();
+// ── BOOT ─────────────────────────────────────────────────────────────────
+function init() {
+  const client = getActiveClient();
+  injectClientFonts(client);
+  applyBrandPalette(client.palette);
+  injectClientCopy();
+  document.body.classList.add('light-mode');
+  document.getElementById('themeIconDark').style.display = 'none';
+  document.getElementById('themeIconLight').style.display = '';
+  renderProds();
+  switchWs('home');
+  renderHomeList();
+  showStartScreen();
+  applyBreakpoint();
+  bindGlobalEvents();
+}
+
+function bindGlobalEvents() {
+  // projSwitcher outside-click: close the project dropdown when clicking outside
+  document.addEventListener('click', e => {
+    if(!document.getElementById('projSwitcher').contains(e.target)){
+      projDrop = false;
+      document.getElementById('projBtn').classList.remove('open');
+      document.getElementById('projDrop').classList.remove('open');
+    }
+  });
+  // sidebar responsive breakpoint
+  window.addEventListener('resize', () => {
+    if(window.innerWidth >= BP_FULL) sbUserOverride = null;
+    applyBreakpoint();
+  });
+  // search modal: Escape closes it
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      const ov=document.getElementById('searchModalOverlay');
+      if(ov&&ov.classList.contains('open')) closeSearchModal();
+    }
+  });
+  // account modal: overlay click or Escape closes it
+  document.getElementById('accountModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAccountModal();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAccountModal();
+  });
+  // ctx menu: stop propagation on internal clicks; outside click or Escape closes it
+  document.getElementById('ctxMenu').addEventListener('click',e=>e.stopPropagation());
+  document.addEventListener('click',closeCtx);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCtx();});
+}
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 
 </body>
