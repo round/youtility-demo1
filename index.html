@@ -910,6 +910,11 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
       </div>
       <svg class="proj-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
+    <!-- Project-vertical dropdown carries Monese-domain copy ("Travel Money Card",
+         "Pots", "Cash Advance") because REPORTS data is Monese-specific. The
+         dropdown is hidden by updateProjectSwitcherVisibility for any tenant
+         whose enabledFeatures.reports is false, so non-monese tenants never
+         see these strings. Keep verbatim. -->
     <div class="proj-dropdown" id="projDrop">
       <div class="proj-option active" id="proj-all" onclick="switchProj('all','All customers','var(--brand-primary)','Every Monese user, all products')">
         <div class="proj-opt-dot" style="background:var(--brand-primary)"></div>
@@ -1117,7 +1122,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         Performance
       </div>
-      <div class="ctool" onclick="sendFromToolbar('Which customer segments should I target for the next Monese campaign?')">
+      <div class="ctool" onclick="sendToolbarPrompt('segments')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2ea86a" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Segments
       </div>
@@ -1125,11 +1130,11 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         New campaign
       </div>
-      <div class="ctool" onclick="sendFromToolbar('What are the key insights from Monese campaign performance this quarter?')">
+      <div class="ctool" onclick="sendToolbarPrompt('insights')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c5cbf" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         Insights
       </div>
-      <div class="ctool" onclick="sendFromToolbar('Draft a re-engagement email for lapsed Monese customers')">
+      <div class="ctool" onclick="sendToolbarPrompt('writeCopy')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
         Write copy
       </div>
@@ -1208,12 +1213,12 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
           <div class="ct-card" data-type="product" onclick="selectType(this)">
             <div class="ct-icon" style="background:rgba(74,127,212,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
             <div class="ct-name">Feature spotlight</div>
-            <div class="ct-desc">Spotlight a specific Monese feature</div>
+            <div class="ct-desc">Spotlight a specific <span class="client-name">Monese</span> feature</div>
           </div>
           <div class="ct-card" data-type="arrival" onclick="selectType(this)">
             <div class="ct-icon" style="background:rgba(46,168,106,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2ea86a" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
             <div class="ct-name">New feature</div>
-            <div class="ct-desc">Launch announcement for new Monese features</div>
+            <div class="ct-desc">Launch announcement for new <span class="client-name">Monese</span> features</div>
           </div>
           <div class="ct-card" data-type="series" onclick="selectType(this)">
             <div class="ct-icon" style="background:rgba(232,160,32,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
@@ -1242,7 +1247,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
         <!-- FEATURE picker (hidden by default) -->
         <div id="productPanel" style="display:none">
           <div class="brief-section-lbl">SELECT FEATURES</div>
-          <input class="prod-search" placeholder="Search Monese features..." oninput="filterProds(this.value)">
+          <input class="prod-search" placeholder="Search features..." oninput="filterProds(this.value)">
           <div class="prod-grid" id="prodGrid"></div>
           <div class="prod-sel-count" id="prodSelCount">0 features selected</div>
         </div>
@@ -1372,7 +1377,24 @@ const CLIENTS = [
     status: 'live',
     // logo omitted: monese uses the static header PNG, preserved via the
     // boot-time cache so cdResetLogoInHeader restores it byte-identically.
-    copy: { productName: 'Monese' },
+    copy: {
+      productName: 'Monese',
+      emailBanner: { promo: 'WELCOME BACK · OFFER ENDS SUNDAY', launch: 'NEW · TRAVEL MONEY CARD' },
+      emailHero: {
+        promo:  { label:'WELCOME BACK',            head:'Three free transfers, on us', sub:'Send money to over 30 countries with zero fees this month.', cta:'Activate offer',  imgLabel:'Money transfer' },
+        launch: { label:'NEW · TRAVEL MONEY CARD', head:'Spend abroad like a local',    sub:'No fees, real exchange rates, in 30+ currencies.',           cta:'Order your card', imgLabel:'Travel Money Card' },
+      },
+      emailNav: ['Accounts','Pots','Transfer'],
+      emailWordmark: 'monese',
+      emailAddress: 'Monese · 163 City Road, London EC1V 1NR',
+      emailSignoff: 'The Monese Team',
+      smsContact: 'Monese',
+      smsLinkHost: 'monese.com',
+      adTitle: 'AD CREATIVE BRIEF · MONESE',
+      adDefaults: { headline:'Spend abroad like a local', subhead:'New from Monese', cta:'Open the app', tone:'Confident, helpful, premium', format:'Digital display', visual:'Editorial product photography', imgLabel:'Editorial photography' },
+      audienceExplorerLabel: 'MONESE',
+      audiencePopulation: '84,320',
+    },
     enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: false, whitelabel: false, userManagement: false },
   },
   {
@@ -1384,7 +1406,24 @@ const CLIENTS = [
     color: '#4a6741',
     status: 'live',
     logo: makeMonoLogo('L', '#4a6741'),
-    copy: { productName: 'Ledbury' },
+    copy: {
+      productName: 'Ledbury',
+      emailBanner: { promo: 'SPRING CUSTOM EVENT · ENDS SUNDAY', launch: 'NEW ARRIVALS · SPRING COLLECTION' },
+      emailHero: {
+        promo:  { label:'SPRING CUSTOM EVENT', head:'30% Off Sitewide',    sub:'With spend of $150+',                              cta:'Shop Now',          imgLabel:'Spring Collection' },
+        launch: { label:'NEW ARRIVALS',        head:'All New for Spring',  sub:'Lightweight. Insanely soft. Ready now.',           cta:'Shop New Arrivals', imgLabel:'New Arrivals' },
+      },
+      emailNav: ['New Arrivals','Shirts','Pants'],
+      emailWordmark: 'LEDBURY',
+      emailAddress: 'Ledbury · Richmond, VA',
+      emailSignoff: 'The Ledbury Team',
+      smsContact: 'Ledbury',
+      smsLinkHost: 'ledbury.com',
+      adTitle: 'AD CREATIVE BRIEF · LEDBURY',
+      adDefaults: { headline:'Spring Collection', subhead:'New arrivals from Ledbury', cta:'Shop Now', tone:'Elevated, editorial', format:'Digital display', visual:'Editorial product photography', imgLabel:'Editorial photography' },
+      audienceExplorerLabel: 'LEDBURY',
+      audiencePopulation: '84,320',
+    },
     enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
@@ -1396,7 +1435,24 @@ const CLIENTS = [
     color: '#4a7fd4',
     status: 'live',
     logo: makeMonoLogo('P', '#4a7fd4'),
-    copy: { productName: 'Pockit' },
+    copy: {
+      productName: 'Pockit',
+      emailBanner: { promo: 'WELCOME BACK · OFFER ENDS SUNDAY', launch: 'NEW · POCKIT FEATURES' },
+      emailHero: {
+        promo:  { label:'WELCOME BACK',         head:'£10 cashback waiting for you', sub:'Top up £20 this month and we will match £10 toward your first transfer.', cta:'Claim cashback', imgLabel:'Cashback offer' },
+        launch: { label:'NEW · POCKIT FEATURES', head:'Faster top-ups, lower fees',  sub:'Your everyday card, now with instant transfers in seconds.',              cta:'Top up now',     imgLabel:'Pockit card' },
+      },
+      emailNav: ['Card','Top up','Transfer'],
+      emailWordmark: 'pockit',
+      emailAddress: 'Pockit · London, UK',
+      emailSignoff: 'The Pockit Team',
+      smsContact: 'Pockit',
+      smsLinkHost: 'pockit.com',
+      adTitle: 'AD CREATIVE BRIEF · POCKIT',
+      adDefaults: { headline:'Faster top-ups, lower fees', subhead:'New from Pockit', cta:'Get started', tone:'Friendly, accessible, practical', format:'Digital display', visual:'Lifestyle photography', imgLabel:'Lifestyle photo' },
+      audienceExplorerLabel: 'POCKIT',
+      audiencePopulation: '84,320',
+    },
     enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
@@ -1408,7 +1464,24 @@ const CLIENTS = [
     color: '#d0553a',
     status: 'live',
     logo: makeMonoLogo('V', '#d0553a'),
-    copy: { productName: 'Virgin Money' },
+    copy: {
+      productName: 'Virgin Money',
+      emailBanner: { promo: 'OFFER ENDS SUNDAY', launch: 'NEW · VIRGIN MONEY' },
+      emailHero: {
+        promo:  { label:'WELCOME BACK', head:'A better deal on your savings', sub:'Switch your account this month and earn up to 5% AER.',     cta:'Apply now',        imgLabel:'Savings offer' },
+        launch: { label:'NEW',          head:'Banking made vivid',           sub:'A current account that earns, rewards, and travels with you.', cta:'Open an account',  imgLabel:'Virgin Money card' },
+      },
+      emailNav: ['Accounts','Cards','Save'],
+      emailWordmark: 'Virgin Money',
+      emailAddress: 'Virgin Money UK · Jubilee House, Newcastle upon Tyne NE3 4PL',
+      emailSignoff: 'The Virgin Money Team',
+      smsContact: 'Virgin Money',
+      smsLinkHost: 'virginmoney.com',
+      adTitle: 'AD CREATIVE BRIEF · VIRGIN MONEY',
+      adDefaults: { headline:'Banking made vivid', subhead:'New from Virgin Money', cta:'Apply now', tone:'Bold, vibrant, optimistic', format:'Digital display', visual:'Bold brand imagery', imgLabel:'Brand imagery' },
+      audienceExplorerLabel: 'VIRGIN MONEY',
+      audiencePopulation: '84,320',
+    },
     enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: true, whitelabel: true, userManagement: true },
   },
   {
@@ -1420,7 +1493,24 @@ const CLIENTS = [
     color: '#e8a020',
     status: 'setup',
     logo: makeMonoLogo('S', '#e8a020'),
-    copy: { productName: 'Santander UK' },
+    copy: {
+      productName: 'Santander UK',
+      emailBanner: { promo: 'OFFER ENDS SUNDAY', launch: 'NEW · SANTANDER UK' },
+      emailHero: {
+        promo:  { label:'WELCOME BACK', head:'Your account, made simpler', sub:'Open an Edge account and earn 7% AER on your linked savings.', cta:'Open Edge',       imgLabel:'Edge offer' },
+        launch: { label:'NEW',          head:'Everyday banking, simpler',  sub:'Manage your money with confidence, anytime, anywhere.',         cta:'Open an account', imgLabel:'Santander card' },
+      },
+      emailNav: ['Accounts','Cards','Loans'],
+      emailWordmark: 'Santander',
+      emailAddress: 'Santander UK · 2 Triton Square, London NW1 3AN',
+      emailSignoff: 'The Santander UK Team',
+      smsContact: 'Santander',
+      smsLinkHost: 'santander.co.uk',
+      adTitle: 'AD CREATIVE BRIEF · SANTANDER UK',
+      adDefaults: { headline:'Everyday banking, simpler', subhead:'New from Santander UK', cta:'Open an account', tone:'Trusted, considered, reassuring', format:'Digital display', visual:'Editorial product photography', imgLabel:'Editorial photography' },
+      audienceExplorerLabel: 'SANTANDER UK',
+      audiencePopulation: '84,320',
+    },
     enabledFeatures: { reports: false, search: true, audienceExplorer: false, admin: true, whitelabel: true, userManagement: true },
   },
 ];
@@ -2381,18 +2471,22 @@ function buildPreview(chan,data,segId){
 }
 
 function buildEmailPreview(data,seg){
+  const copy=getActiveClient().copy||{};
   const isPromo=seg.id==='lapsed';
-  const heroLabel=isPromo?'WELCOME BACK':'NEW · TRAVEL MONEY CARD';
-  const heroHead=isPromo?'Three free transfers, on us':'Spend abroad like a local';
-  const heroSub=isPromo?'Send money to over 30 countries with zero fees this month.':'No fees, real exchange rates, in 30+ currencies.';
-  const ctaText=isPromo?'Activate offer':'Order your card';
-  const bannerText=isPromo?'WELCOME BACK · OFFER ENDS SUNDAY':'NEW · TRAVEL MONEY CARD';
+  const heroKey=isPromo?'promo':'launch';
+  const hero=(copy.emailHero&&copy.emailHero[heroKey])||{};
+  const banner=(copy.emailBanner&&copy.emailBanner[heroKey])||'';
+  const nav=copy.emailNav||['Accounts','Pots','Transfer'];
+  const wordmark=copy.emailWordmark||'';
+  const address=copy.emailAddress||'';
   const subj=data.subj||'';
   const lines=data.body.split('\n').filter(l=>l.trim());
   const greeting=lines[0]||'Hi [First Name],';
-  const listItems=lines.filter(l=>l.startsWith('•')).map(l=>`<li>${l.replace(/^•\s?/,'').trim()}</li>`).join('');
+  // Stokes used "—" bullets, Monese uses "•" — accept either so per-tenant
+  // CDATA copy renders correctly in the email body list.
+  const listItems=lines.filter(l=>l.startsWith('•')||l.startsWith('—')).map(l=>`<li>${l.replace(/^[•—]\s?/,'').trim()}</li>`).join('');
   const ctaLine=lines.find(l=>l.includes('['))||'';
-  const signoff=lines[lines.length-1]||'The Monese Team';
+  const signoff=lines[lines.length-1]||copy.emailSignoff||'';
   return `<div class="preview-label">PREVIEW <span>· Email · ${seg.name||''}</span></div>
   <div class="email-device">
     <div class="email-chrome">
@@ -2402,15 +2496,15 @@ function buildEmailPreview(data,seg){
     </div>
     <div class="email-scroll"><div class="lb-email">
       <div class="lb-topbar">View in browser</div>
-      <div class="lb-nav"><a href="#">Accounts</a><a href="#">Pots</a><a href="#">Transfer</a></div>
-      <div class="lb-wordmark"><div class="lb-wordmark-text">monese</div></div>
-      <div class="lb-banner"><div class="lb-banner-text">${bannerText}</div></div>
+      <div class="lb-nav">${nav.map(n=>`<a href="#">${n}</a>`).join('')}</div>
+      <div class="lb-wordmark"><div class="lb-wordmark-text">${wordmark}</div></div>
+      <div class="lb-banner"><div class="lb-banner-text">${banner}</div></div>
       <div class="lb-hero">
-        <div class="lb-hero-product">${heroLabel}</div>
-        <div class="lb-hero-head">${heroHead}</div>
-        <div class="lb-hero-sub">${heroSub}</div>
-        <div class="lb-hero-img"><span class="lb-hero-img-label">${isPromo?'Money transfer':'Travel Money Card'}</span></div>
-        <button class="lb-cta-btn">${ctaText}</button>
+        <div class="lb-hero-product">${hero.label||''}</div>
+        <div class="lb-hero-head">${hero.head||''}</div>
+        <div class="lb-hero-sub">${hero.sub||''}</div>
+        <div class="lb-hero-img"><span class="lb-hero-img-label">${hero.imgLabel||''}</span></div>
+        <button class="lb-cta-btn">${hero.cta||''}</button>
       </div>
       <div class="lb-divider"></div>
       <div class="lb-body-section">
@@ -2420,20 +2514,23 @@ function buildEmailPreview(data,seg){
         <div class="lb-sig">${signoff}</div>
       </div>
       <div class="lb-divider"></div>
-      <div class="lb-footer"><div class="lb-footer-text">Subject: <em>${subj}</em><br><br>Monese · 163 City Road, London EC1V 1NR<br>Unsubscribe · View in browser</div></div>
+      <div class="lb-footer"><div class="lb-footer-text">Subject: <em>${subj}</em><br><br>${address}<br>Unsubscribe · View in browser</div></div>
     </div></div>
   </div>`;
 }
 
 function buildSmsPreview(data,seg){
+  const copy=getActiveClient().copy||{};
+  const contact=copy.smsContact||'';
+  const linkHost=copy.smsLinkHost||'';
   const msg=data.body||'';
   const t=new Date().getHours().toString().padStart(2,'0')+':'+new Date().getMinutes().toString().padStart(2,'0');
   return `<div class="preview-label">PREVIEW <span>· SMS · ${seg.name||''}</span></div>
   <div class="sms-device"><div class="sms-phone-frame"><div class="sms-screen">
     <div class="sms-status"><span>${t}</span><span>●●●</span></div>
-    <div class="sms-contact"><div class="sms-contact-name">Monese</div><div class="sms-contact-sub">Marketing · Text STOP to opt out</div></div>
+    <div class="sms-contact"><div class="sms-contact-name">${contact}</div><div class="sms-contact-sub">Marketing · Text STOP to opt out</div></div>
     <div class="sms-messages">
-      <div class="sms-bubble">${msg.replace(/\[link\]/g,'<span style="color:#7dd3fc;text-decoration:underline">monese.com</span>')}</div>
+      <div class="sms-bubble">${msg.replace(/\[link\]/g,`<span style="color:#7dd3fc;text-decoration:underline">${linkHost}</span>`)}</div>
       <div class="sms-time">${t}</div>
     </div>
     <div class="sms-input-row"><div class="sms-input-mock"><span class="sms-input-mock-text">Text Message</span></div></div>
@@ -2441,20 +2538,24 @@ function buildSmsPreview(data,seg){
 }
 
 function buildAdPreview(data,seg){
+  const copy=getActiveClient().copy||{};
+  const def=copy.adDefaults||{};
   const body=data.body||'';
   const lines=body.split('\n');
   const get=key=>{const l=lines.find(x=>x.startsWith(key+':'));return l?l.replace(key+':','').trim():'';};
-  const headline=get('HEADLINE')||'Spend abroad like a local';
-  const subhead=get('SUBHEAD')||'New from Monese';
-  const cta=get('CTA')||'Open the app';
-  const tone=get('TONE')||'Confident, helpful, premium';
-  const fmt=get('FORMAT')||'Digital display';
-  const visual=get('VISUAL')||'Editorial product photography';
+  const headline=get('HEADLINE')||def.headline||'';
+  const subhead=get('SUBHEAD')||def.subhead||'';
+  const cta=get('CTA')||def.cta||'';
+  const tone=get('TONE')||def.tone||'';
+  const fmt=get('FORMAT')||def.format||'';
+  const visual=get('VISUAL')||def.visual||'';
+  const imgLabel=def.imgLabel||'';
+  const title=copy.adTitle||'AD CREATIVE BRIEF';
   return `<div class="preview-label">PREVIEW <span>· Ad brief · ${seg.name||''}</span></div>
   <div class="ad-brief-card">
-    <div class="ad-brief-header"><div class="ad-brief-title">AD CREATIVE BRIEF · MONESE</div></div>
+    <div class="ad-brief-header"><div class="ad-brief-title">${title}</div></div>
     <div class="ad-brief-preview">
-      <div class="ad-mock-img"><span>Editorial photography</span></div>
+      <div class="ad-mock-img"><span>${imgLabel}</span></div>
       <div class="ad-mock-headline">${headline}</div>
       <div class="ad-mock-sub">${subhead}</div>
       <div class="ad-mock-cta">${cta}</div>
@@ -2546,6 +2647,15 @@ function sendFromStart(){
 }
 
 function sendFromToolbar(text){const inp=document.getElementById('chatIn');inp.value=text;sendMsg();}
+function sendToolbarPrompt(key){
+  const n=getActiveClient().name;
+  const map={
+    segments:`Which customer segments should I target for the next ${n} campaign?`,
+    insights:`What are the key insights from ${n} campaign performance this quarter?`,
+    writeCopy:`Draft a re-engagement email for lapsed ${n} customers`,
+  };
+  if(map[key]) sendFromToolbar(map[key]);
+}
 function sendMsg(){
   const inp=document.getElementById('chatIn');
   const val=inp.value.trim();
@@ -2639,6 +2749,9 @@ function autoResizeEl(el){el.style.height='auto';el.style.height=Math.min(el.scr
 // each other via a shared window.* global.
 window._aeReg = window._aeReg || {};
 function buildAudienceExplorerHTML(msgId){
+  const _copy=(getActiveClient()||{}).copy||{};
+  const _aeLbl=_copy.audienceExplorerLabel||'';
+  const _aePop=_copy.audiencePopulation||'';
   return `<div id="ae-widget-${msgId}" style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;max-width:100%;">
   <div style="padding:11px 16px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text);">
@@ -2646,7 +2759,7 @@ function buildAudienceExplorerHTML(msgId){
       Customer Explorer
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <div style="font-size:10px;color:var(--text3);letter-spacing:.05em;">POPULATION: <b style="color:var(--text2)">84,320</b> &nbsp;·&nbsp; <b style="color:var(--text2)">MONESE</b></div>
+      <div style="font-size:10px;color:var(--text3);letter-spacing:.05em;">POPULATION: <b style="color:var(--text2)">${_aePop}</b> &nbsp;·&nbsp; <b style="color:var(--text2)">${_aeLbl}</b></div>
       <button id="ae-create-btn-${msgId}" onclick="window._aeReg[${msgId}]&&window._aeReg[${msgId}].launch()" style="display:flex;align-items:center;gap:6px;padding:6px 13px;background:var(--brand-primary);border:none;border-radius:8px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;cursor:pointer;letter-spacing:.03em;transition:background .15s;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Create campaign
