@@ -4593,9 +4593,14 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ── BOOT ─────────────────────────────────────────────────────────────────
 function init() {
   const client = getActiveClient();
+  // Apply the default tenant's palette and fonts before any render so the
+  // shell paints with the right colors. Timing moved from parse-time to
+  // DOMContentLoaded; safe because <link> injection and CSS-var writes both
+  // apply on next paint regardless.
   injectClientFonts(client);
   applyBrandPalette(client.palette);
   injectClientCopy();
+  applyBreakpoint();
   document.body.classList.add('light-mode');
   document.getElementById('themeIconDark').style.display = 'none';
   document.getElementById('themeIconLight').style.display = '';
@@ -4603,7 +4608,6 @@ function init() {
   switchWs('home');
   renderHomeList();
   showStartScreen();
-  applyBreakpoint();
   bindGlobalEvents();
 }
 
