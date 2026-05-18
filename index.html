@@ -51,16 +51,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 
 /* ICON RAIL */
 .sidebar.icon-mode{width:52px;}
-.sidebar.icon-mode .ws-btn{padding:9px;justify-content:center;}
-.sidebar.icon-mode .ws-text,.sidebar.icon-mode .ws-caret,.sidebar.icon-mode .ws-drop-label,
-.sidebar.icon-mode .ws-opt-body,.sidebar.icon-mode .ws-opt-badge,
 .sidebar.icon-mode .sb-new-btn span,.sidebar.icon-mode .sb-section-lbl,
 .sidebar.icon-mode .sb-item-body,.sidebar.icon-mode .sb-item-acts,
 .sidebar.icon-mode .gc-hdr,.sidebar.icon-mode .gc-metrics,.sidebar.icon-mode .gc-bar-row,
 .sidebar.icon-mode .gc-lbl,.sidebar.icon-mode .ci-body,.sidebar.icon-mode .ci-act,
 .sidebar.icon-mode .show-more,.sidebar.icon-mode .user-av-body,.sidebar.icon-mode .user-av-body+svg
 {display:none!important;}
-.sidebar.icon-mode .ws-icon{flex-shrink:0;}
 .sidebar.icon-mode .sb-new{padding:10px 8px 8px;}
 .sidebar.icon-mode .sb-new-btn{width:36px;height:36px;padding:0;justify-content:center;border-radius:9px;overflow:hidden;}
 .sidebar.icon-mode .sb-new-btn span{display:none!important;}
@@ -117,31 +113,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .sidebar.icon-mode .proj-text,.sidebar.icon-mode .proj-caret{display:none!important;}
 .sidebar.icon-mode .proj-btn{padding:7px;justify-content:center;}
 .sidebar.icon-mode .proj-switcher{padding:6px 8px;}
-.ws-switcher{padding:10px 10px 8px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
-.ws-btn{width:100%;display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--bg4);border:1px solid var(--border2);border-radius:9px;cursor:pointer;transition:border-color .15s,background .15s;text-align:left;}
-.ws-btn:hover{border-color:var(--border3);}
-.ws-btn.open{border-color:var(--accent3);background:var(--bg5);}
-.ws-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.ws-text{flex:1;min-width:0;}
-.ws-label{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.12em;color:var(--text2);margin-bottom:1px;font-weight:600;text-transform:uppercase;}
-.ws-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ws-caret{color:var(--text3);flex-shrink:0;transition:transform .2s;}
-.ws-btn.open .ws-caret{transform:rotate(180deg);}
-.ws-dropdown{position:absolute;top:calc(100% - 4px);left:8px;right:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:11px;padding:6px;z-index:50;box-shadow:0 12px 32px rgba(0,0,0,.6);display:none;}
-.ws-dropdown.open{display:block;}
-.ws-drop-label{font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.1em;color:var(--text3);padding:5px 8px 4px;}
-.ws-option{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .12s;position:relative;}
-.ws-option:hover{background:var(--bg4);}
-.ws-option.active{background:var(--bg5);}
-.ws-option.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2.5px;background:var(--accent3);border-radius:2px;}
-.ws-opt-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.ws-opt-body{flex:1;min-width:0;}
-.ws-opt-name{font-size:12.5px;font-weight:500;color:var(--text);margin-bottom:1px;}
-.ws-opt-desc{font-size:10.5px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ws-opt-badge{font-family:'Montserrat',sans-serif;font-size:8.5px;padding:2px 6px;border-radius:4px;flex-shrink:0;}
+/* Workspace switcher CSS removed (B6) — UI dropped from the sidebar. The
+   .badge-live / .badge-soon rules below stay because they're reused by the
+   campaign sidebar status chips. */
 .badge-live{background:rgba(46,168,106,.14);color:var(--green);border:1px solid rgba(46,168,106,.22);}
 .badge-soon{background:rgba(85,90,114,.2);color:var(--text3);}
-.ws-divider{height:1px;background:var(--border);margin:5px 0;}
 .sb-home{display:flex;flex-direction:column;flex:1;overflow:hidden;}
 
 
@@ -311,7 +287,14 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
 .chat-input:focus{border-color:rgba(255,255,255,.2);}
 .send-btn{position:absolute;right:10px;bottom:9px;width:28px;height:28px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:background .15s;}
 .send-btn:hover{background:var(--bg);color:var(--text);}
-.send-btn.stopping{background:#d0553a;border-color:#d0553a;color:#fff;}
+/* Monese canonical: a visible STOP GENERATING pill above the input that
+   surfaces while the model is streaming. Shipped instead of the Ledbury-
+   style send-button icon swap (A1 in PR6 audit). */
+.stop-bar{display:none;align-items:center;justify-content:center;padding:6px 0 2px;}
+.stop-bar.visible{display:flex;}
+.stop-btn{display:flex;align-items:center;gap:7px;padding:6px 18px;border-radius:7px;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);font-family:'Montserrat',sans-serif;font-size:10.5px;letter-spacing:.05em;cursor:pointer;transition:border-color .15s,color .15s;}
+.stop-btn:hover{border-color:var(--accent);color:var(--accent);}
+.stop-dot{width:7px;height:7px;border-radius:2px;background:var(--accent);animation:pulse 1s ease-in-out infinite;}
 /* ── CHAT TOOLBAR ── */
 .chat-toolbar{display:flex;gap:6px;padding:8px 0 2px;flex-wrap:wrap;}
 .ctool{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;border:1px solid var(--border2);background:var(--bg4);font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1;}
@@ -968,47 +951,10 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     </div>
   </div>
 
-  <!-- WORKSPACE SWITCHER (disabled, COMING SOON parity with stokes-ledbury-mvp:857).
-       Monese source had this active with 5 live workspaces; Stokes shipped it
-       disabled. Restored here as disabled to preserve the visual element from
-       both sources without committing to multi-workspace routing yet. -->
-  <div class="ws-switcher" id="wsSwitcher" style="opacity:.45;pointer-events:none;position:relative;" title="Coming soon">
-    <div class="ws-btn" id="wsBtn">
-      <div class="ws-icon" id="wsIconEl"></div>
-      <div class="ws-text"><div class="ws-label">WORKSPACE</div><div class="ws-name" id="wsNameEl">Home</div></div>
-      <svg class="ws-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <div class="ws-dropdown" id="wsDrop">
-      <div class="ws-drop-label">SWITCH WORKSPACE</div>
-      <div class="ws-option active" id="ws-home" onclick="switchWs('home')">
-        <div class="ws-opt-icon" style="background:rgba(139,144,168,.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b90a8" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-        <div class="ws-opt-body"><div class="ws-opt-name">Home</div><div class="ws-opt-desc">Chat and general use</div></div>
-        <span class="ws-opt-badge badge-live">LIVE</span>
-      </div>
-      <div class="ws-divider"></div>
-      <div class="ws-drop-label">USE CASES</div>
-      <div class="ws-option" id="ws-campaign" onclick="switchWs('campaign')">
-        <div class="ws-opt-icon" style="background:rgba(74,103,65,.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6a8f60" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-        <div class="ws-opt-body"><div class="ws-opt-name">Marketing Spend</div><div class="ws-opt-desc">Segment-tailored campaigns</div></div>
-        <span class="ws-opt-badge badge-live">LIVE</span>
-      </div>
-      <div class="ws-option" id="ws-churn" onclick="switchWs('churn')">
-        <div class="ws-opt-icon" style="background:rgba(208,85,58,.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-        <div class="ws-opt-body"><div class="ws-opt-name">Churn Prevention</div><div class="ws-opt-desc">Retention and win-back</div></div>
-        <span class="ws-opt-badge badge-soon">SOON</span>
-      </div>
-      <div class="ws-option" id="ws-engage" onclick="switchWs('engage')">
-        <div class="ws-opt-icon" style="background:rgba(232,160,32,.1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-        <div class="ws-opt-body"><div class="ws-opt-name">Engagement</div><div class="ws-opt-desc">Next best action</div></div>
-        <span class="ws-opt-badge badge-soon">SOON</span>
-      </div>
-      <div class="ws-option" id="ws-ltv" onclick="switchWs('ltv')">
-        <div class="ws-opt-icon" style="background:rgba(74,127,212,.08)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-        <div class="ws-opt-body"><div class="ws-opt-name">Lifetime Value</div><div class="ws-opt-desc">Cross-sell and upsell</div></div>
-        <span class="ws-opt-badge badge-soon">SOON</span>
-      </div>
-    </div>
-  </div>
+  <!-- Workspace switcher UI removed (B6): both sources shipped it disabled
+       and Monese removed it outright. switchWs() stays as internal navigation
+       (called from start-screen pills and chat toolbar) but no user-facing
+       dropdown is exposed. -->
 
   <!-- HOME SB -->
   <div class="sb-home" id="sbHome">
@@ -1083,10 +1029,22 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
             </button>
           </div>
         </div>
+        <!-- Stokes-Ledbury parity: 6 start-screen pills (Best customer,
+             Performance, Segments, New campaign, Insights, Write copy).
+             Churn pill stays in the chat toolbar (A8 decision) but is
+             not duplicated on the start screen. -->
         <div class="start-pills">
           <div class="start-pill" onclick="startPrompt('Who is my best customer?')" style="border-color:rgb(var(--brand-primary-rgb) / .4);color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .07);">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Who is my best customer?
+          </div>
+          <div class="start-pill" onclick="switchWs('campaign')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Performance
+          </div>
+          <div class="start-pill" onclick="startPrompt('Which customer segments should I target for the next campaign?')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Segments
           </div>
           <div class="start-pill" onclick="switchWs('campaign')">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -1096,9 +1054,9 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             Insights
           </div>
-          <div class="start-pill" onclick="startPrompt('Customers most likely to churn')" style="border-color:rgba(124,92,191,.4);color:#7c5cbf;background:rgba(124,92,191,.07);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7c5cbf" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/><path d="M16 6h5v5"/></svg>
-            Customers most likely to churn
+          <div class="start-pill" onclick="startPrompt('Draft a re-engagement email for lapsed customers')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+            Write copy
           </div>
         </div>
       </div>
@@ -1106,12 +1064,10 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
 
     <!-- CHAT THREAD (shown after first message) -->
     <div class="messages hidden" id="messages"></div>
+    <div class="stop-bar" id="stopBar"><button class="stop-btn" onclick="stopGen()"><span class="stop-dot"></span> STOP GENERATING</button></div>
     <div class="input-bar hidden" id="chatInputBar"><div class="input-wrap">
       <textarea class="chat-input" id="chatIn" rows="1" placeholder="Command Stokes..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <button class="send-btn" id="sendBtn" onclick="handleSendBtn()">
-  <svg id="sendIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-  <svg id="stopIcon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
-</button>
+      <button class="send-btn" id="sendBtn" onclick="sendMsg()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     </div>
     <div class="chat-toolbar">
       <div class="ctool" onclick="sendFromToolbar('Who is my best customer?')" style="border-color:rgb(var(--brand-primary-rgb) / .35);color:var(--brand-primary);">
@@ -2140,7 +2096,7 @@ function applyColorToInterface(token, hex){
 const IC={bot:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M8 12h8M12 8v8"/></svg>`,user:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,copy:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`,retry:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>`,up:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>`,down:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>`,edit:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>`,chk:`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`,chat:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,del:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>`,pen:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>`};
 
 // ══ WORKSPACE ══
-let currentWs='home',wsDrop=false;
+let currentWs='home';
 const WS_META={home:{name:'Home',color:'#8b90a8',bg:'rgba(139,144,168,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b90a8" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`},campaign:{name:'Marketing Spend',color:'var(--brand-primary-hover)',bg:'rgb(var(--brand-primary-rgb) / .12)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--brand-primary-hover)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`},churn:{name:'Churn Prevention',color:'#d0553a',bg:'rgba(208,85,58,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},engage:{name:'Engagement',color:'#e8a020',bg:'rgba(232,160,32,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`},ltv:{name:'Lifetime Value',color:'#4a7fd4',bg:'rgba(74,127,212,.08)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`}};
 function switchWs(ws){
   currentWs=ws;
@@ -2604,7 +2560,7 @@ function injectAudienceExplorer(kind){
   const id=nMsgId++;
   // Brief typing simulation then inject widget
   streaming=true;
-  setSendBtnState('stop');
+  document.getElementById('stopBar').classList.add('visible');
   const _clientName = getActiveClient().name;
   const analysingText = kind==='churn'
     ? 'Analysing '+_clientName+' churn-risk profiles...'
@@ -2616,7 +2572,7 @@ function injectAudienceExplorer(kind){
   msgs.push(placeholder); renderMsgs();
   setTimeout(()=>{
     streaming=false;
-    setSendBtnState('send');
+    document.getElementById('stopBar').classList.remove('visible');
     // Replace placeholder with widget
     const idx=msgs.findIndex(m=>m.id===id);
     if(idx!==-1){
@@ -2713,26 +2669,8 @@ function vote(id,t){const m=msgs.find(x=>x.id===id);if(!m)return;m.feedback=m.fe
 function retryMsg(id){const i=msgs.findIndex(x=>x.id===id);if(i===-1)return;msgs.splice(i,1);renderMsgs();simAI();}
 function editMsg(id){const m=msgs.find(x=>x.id===id),idx=msgs.findIndex(x=>x.id===id);if(!m)return;const g=document.getElementById(`mg-${m.id}`);g.innerHTML=`<div class="msg-row" style="flex-direction:row-reverse"><div class="msg-avatar">${IC.user}</div><div style="max-width:540px;width:100%;display:flex;flex-direction:column;gap:8px"><textarea style="width:100%;background:var(--bg4);border:1px solid var(--brand-primary-hover);border-radius:10px;color:var(--text);font-family:'Montserrat',sans-serif;font-size:13.5px;padding:11px 13px;resize:none;outline:none;line-height:1.6" id="eta-${id}" rows="2">${eh(m.text)}</textarea><div style="display:flex;gap:8px;justify-content:flex-end"><button style="padding:5px 12px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="renderMsgs()">Cancel</button><button style="padding:5px 12px;border-radius:6px;background:var(--brand-primary);border:none;color:#fff;font-family:'Montserrat',sans-serif;font-size:12px;cursor:pointer" onclick="saveEdit(${id},${idx})">Save &amp; resend</button></div></div></div>`;document.getElementById(`eta-${id}`).focus();}
 function saveEdit(id,idx){const ta=document.getElementById(`eta-${id}`);const val=ta?ta.value.trim():'';if(!val)return;msgs[idx].text=val;msgs=msgs.slice(0,idx+1);renderMsgs();setTimeout(simAI,400);}
-function simAI(){streaming=true;setSendBtnState('stop');const id=nMsgId++;const full='Analysing '+getActiveClient().name+' customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;setSendBtnState('send');renderMsgs();}},30);}
-function stopGen(){if(!streaming)return;clearInterval(sTimer);streaming=false;setSendBtnState('send');renderMsgs();showToast('Generation stopped');}
-function setSendBtnState(state){
-  const btn=document.getElementById('sendBtn');
-  const si=document.getElementById('sendIcon');
-  const xi=document.getElementById('stopIcon');
-  if(!btn)return;
-  if(state==='stop'){
-    btn.classList.add('stopping');
-    if(si)si.style.display='none';
-    if(xi)xi.style.display='';
-  } else {
-    btn.classList.remove('stopping');
-    if(si)si.style.display='';
-    if(xi)xi.style.display='none';
-  }
-}
-function handleSendBtn(){
-  if(streaming){ stopGen(); } else { sendMsg(); }
-}
+function simAI(){streaming=true;document.getElementById('stopBar').classList.add('visible');const id=nMsgId++;const full='Analysing '+getActiveClient().name+' customer behavioural profiles...';msgs.push({id,role:'ai',text:'',feedback:null});renderMsgs();let i=0;sTimer=setInterval(()=>{if(!streaming)return;const m=msgs.find(x=>x.id===id);if(!m)return clearInterval(sTimer);if(i<full.length){m.text=full.slice(0,++i);const b=document.getElementById(`mb-${id}`);if(b)b.textContent=m.text;}else{clearInterval(sTimer);streaming=false;document.getElementById('stopBar').classList.remove('visible');renderMsgs();}},30);}
+function stopGen(){if(!streaming)return;clearInterval(sTimer);streaming=false;document.getElementById('stopBar').classList.remove('visible');renderMsgs();showToast('Generation stopped');}
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
 function handleStartKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendFromStart();}}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,140)+'px';}
