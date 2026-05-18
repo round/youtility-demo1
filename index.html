@@ -196,7 +196,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
 .search-modal-section-lbl{font-size:9.5px;font-weight:700;letter-spacing:.12em;color:var(--text3);padding:11px 16px 6px;}
 .search-modal-list{flex:1;overflow-y:auto;padding:0 8px 8px;}
 .search-modal-item{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border-radius:8px;cursor:pointer;transition:background .12s;}
-.search-modal-item:hover{background:var(--bg3);}
+.search-modal-item:hover,.search-modal-item.kbd-active{background:var(--bg3);}
 .search-modal-item-icon{flex-shrink:0;color:var(--text3);margin-top:1px;}
 .search-modal-item-body{flex:1;min-width:0;}
 .search-modal-item-title{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -841,7 +841,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
   <div class="login-card">
     <div class="login-logo">
       <div class="login-logo-icon">S</div>
-      <div class="login-logo-text product-name">Youtility</div>
+      <div class="login-logo-text">STOKES <em>ORCHESTRATOR</em></div>
     </div>
     <div class="login-tagline">Behavioural intelligence platform · Sign in to continue</div>
 
@@ -867,11 +867,11 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
         <div class="login-user-av" style="background:var(--accent3);">DS</div>
         <div>
           <div class="login-user-name">Dan S.</div>
-          <div class="login-user-role">Youtility · Super Admin</div>
+          <div class="login-user-role">Stokes · Super Admin</div>
         </div>
       </div>
     </div>
-    <div class="login-footer"><span class="product-name">Youtility</span> · youtility.co.uk</div>
+    <div class="login-footer">Stokes Orchestrator · youtility.co.uk</div>
   </div>
 </div>
 
@@ -972,7 +972,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
        Monese source had this active with 5 live workspaces; Stokes shipped it
        disabled. Restored here as disabled to preserve the visual element from
        both sources without committing to multi-workspace routing yet. -->
-  <div class="ws-switcher" id="wsSwitcher" style="opacity:.45;pointer-events:none;position:relative;" title="Coming soon"><span class="coming-soon-tag">COMING SOON</span>
+  <div class="ws-switcher" id="wsSwitcher" style="opacity:.45;pointer-events:none;position:relative;" title="Coming soon">
     <div class="ws-btn" id="wsBtn">
       <div class="ws-icon" id="wsIconEl"></div>
       <div class="ws-text"><div class="ws-label">WORKSPACE</div><div class="ws-name" id="wsNameEl">Home</div></div>
@@ -1076,7 +1076,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
           <textarea class="start-ta" id="startTa" rows="2" placeholder="How can I help you today?" onkeydown="handleStartKey(event)" oninput="autoResizeEl(this)"></textarea>
           <div class="start-input-footer">
             <div class="start-footer-left">
-              <div class="start-model"><span class="product-name">Youtility</span> · <span class="client-name">Monese</span> node</div>
+              <div class="start-model">Navier-Stokes · <span class="client-name">Monese</span> node</div>
             </div>
             <button class="start-send" onclick="sendFromStart()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -1107,7 +1107,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <!-- CHAT THREAD (shown after first message) -->
     <div class="messages hidden" id="messages"></div>
     <div class="input-bar hidden" id="chatInputBar"><div class="input-wrap">
-      <textarea class="chat-input" id="chatIn" rows="1" placeholder="Command Youtility..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <textarea class="chat-input" id="chatIn" rows="1" placeholder="Command Stokes..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
       <button class="send-btn" id="sendBtn" onclick="handleSendBtn()">
   <svg id="sendIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
   <svg id="stopIcon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
@@ -1378,7 +1378,6 @@ const CLIENTS = [
     // logo omitted: monese uses the static header PNG, preserved via the
     // boot-time cache so cdResetLogoInHeader restores it byte-identically.
     copy: {
-      productName: 'Monese',
       emailBanner: { promo: 'WELCOME BACK · OFFER ENDS SUNDAY', launch: 'NEW · TRAVEL MONEY CARD' },
       emailHero: {
         promo:  { label:'WELCOME BACK',            head:'Three free transfers, on us', sub:'Send money to over 30 countries with zero fees this month.', cta:'Activate offer',  imgLabel:'Money transfer' },
@@ -1407,7 +1406,6 @@ const CLIENTS = [
     status: 'live',
     logo: makeMonoLogo('L', '#4a6741'),
     copy: {
-      productName: 'Ledbury',
       emailBanner: { promo: 'SPRING CUSTOM EVENT · ENDS SUNDAY', launch: 'NEW ARRIVALS · SPRING COLLECTION' },
       emailHero: {
         promo:  { label:'SPRING CUSTOM EVENT', head:'30% Off Sitewide',    sub:'With spend of $150+',                              cta:'Shop Now',          imgLabel:'Spring Collection' },
@@ -1438,7 +1436,6 @@ const CLIENTS = [
     status: 'live',
     logo: makeMonoLogo('P', '#4a7fd4'),
     copy: {
-      productName: 'Pockit',
       emailBanner: { promo: 'WELCOME BACK · OFFER ENDS SUNDAY', launch: 'NEW · POCKIT FEATURES' },
       emailHero: {
         promo:  { label:'WELCOME BACK',         head:'£10 cashback waiting for you', sub:'Top up £20 this month and we will match £10 toward your first transfer.', cta:'Claim cashback', imgLabel:'Cashback offer' },
@@ -1467,7 +1464,6 @@ const CLIENTS = [
     status: 'live',
     logo: makeMonoLogo('V', '#d0553a'),
     copy: {
-      productName: 'Virgin Money',
       emailBanner: { promo: 'OFFER ENDS SUNDAY', launch: 'NEW · VIRGIN MONEY' },
       emailHero: {
         promo:  { label:'WELCOME BACK', head:'A better deal on your savings', sub:'Switch your account this month and earn up to 5% AER.',     cta:'Apply now',        imgLabel:'Savings offer' },
@@ -1496,7 +1492,6 @@ const CLIENTS = [
     status: 'setup',
     logo: makeMonoLogo('S', '#e8a020'),
     copy: {
-      productName: 'Santander UK',
       emailBanner: { promo: 'OFFER ENDS SUNDAY', launch: 'NEW · SANTANDER UK' },
       emailHero: {
         promo:  { label:'WELCOME BACK', head:'Your account, made simpler', sub:'Open an Edge account and earn 7% AER on your linked savings.', cta:'Open Edge',       imgLabel:'Edge offer' },
@@ -1523,10 +1518,10 @@ function getActiveClient(){ return CLIENTS.find(c => c.id === ACTIVE_CLIENT_ID) 
 // signed-in user's tenant (e.g. saving Ledbury whitelabel must not touch Monese).
 let DETAIL_CLIENT_ID = null;
 function getDetailClient(){ return (DETAIL_CLIENT_ID && CLIENTS.find(c => c.id === DETAIL_CLIENT_ID)) || getActiveClient(); }
-// Product display name (e.g. "Youtility") is tenant-scoped via client.copy.productName.
-// Read it through getProductName() rather than a captured const so cross-tenant
-// switches via setActiveTenant() see the new tenant's name without a page reload.
-function getProductName(){ return getActiveClient().copy.productName || 'Youtility'; }
+// Platform name ("Stokes") is constant across tenants but read through
+// getProductName() so a tenant could override via client.copy.productName in
+// future. Used in the chat seed ("Welcome back to Stokes…").
+function getProductName(){ return getActiveClient().copy.productName || 'Stokes'; }
 // Load a tenant's font stylesheet once (per stylesheet href). Re-runnable: on
 // repeat tenant switches we skip already-loaded sheets so the document head
 // doesn't fill with duplicate <link> tags.
@@ -1986,7 +1981,7 @@ function restoreActiveTenantBranding(){
 
 function injectClientCopy(){
   const client = getActiveClient();
-  const name = client.copy.productName || 'Youtility';
+  const name = client.copy.productName || 'Stokes';
   document.querySelectorAll('.product-name').forEach(el => el.textContent = name);
   // Tenant display name (e.g. "Monese", "Ledbury") shows up alongside the
   // product name in places like "<product> · <tenant> node" and "<tenant>
@@ -2996,6 +2991,8 @@ const HOME_CHATS_BY_TENANT = {
       snippet:'30% off sitewide offer recommended for lapsed 60-day segment.'},
     {id:4,title:'New arrival launch sequencing',time:'2 days ago',active:false,
       snippet:'Deliberate Dresser segment leads for new arrival messaging. Editorial tone.'},
+    {id:5,title:'Who is my best customer?',time:'3 days ago',active:false,
+      snippet:'Audience Explorer: The Deliberate Dresser at 45.5% of customer base.'},
   ],
 };
 const homeChats=HOME_CHATS_BY_TENANT.monese.map(c=>({...c}));
@@ -3244,13 +3241,15 @@ function renderSearchModal(q){
     (c.title||'').toLowerCase().includes(ql) ||
     (c.snippet||'').toLowerCase().includes(ql)
   ):all;
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   lbl.textContent=q?`MATCHES FOR "${q.toUpperCase()}"`:'RECENT CONVERSATIONS';
   count.textContent=`${filtered.length} result${filtered.length===1?'':'s'}`;
   if(!filtered.length){
-    list.innerHTML='<div class="search-modal-empty">No conversations match that search.</div>';
+    list.innerHTML=q
+      ? `<div class="search-modal-empty">No conversations found for "${esc(q)}"</div>`
+      : '<div class="search-modal-empty">No conversations match that search.</div>';
     return;
   }
-  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   list.innerHTML=filtered.map(c=>{
     const snip=c.snippet?`<div class="search-modal-item-snippet">${esc(c.snippet)}</div>`:'';
     return `<div class="search-modal-item" onclick="searchModalSelect(${c.id})">
@@ -3951,7 +3950,7 @@ function renderDsTabBody(tab, src){
     <div class="ds-field"><label>CLIENT SECRET</label><input value="••••••••••••••••" type="password" /></div>
     <div class="ds-field"><label>OAUTH CALLBACK URL</label><input value="https://app.youtility.co.uk/oauth/callback" /></div>`;
   if (tab === 'fieldmapping') return `
-    <div style="font-size:11px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Map ${src.name} fields to Youtility behavioural attributes.</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:12px;line-height:1.6;">Map ${src.name} fields to Navier-Stokes behavioural attributes.</div>
     ${[['Contact ID','customer_id'],['Email Address','email'],['Last Purchase Date','last_purchase_at'],['Segment Tag','segment_label']].map(([f, m]) => `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
         <input style="flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-family:'Montserrat',sans-serif;font-size:11.5px;color:var(--text);outline:none;" value="${f}" readonly />
@@ -4036,7 +4035,7 @@ function renderCdWhiteLabel(client){
       <div class="wl-logo-drop" onclick="document.getElementById('cdLogoInput').click()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         <div class="wl-logo-drop-text" id="cdLogoDropText">${logoSrc ? 'Logo uploaded — click to replace' : 'Upload logo file'}</div>
-        <div class="wl-logo-drop-sub">PNG or SVG · Max 2MB</div>
+        <div class="wl-logo-drop-sub">PNG or SVG · Max 2MB · Transparent background recommended</div>
         <input type="file" id="cdLogoInput" accept=".png,.svg,.jpg" style="display:none" onchange="cdPreviewLogo(this)" />
       </div>
     </div>
