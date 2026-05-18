@@ -1341,6 +1341,8 @@ const BP_FULL = 900, BP_ICON = 580;
 
 // ══ WIZARD ══
 const WLBL=['Campaign brief','Confirm segments','Review content'];
+// Wizard channel label map
+const chanLbls={email:'Email',sms:'SMS',ad:'Ad brief'};
 
 const CLIENTS = [
   {
@@ -1698,9 +1700,6 @@ const PRODUCTS_BY_TENANT = {
     {id:12,name:'Dress Short',                    cat:'SHORTS',price:'$125',emoji:'🏖️',sel:false},
   ],
 };
-
-// Wizard channel label map
-const chanLbls={email:'Email',sms:'SMS',ad:'Ad brief'};
 
 // Per-tenant SEGS keyed by client id. Monese is canonical (financial product
 // language); Ledbury preserves Stokes's apparel/retail segments verbatim.
