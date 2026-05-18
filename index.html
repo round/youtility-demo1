@@ -1172,23 +1172,23 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
         <div class="ct-grid" id="ctGrid">
           <div class="ct-card selected" data-type="promo" onclick="selectType(this)">
             <div class="ct-icon" style="background:rgb(var(--brand-primary-rgb) / .15);color:var(--brand-primary-hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
-            <div class="ct-name">Promotional offer</div>
-            <div class="ct-desc">Reward, cashback or fee waiver with conditions</div>
+            <div class="ct-name" data-cb="promoTypeName">Promotional offer</div>
+            <div class="ct-desc" data-cb="promoTypeDesc">Reward, cashback or fee waiver with conditions</div>
           </div>
           <div class="ct-card" data-type="product" onclick="selectType(this)">
             <div class="ct-icon" style="background:rgba(74,127,212,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
-            <div class="ct-name">Feature spotlight</div>
-            <div class="ct-desc">Spotlight a specific <span class="client-name">Monese</span> feature</div>
+            <div class="ct-name" data-cb="productTypeName">Feature spotlight</div>
+            <div class="ct-desc" data-cb="productTypeDesc">Spotlight a specific <span class="client-name">Monese</span> feature</div>
           </div>
           <div class="ct-card" data-type="arrival" onclick="selectType(this)">
             <div class="ct-icon" style="background:rgba(46,168,106,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2ea86a" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-            <div class="ct-name">New feature</div>
-            <div class="ct-desc">Launch announcement for new <span class="client-name">Monese</span> features</div>
+            <div class="ct-name" data-cb="arrivalTypeName">New feature</div>
+            <div class="ct-desc" data-cb="arrivalTypeDesc">Launch announcement for new <span class="client-name">Monese</span> features</div>
           </div>
           <div class="ct-card" data-type="series" onclick="selectType(this)">
             <div class="ct-icon" style="background:rgba(232,160,32,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-            <div class="ct-name">Series / event</div>
-            <div class="ct-desc">Recurring editorial like Money Mondays</div>
+            <div class="ct-name" data-cb="seriesTypeName">Series / event</div>
+            <div class="ct-desc" data-cb="seriesTypeDesc">Recurring editorial like Money Mondays</div>
           </div>
         </div>
 
@@ -1203,16 +1203,16 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
             <div class="offer-pill" onclick="selDiscount(this,'custom')">Custom</div>
           </div>
           <div class="offer-input-row">
-            <div class="form-field"><label class="field-lbl">REWARD AMOUNT</label><input class="field-in" id="discPct" value="£20" placeholder="e.g. £20"></div>
-            <div class="form-field"><label class="field-lbl">MIN. DEPOSIT OR ACTIVITY</label><input class="field-in" id="minSpend" value="£100" placeholder="e.g. £100 deposit"></div>
-            <div class="form-field"><label class="field-lbl">AUDIENCE</label><select class="field-sel" id="offerScope"><option>All users</option><option>New signups only</option><option>Existing customers</option><option>Lapsed customers</option><option>Select segments</option></select></div>
+            <div class="form-field"><label class="field-lbl" data-cb="rewardLabel">REWARD AMOUNT</label><input class="field-in" id="discPct" value="£20" placeholder="e.g. £20"></div>
+            <div class="form-field"><label class="field-lbl" data-cb="minLabel">MIN. DEPOSIT OR ACTIVITY</label><input class="field-in" id="minSpend" value="£100" placeholder="e.g. £100 deposit"></div>
+            <div class="form-field"><label class="field-lbl" data-cb="audienceLabel">AUDIENCE</label><select class="field-sel" id="offerScope"><option>All users</option><option>New signups only</option><option>Existing customers</option><option>Lapsed customers</option><option>Select segments</option></select></div>
           </div>
         </div>
 
         <!-- FEATURE picker (hidden by default) -->
         <div id="productPanel" style="display:none">
-          <div class="brief-section-lbl">SELECT FEATURES</div>
-          <input class="prod-search" placeholder="Search features..." oninput="filterProds(this.value)">
+          <div class="brief-section-lbl" data-cb="productPanelLabel">SELECT FEATURES</div>
+          <input class="prod-search" id="prodSearchInput" placeholder="Search features..." oninput="filterProds(this.value)">
           <div class="prod-grid" id="prodGrid"></div>
           <div class="prod-sel-count" id="prodSelCount">0 features selected</div>
         </div>
@@ -1362,6 +1362,38 @@ const CLIENTS = [
       adDefaults: { headline:'Spend abroad like a local', subhead:'New from Monese', cta:'Open the app', tone:'Confident, helpful, premium', format:'Digital display', visual:'Editorial product photography', imgLabel:'Editorial photography' },
       audienceExplorerLabel: 'MONESE',
       audiencePopulation: '84,320',
+      // Per-tenant copy for the Create-campaign brief form. Pass 4d audit.
+      campaignBrief: {
+        promoTypeName: 'Promotional offer',
+        promoTypeDesc: 'Reward, cashback or fee waiver with conditions',
+        productTypeName: 'Feature spotlight',
+        productTypeDescHTML: 'Spotlight a specific <span class="client-name">Monese</span> feature',
+        arrivalTypeName: 'New feature',
+        arrivalTypeDescHTML: 'Launch announcement for new <span class="client-name">Monese</span> features',
+        seriesTypeName: 'Series / event',
+        seriesTypeDesc: 'Recurring editorial like Money Mondays',
+        seriesNamePlaceholder: 'e.g. Money Mondays',
+        campNamePlaceholder: 'e.g. Travel Money Card Launch Push',
+        campMsgPlaceholder: "What is the one thing you want customers to feel or do? e.g. 'Reactivation push with three free transfers for lapsed users'",
+        discountPills: [
+          {value:'5', label:'£5 reward',  selected:false},
+          {value:'10',label:'£10 reward', selected:false},
+          {value:'20',label:'£20 reward', selected:true},
+          {value:'50',label:'£50 reward', selected:false},
+          {value:'custom',label:'Custom', selected:false},
+        ],
+        rewardLabel: 'REWARD AMOUNT',
+        rewardDefault: '£20',
+        rewardPlaceholder: 'e.g. £20',
+        minLabel: 'MIN. DEPOSIT OR ACTIVITY',
+        minDefault: '£100',
+        minPlaceholder: 'e.g. £100 deposit',
+        audienceLabel: 'AUDIENCE',
+        audienceOptions: ['All users','New signups only','Existing customers','Lapsed customers','Select segments'],
+        productPanelLabel: 'SELECT FEATURES',
+        productSearchPlaceholder: 'Search features...',
+        productNoun: 'feature',
+      },
     },
     enabledFeatures: { reports: true, search: true, audienceExplorer: true, admin: false, whitelabel: false, userManagement: false },
   },
@@ -1390,6 +1422,38 @@ const CLIENTS = [
       adDefaults: { headline:'Spring Collection', subhead:'New arrivals from Ledbury', cta:'Shop Now', tone:'Elevated, editorial', format:'Digital display', visual:'Editorial product photography', imgLabel:'Editorial photography' },
       audienceExplorerLabel: 'LEDBURY',
       audiencePopulation: '84,320',
+      // Source: stokes-ledbury-mvp:1094-1163.
+      campaignBrief: {
+        promoTypeName: 'Promotional offer',
+        promoTypeDesc: '% off sitewide or with spend threshold',
+        productTypeName: 'Product feature',
+        productTypeDescHTML: 'Spotlight specific items from catalogue',
+        arrivalTypeName: 'New arrival',
+        arrivalTypeDescHTML: 'Launch announcement for new products',
+        seriesTypeName: 'Series / event',
+        seriesTypeDesc: 'Recurring editorial like Sunday Shirting',
+        seriesNamePlaceholder: 'e.g. Sunday Shirting',
+        campNamePlaceholder: 'e.g. Spring Custom Event — Final Day',
+        campMsgPlaceholder: "What is the one thing you want customers to feel or do? e.g. 'Last chance urgency on spring sitewide sale'",
+        discountPills: [
+          {value:'20',label:'20% off',  selected:false},
+          {value:'25',label:'25% off',  selected:false},
+          {value:'30',label:'30% off',  selected:true},
+          {value:'40',label:'40% off',  selected:false},
+          {value:'custom',label:'Custom %', selected:false},
+        ],
+        rewardLabel: 'DISCOUNT %',
+        rewardDefault: '30',
+        rewardPlaceholder: 'e.g. 30',
+        minLabel: 'MIN. SPEND THRESHOLD',
+        minDefault: '$150',
+        minPlaceholder: 'e.g. $150',
+        audienceLabel: 'APPLIES TO',
+        audienceOptions: ['Sitewide','Shirts only','Pants only','New arrivals','Select styles'],
+        productPanelLabel: 'SELECT PRODUCTS',
+        productSearchPlaceholder: 'Search catalogue...',
+        productNoun: 'product',
+      },
     },
     // reports:false until per-tenant REPORTS data is wired. The shared REPORTS
     // map is Monese-specific (Travel Money Card, Pots, Cash Advance verticals).
@@ -1979,6 +2043,62 @@ function injectClientCopy(){
   // Campaigns". Tag those occurrences with .client-name so this single call
   // can keep them in sync on tenant switch.
   document.querySelectorAll('.client-name').forEach(el => el.textContent = client.name || '');
+  injectCampaignBriefCopy();
+}
+
+// Per-tenant campaign-brief form copy (campaign-type cards, discount pills,
+// reward/min labels, audience options, product picker labels, placeholders).
+// Reads from client.copy.campaignBrief and patches the [data-cb] elements +
+// known IDs in the static markup. Falls back to Monese defaults silently for
+// any missing key so partial campaignBrief objects still work.
+function injectCampaignBriefCopy(){
+  const client = (typeof getActiveClient === 'function') ? getActiveClient() : null;
+  const cb = (client && client.copy && client.copy.campaignBrief) || {};
+  // data-cb attribute → key in campaignBrief. -HTML suffix means innerHTML
+  // (preserves <span class="client-name"> tags so injectClientCopy can keep
+  // tenant-name in sync). Otherwise textContent.
+  document.querySelectorAll('[data-cb]').forEach(el => {
+    const key = el.getAttribute('data-cb');
+    const htmlKey = key + 'HTML';
+    if (cb[htmlKey] != null) el.innerHTML = cb[htmlKey];
+    else if (cb[key] != null) el.textContent = cb[key];
+  });
+  // Discount pills are dynamic — rebuild innerHTML from the tenant array.
+  const pills = document.getElementById('discountPills');
+  if (pills && Array.isArray(cb.discountPills)) {
+    pills.innerHTML = cb.discountPills.map(p =>
+      `<div class="offer-pill${p.selected ? ' selected' : ''}" onclick="selDiscount(this,'${p.value}')">${p.label}</div>`
+    ).join('');
+  }
+  // Reward / Min inputs.
+  const discPct = document.getElementById('discPct');
+  if (discPct) {
+    if (cb.rewardDefault != null && !discPct.dataset.touched) discPct.value = cb.rewardDefault;
+    if (cb.rewardPlaceholder != null) discPct.placeholder = cb.rewardPlaceholder;
+  }
+  const minSpend = document.getElementById('minSpend');
+  if (minSpend) {
+    if (cb.minDefault != null && !minSpend.dataset.touched) minSpend.value = cb.minDefault;
+    if (cb.minPlaceholder != null) minSpend.placeholder = cb.minPlaceholder;
+  }
+  // Audience scope options.
+  const offerScope = document.getElementById('offerScope');
+  if (offerScope && Array.isArray(cb.audienceOptions)) {
+    offerScope.innerHTML = cb.audienceOptions.map(o => `<option>${o}</option>`).join('');
+  }
+  // Product picker.
+  const ps = document.getElementById('prodSearchInput');
+  if (ps && cb.productSearchPlaceholder != null) ps.placeholder = cb.productSearchPlaceholder;
+  // Campaign-detail placeholders.
+  const seriesName = document.getElementById('seriesName');
+  if (seriesName && cb.seriesNamePlaceholder != null) seriesName.placeholder = cb.seriesNamePlaceholder;
+  const campName = document.getElementById('campName');
+  if (campName && cb.campNamePlaceholder != null) campName.placeholder = cb.campNamePlaceholder;
+  const campMsg = document.getElementById('campMsg');
+  if (campMsg && cb.campMsgPlaceholder != null) campMsg.placeholder = cb.campMsgPlaceholder;
+  // Refresh the product count line so the "feature(s) selected" / "product(s)
+  // selected" suffix matches the new tenant's noun.
+  if (typeof renderProds === 'function' && document.getElementById('prodGrid')) renderProds();
 }
 
 // Single entry point for switching the active tenant.
@@ -2035,6 +2155,27 @@ function setActiveTenant(clientId){
     homeChats.splice(0, homeChats.length, ...seed.map(c => ({...c})));
     if (typeof renderHomeList === 'function' && document.getElementById('homeList')) {
       renderHomeList();
+    }
+  }
+  // CAMPS / PRODUCTS use the same in-place splice pattern so existing renderer
+  // closures keep referencing the live array. activeCampId is reset to the new
+  // seed's first entry so the campaign sidebar opens with a valid selection.
+  if (typeof CAMPS !== 'undefined' && typeof CAMPS_BY_TENANT !== 'undefined') {
+    const seedC = CAMPS_BY_TENANT[next.id] || CAMPS_BY_TENANT.monese;
+    CAMPS.splice(0, CAMPS.length, ...seedC.map(c => ({...c})));
+    if (typeof activeCampId !== 'undefined' && CAMPS[0]) activeCampId = CAMPS[0].id;
+    if (typeof renderCampSb === 'function' && document.getElementById('campScroll')) {
+      renderCampSb();
+    }
+    if (typeof renderOverview === 'function' && document.getElementById('sparkBars')) {
+      renderOverview();
+    }
+  }
+  if (typeof PRODUCTS !== 'undefined' && typeof PRODUCTS_BY_TENANT !== 'undefined') {
+    const seedP = PRODUCTS_BY_TENANT[next.id] || PRODUCTS_BY_TENANT.monese;
+    PRODUCTS.splice(0, PRODUCTS.length, ...seedP.map(p => ({...p})));
+    if (typeof renderProds === 'function' && document.getElementById('prodGrid')) {
+      renderProds();
     }
   }
   // 6. Pristine chat seed (only the welcome message, no real turns yet) gets
@@ -2155,20 +2296,41 @@ function switchWs(ws){
 
 // ══ CAMPAIGN SIDEBAR ══
 const STATUS_COL={active:'var(--brand-primary)',draft:'#555a72',completed:'#4a7fd4',scheduled:'#e8a020'};
-const CAMPS=[
-  {id:101,title:'Travel Money Card Launch Push',  time:'Mar 28',status:'active',   type:'Arrival',open:'+44%',rev:'+28%',roi:'4.2x'},
-  {id:102,title:'Money Mondays · Smart FX',       time:'Mar 28',status:'active',   type:'Series', open:'+38%',rev:'+19%',roi:'3.1x'},
-  {id:103,title:'Three Free Transfers Welcome Back',time:'Mar 27',status:'completed',type:'Promo',  open:'+41%',rev:'+25%',roi:'4.0x'},
-  {id:104,title:'Cash Advance Feature Spotlight', time:'Mar 27',status:'completed',type:'Product',open:'+33%',rev:'+18%',roi:'3.3x'},
-  {id:105,title:'Pots Savings Goal Push',         time:'Mar 26',status:'completed',type:'Arrival',open:'+36%',rev:'+21%',roi:'3.5x'},
-  {id:106,title:'Invite a Friend, Earn £10',       time:'Mar 24',status:'completed',type:'Promo',  open:'+39%',rev:'+24%',roi:'3.8x'},
-  {id:107,title:'Money Mondays · Budgeting Basics',time:'Mar 22',status:'completed',type:'Series', open:'+31%',rev:'+15%',roi:'2.8x'},
-  {id:108,title:'Joint Account Feature Spotlight',time:'Mar 20',status:'completed',type:'Product',open:'+29%',rev:'+14%',roi:'2.6x'},
-  {id:109,title:'Open Banking Now Available',     time:'Mar 19',status:'completed',type:'Arrival',open:'+35%',rev:'+20%',roi:'3.4x'},
-  {id:110,title:'Apple Pay Adoption Push',         time:'Mar 17',status:'completed',type:'Product',open:'+27%',rev:'+13%',roi:'2.5x'},
-  {id:111,title:'Money Mondays · Travel Hacks',   time:'Mar 15',status:'completed',type:'Series', open:'+30%',rev:'+14%',roi:'2.7x'},
-  {id:112,title:'Credit Builder Beta Launch',     time:'Mar 13',status:'completed',type:'Arrival',open:'+32%',rev:'+17%',roi:'3.0x'},
-];
+// Per-tenant sample campaigns. setActiveTenant() splices CAMPS in-place from
+// the new tenant's seed so existing references (renderers, closures) stay
+// valid. Tenants without an explicit entry fall back to monese.
+const CAMPS_BY_TENANT = {
+  monese: [
+    {id:101,title:'Travel Money Card Launch Push',  time:'Mar 28',status:'active',   type:'Arrival',open:'+44%',rev:'+28%',roi:'4.2x'},
+    {id:102,title:'Money Mondays · Smart FX',       time:'Mar 28',status:'active',   type:'Series', open:'+38%',rev:'+19%',roi:'3.1x'},
+    {id:103,title:'Three Free Transfers Welcome Back',time:'Mar 27',status:'completed',type:'Promo',  open:'+41%',rev:'+25%',roi:'4.0x'},
+    {id:104,title:'Cash Advance Feature Spotlight', time:'Mar 27',status:'completed',type:'Product',open:'+33%',rev:'+18%',roi:'3.3x'},
+    {id:105,title:'Pots Savings Goal Push',         time:'Mar 26',status:'completed',type:'Arrival',open:'+36%',rev:'+21%',roi:'3.5x'},
+    {id:106,title:'Invite a Friend, Earn £10',       time:'Mar 24',status:'completed',type:'Promo',  open:'+39%',rev:'+24%',roi:'3.8x'},
+    {id:107,title:'Money Mondays · Budgeting Basics',time:'Mar 22',status:'completed',type:'Series', open:'+31%',rev:'+15%',roi:'2.8x'},
+    {id:108,title:'Joint Account Feature Spotlight',time:'Mar 20',status:'completed',type:'Product',open:'+29%',rev:'+14%',roi:'2.6x'},
+    {id:109,title:'Open Banking Now Available',     time:'Mar 19',status:'completed',type:'Arrival',open:'+35%',rev:'+20%',roi:'3.4x'},
+    {id:110,title:'Apple Pay Adoption Push',         time:'Mar 17',status:'completed',type:'Product',open:'+27%',rev:'+13%',roi:'2.5x'},
+    {id:111,title:'Money Mondays · Travel Hacks',   time:'Mar 15',status:'completed',type:'Series', open:'+30%',rev:'+14%',roi:'2.7x'},
+    {id:112,title:'Credit Builder Beta Launch',     time:'Mar 13',status:'completed',type:'Arrival',open:'+32%',rev:'+17%',roi:'3.0x'},
+  ],
+  // Source: stokes-ledbury-mvp:1351-1364
+  ledbury: [
+    {id:101,title:'Spring Custom Event — Final Day',     time:'Mar 28',status:'active',   type:'Promo',  open:'+44%',rev:'+28%',roi:'4.2x'},
+    {id:102,title:'Sunday Shirting — Warm Weather Plaid',time:'Mar 28',status:'active',   type:'Series', open:'+38%',rev:'+19%',roi:'3.1x'},
+    {id:103,title:'30% Off — Final Hours',               time:'Mar 27',status:'completed',type:'Promo',  open:'+41%',rev:'+25%',roi:'4.0x'},
+    {id:104,title:'Stretch Canvas Franklin 5-Pocket',    time:'Mar 27',status:'completed',type:'Product',open:'+33%',rev:'+18%',roi:'3.3x'},
+    {id:105,title:'All New Spring Stripes',              time:'Mar 26',status:'completed',type:'Arrival',open:'+36%',rev:'+21%',roi:'3.5x'},
+    {id:106,title:'Spring Custom Event Starts Now',      time:'Mar 24',status:'completed',type:'Promo',  open:'+39%',rev:'+24%',roi:'3.8x'},
+    {id:107,title:'Sunday Shirting — 03.22.2026',        time:'Mar 22',status:'completed',type:'Series', open:'+31%',rev:'+15%',roi:'2.8x'},
+    {id:108,title:'Ledbury Dress Pants When Dressing',   time:'Mar 20',status:'completed',type:'Product',open:'+29%',rev:'+14%',roi:'2.6x'},
+    {id:109,title:'The Farwell Gingham — New Arrival',   time:'Mar 19',status:'completed',type:'Arrival',open:'+35%',rev:'+20%',roi:'3.4x'},
+    {id:110,title:'Spring Essentials — Dress Shirt',     time:'Mar 17',status:'completed',type:'Product',open:'+27%',rev:'+13%',roi:'2.5x'},
+    {id:111,title:'Sunday Shirting — 03.15.2026',        time:'Mar 15',status:'completed',type:'Series', open:'+30%',rev:'+14%',roi:'2.7x'},
+    {id:112,title:'Spring Essentials Launch',            time:'Mar 13',status:'completed',type:'Arrival',open:'+32%',rev:'+17%',roi:'3.0x'},
+  ],
+};
+const CAMPS = [...CAMPS_BY_TENANT.monese];
 let campExp=false,activeCampId=101;
 function renderCampSb(){const vis=campExp?CAMPS:CAMPS.slice(0,5);const hid=CAMPS.length-5;const rows=vis.map(c=>{const sc=STATUS_COL[c.status]||'#555a72';const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':c.status==='scheduled'?'badge-sched':'badge-draft';return `<div class="camp-item ${activeCampId===c.id?'active':''}" onclick="activeCampId=${c.id};renderCampSb()" oncontextmenu="openCtx(event,${c.id})"><div class="ci-bar" style="background:${sc};opacity:.75"></div><div class="ci-body"><div class="ci-title">${c.title}</div><div class="ci-meta"><div class="ci-time">${c.time}</div><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div></div><div class="ci-act"><button class="ci-act-btn" onclick="event.stopPropagation();startCampRename(${c.id})">${IC.pen}</button><button class="ci-act-btn del" onclick="event.stopPropagation();const idx=CAMPS.findIndex(x=>x.id===${c.id});if(idx!==-1)CAMPS.splice(idx,1);renderCampSb();showToast('Deleted')">${IC.del}</button></div></div>`;}).join('');const more=!campExp&&hid>0?`<div class="show-more" onclick="campExp=true;renderCampSb()"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>${hid} older</div>`:'';document.getElementById('campScroll').innerHTML=rows+more;}
 
@@ -2179,23 +2341,43 @@ function selDiscount(el,val){document.querySelectorAll('#discountPills .offer-pi
 function selUrg(el,v){document.querySelectorAll('.urg-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');}
 
 // ══ PRODUCT CATALOGUE ══
-const PRODUCTS=[
-  {id:1,name:'Multi-Currency Account',cat:'ACCOUNTS',price:'FREE',emoji:'🌍',sel:false},
-  {id:2,name:'Travel Money Card',cat:'CARDS',price:'PREMIUM',emoji:'✈️',sel:false},
-  {id:3,name:'Pots Savings',cat:'SAVINGS',price:'FREE',emoji:'🪴',sel:false},
-  {id:4,name:'Cash Advance',cat:'CREDIT',price:'FROM £1.50',emoji:'💷',sel:false},
-  {id:5,name:'Joint Account',cat:'ACCOUNTS',price:'FREE',emoji:'👥',sel:false},
-  {id:6,name:'International Transfers',cat:'TRANSFERS',price:'ZERO FEES',emoji:'🌐',sel:false},
-  {id:7,name:'Apple Pay',cat:'PAYMENTS',price:'FREE',emoji:'🍎',sel:false},
-  {id:8,name:'Google Pay',cat:'PAYMENTS',price:'FREE',emoji:'🟢',sel:false},
-  {id:9,name:'Budgeting Tools',cat:'TOOLS',price:'FREE',emoji:'📊',sel:false},
-  {id:10,name:'Open Banking',cat:'TOOLS',price:'FREE',emoji:'🔗',sel:false},
-  {id:11,name:'Add Money (Post Office)',cat:'TOP-UP',price:'FREE',emoji:'🏤',sel:false},
-  {id:12,name:'Invite and Earn',cat:'REWARDS',price:'EARN £10',emoji:'🎁',sel:false},
-];
+// Per-tenant catalogue. Source: Monese (this file's prior version) and
+// stokes-ledbury-mvp:1376-1388 for Ledbury. setActiveTenant() splices
+// PRODUCTS in-place from the new tenant's seed.
+const PRODUCTS_BY_TENANT = {
+  monese: [
+    {id:1,name:'Multi-Currency Account',cat:'ACCOUNTS',price:'FREE',emoji:'🌍',sel:false},
+    {id:2,name:'Travel Money Card',cat:'CARDS',price:'PREMIUM',emoji:'✈️',sel:false},
+    {id:3,name:'Pots Savings',cat:'SAVINGS',price:'FREE',emoji:'🪴',sel:false},
+    {id:4,name:'Cash Advance',cat:'CREDIT',price:'FROM £1.50',emoji:'💷',sel:false},
+    {id:5,name:'Joint Account',cat:'ACCOUNTS',price:'FREE',emoji:'👥',sel:false},
+    {id:6,name:'International Transfers',cat:'TRANSFERS',price:'ZERO FEES',emoji:'🌐',sel:false},
+    {id:7,name:'Apple Pay',cat:'PAYMENTS',price:'FREE',emoji:'🍎',sel:false},
+    {id:8,name:'Google Pay',cat:'PAYMENTS',price:'FREE',emoji:'🟢',sel:false},
+    {id:9,name:'Budgeting Tools',cat:'TOOLS',price:'FREE',emoji:'📊',sel:false},
+    {id:10,name:'Open Banking',cat:'TOOLS',price:'FREE',emoji:'🔗',sel:false},
+    {id:11,name:'Add Money (Post Office)',cat:'TOP-UP',price:'FREE',emoji:'🏤',sel:false},
+    {id:12,name:'Invite and Earn',cat:'REWARDS',price:'EARN £10',emoji:'🎁',sel:false},
+  ],
+  ledbury: [
+    {id:1,name:'Poplin Button-Down',              cat:'SHIRTS',price:'$145',emoji:'👔',sel:false},
+    {id:2,name:'Stretch Canvas Franklin 5-Pocket',cat:'PANTS', price:'$195',emoji:'👖',sel:false},
+    {id:3,name:'Warm Weather Plaid Shirt',        cat:'SHIRTS',price:'$165',emoji:'🟩',sel:false},
+    {id:4,name:'The Farwell Gingham',             cat:'SHIRTS',price:'$155',emoji:'🔵',sel:false},
+    {id:5,name:'Dress Pant — Slim Fit',           cat:'PANTS', price:'$185',emoji:'🖤',sel:false},
+    {id:6,name:'Spring Stripe Linen',             cat:'SHIRTS',price:'$175',emoji:'🌿',sel:false},
+    {id:7,name:'Tailored Chino',                  cat:'PANTS', price:'$165',emoji:'🟤',sel:false},
+    {id:8,name:'Oxford Casual',                   cat:'SHIRTS',price:'$135',emoji:'⬜',sel:false},
+    {id:9,name:'Performance Polo',                cat:'SHIRTS',price:'$115',emoji:'🟢',sel:false},
+    {id:10,name:'5-Pocket Cord',                  cat:'PANTS', price:'$175',emoji:'🟠',sel:false},
+    {id:11,name:'Washed Linen Shirt',             cat:'SHIRTS',price:'$160',emoji:'🔶',sel:false},
+    {id:12,name:'Dress Short',                    cat:'SHORTS',price:'$125',emoji:'🏖️',sel:false},
+  ],
+};
+const PRODUCTS = PRODUCTS_BY_TENANT.monese.map(p => ({...p}));
 let prodFilter='';
 function filterProds(v){prodFilter=v.toLowerCase();renderProds();}
-function renderProds(){const filtered=PRODUCTS.filter(p=>!prodFilter||p.name.toLowerCase().includes(prodFilter)||p.cat.toLowerCase().includes(prodFilter));document.getElementById('prodGrid').innerHTML=filtered.map(p=>`<div class="prod-card ${p.sel?'selected':''}" id="prod-${p.id}" onclick="toggleProd(${p.id})"><div class="prod-img-mock">${p.emoji}</div><div class="prod-sel-check">${IC.chk}</div><div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-cat">${p.cat}</div><div class="prod-price">${p.price}</div></div></div>`).join('');const n=PRODUCTS.filter(x=>x.sel).length;document.getElementById('prodSelCount').innerHTML=`<span>${n}</span> product${n!==1?'s':''} selected`;}
+function renderProds(){const filtered=PRODUCTS.filter(p=>!prodFilter||p.name.toLowerCase().includes(prodFilter)||p.cat.toLowerCase().includes(prodFilter));document.getElementById('prodGrid').innerHTML=filtered.map(p=>`<div class="prod-card ${p.sel?'selected':''}" id="prod-${p.id}" onclick="toggleProd(${p.id})"><div class="prod-img-mock">${p.emoji}</div><div class="prod-sel-check">${IC.chk}</div><div class="prod-info"><div class="prod-name">${p.name}</div><div class="prod-cat">${p.cat}</div><div class="prod-price">${p.price}</div></div></div>`).join('');const n=PRODUCTS.filter(x=>x.sel).length;const noun=(getActiveClient().copy.campaignBrief&&getActiveClient().copy.campaignBrief.productNoun)||'product';document.getElementById('prodSelCount').innerHTML=`<span>${n}</span> ${noun}${n!==1?'s':''} selected`;}
 function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!p.sel;renderProds();}
 
 // ══ OVERVIEW ══
@@ -2783,39 +2965,92 @@ function buildAudienceExplorerHTML(msgId){
 </div>`;
 }
 
+// ── PER-TENANT AUDIENCE EXPLORER DATA ─────────────────────────────────────
+// Each tenant defines its cluster set (best variant, and optionally churn),
+// dimension labels, dimension values per cluster (AEDV), marketing
+// recommendations (AEMKT), and an AE-cluster→wizard-segment map. Tenants
+// without a 'churn' variant fall back to monese.churn (Ledbury never had
+// churn AE data in its source — see audit B11).
+const AE_BY_TENANT = {
+  monese: {
+    best: [
+      {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count:27000,pct:.320,color:'#0b72fd',hi:'#0858c4'},
+      {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:18500,pct:.219,color:'#3892ff',hi:'#0b72fd'},
+      {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:15200,pct:.180,color:'#5fa8ff',hi:'#3892ff'},
+      {name:'Long-Term Cost Conscious',short:'COST\nCONSCIOUS',          count:10950,pct:.130,color:'#a8c8ff',hi:'#7fb0ff'},
+      {name:'Disorganized Buyer',      short:'DISORGANIZED\nBUYER',      count:8450, pct:.100,color:'#daa520',hi:'#b8860b'},
+      {name:'Reluctant Buyer',         short:'RELUCTANT\nBUYER',         count:4220, pct:.050,color:'#7c5cbf',hi:'#5c40a0'},
+    ],
+    churn: [
+      {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:23800,pct:.282,color:'#d0553a',hi:'#a83a22'},
+      {name:'Disorganized Buyer',      short:'DISORGANIZED\nBUYER',      count:18200,pct:.216,color:'#daa520',hi:'#b8860b'},
+      {name:'Reluctant Buyer',         short:'RELUCTANT\nBUYER',         count:14500,pct:.172,color:'#7c5cbf',hi:'#5c40a0'},
+      {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:12100,pct:.143,color:'#3892ff',hi:'#0b72fd'},
+      {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count: 9400,pct:.111,color:'#0b72fd',hi:'#0858c4'},
+      {name:'Long-Term Cost Conscious',short:'COST\nCONSCIOUS',          count: 6320,pct:.075,color:'#a8c8ff',hi:'#7fb0ff'},
+    ],
+    AED:['Self-Reliance','Price Sensitivity','Long-Term Focus','Risk Aversion','Need for Simplicity','Trust Threshold','Decision Impulsivity','Support Reliance'],
+    AEDV:{0:[.80,.55,.60,.42,.58,.50,.30,.82],1:[.78,.96,.30,.32,.55,.35,.72,.30],2:[.35,.50,.50,.92,.94,.78,.18,.85],3:[.80,.78,.96,.72,.55,.78,.15,.50],4:[.55,.50,.18,.35,.88,.35,.92,.45],5:[.55,.62,.65,.94,.62,.94,.18,.55]},
+    AEMKT:[
+      {ph:['Help when you need it','In-app chat 24/7','Self-serve with backup','Confident with us'],av:['Beginner-friendly','For first-timers','We will hold your hand'],t:{b:'Tue, Wed 10am to 12pm',s:'Steady cadence',c:'Bi-weekly digest'},em:74,sm:26,cn:'Lead with self-reliance, back with support. Long-form content works.'},
+      {ph:['Save vs the banks','Free transfers','Zero fees','Better than your last app'],av:['Premium feel','Curated','Considered'],t:{b:'Thu, Fri 5pm to 8pm',s:'Offer windows',c:'Promo-led'},em:55,sm:45,cn:'Lead with savings. Comparison framing. Short, punchy SMS performs.'},
+      {ph:['Three taps and you are done','Open an account in minutes','No paperwork','We are here every step'],av:['Apply now','Verification required','KYC checks','Detailed process'],t:{b:'Sun, Mon 11am to 1pm',s:'Onboarding triggers',c:'Just-in-time'},em:68,sm:32,cn:'Remove all friction from messaging. Process anxiety is the conversion blocker.'},
+      {ph:['Built for the long term','Lifetime value','Compounding savings','Future-proof your money'],av:['Limited time','Quick win','Instant cashback'],t:{b:'Sun 9am to 11am',s:'Quarterly planning',c:'Monthly digest'},em:82,sm:18,cn:'Long-form email. Build the case slowly. SMS feels short-sighted.'},
+      {ph:['One tap and it is done','Top up in seconds','Save while you spend','Now or never'],av:['Five-year plan','Set up a budget','Quarterly review'],t:{b:'Fri, Sat 8pm to 11pm',s:'Spontaneous triggers',c:'Push-driven'},em:42,sm:58,cn:'SMS first. Make the action obvious and immediate. Avoid planning language.'},
+      {ph:['Trusted by 2 million','FCA regulated','Try with £10','No commitment'],av:['Apply now','Sign up today','Limited time offer'],t:{b:'Sun 10am to 12pm',s:'Trust-building window',c:'Drip onboarding'},em:73,sm:27,cn:'Trust signals first. Risk-free trial framing. Long onboarding drip works.'},
+    ],
+    // AE cluster index → wizard SEGS id used when "Create campaign for this
+    // segment" is clicked from the AE footer (source: Monese 1.1 flow line 1630).
+    segMap:{0:'loyal',1:'lapsed',2:'browse',3:'loyal',4:'lapsed',5:'new'},
+  },
+  ledbury: {
+    // Source: stokes-ledbury-mvp:1772-1789. Ledbury never had a churn variant.
+    best: [
+      {name:'The Deliberate Dresser',short:'THE DELIBERATE\nDRESSER',count:38400,pct:.455,color:'#4a6741',hi:'#3a5232'},
+      {name:'The Loyalist',          short:'THE LOYALIST',          count:16200,pct:.192,color:'#6a8f60',hi:'#4a6741'},
+      {name:'The Aspirational',      short:'THE ASPIRATIONAL',      count:12800,pct:.152,color:'#9dbf94',hi:'#6a8f60'},
+      {name:'The Occasional',        short:'THE OCCASIONAL',        count:8600, pct:.102,color:'#c8d8c6',hi:'#8aaa87'},
+      {name:'The Value Seeker',      short:'THE VALUE SEEKER',      count:5400, pct:.064,color:'#daa520',hi:'#b8860b'},
+      {name:'The Gifter',            short:'THE GIFTER',            count:2920, pct:.035,color:'#8a9e88',hi:'#6a7e68'},
+    ],
+    // churn omitted — falls through to AE_BY_TENANT.monese.churn (audit B11
+    // accepted Monese cluster fallback for tenants without churn data).
+    AED:['Style Consciousness','Brand Loyalty','Quality over Price','Novelty Seeking','Social Identity','Occasion Driven','Sustainability','Self-Expression'],
+    AEDV:{0:[.92,.78,.95,.44,.61,.55,.58,.82],1:[.74,.96,.88,.32,.48,.62,.64,.55],2:[.82,.54,.68,.76,.88,.74,.42,.79],3:[.58,.42,.71,.62,.54,.94,.38,.46],4:[.62,.38,.48,.55,.44,.68,.56,.52],5:[.44,.58,.64,.42,.72,.88,.48,.36]},
+    AEMKT:[
+      {ph:['Lead with craft & fabric','Editorial tone','Quality-first','New arrival framing'],av:['% off','Sale ends','Last chance'],t:{b:'Tue–Thu 7–9am',s:'Pre-season drops',c:'Bi-weekly'},em:72,sm:28,cn:'Converts via email. SMS for launch day only.'},
+      {ph:['Loyalty recognition','Early access','Crafted for regulars'],av:['Introducing…','Sign up','First purchase'],t:{b:'Mon–Wed 8–10am',s:'Post-restock',c:'Weekly digest'},em:81,sm:19,cn:'Strong email loyalists. SMS feels intrusive.'},
+      {ph:['Seen by people like you','New this season','Elevate your wardrobe'],av:['Classic','Timeless','Core range'],t:{b:'Thu–Fri 6–8pm',s:'New season',c:'Event-driven'},em:58,sm:42,cn:'SMS performs well. Short subject lines.'},
+      {ph:['Perfect for the occasion','Event-ready','Weekend-to-dinner'],av:['Everyday essential','Core staple'],t:{b:'Fri 12–2pm',s:'Event lead-in',c:'Occasion-triggered'},em:64,sm:36,cn:'Timing is the lever. Send before occasions.'},
+      {ph:['Now on offer','Limited time','Your best price'],av:['Investment piece','Premium quality'],t:{b:'Sat 9–11am',s:'Sale window',c:'Promotional only'},em:55,sm:45,cn:'Balanced split. SMS drives urgency.'},
+      {ph:['The perfect gift','Give the shirt they\'ll actually wear','Gift-worthy'],av:['Treat yourself','Build your collection'],t:{b:'Sun 10am–12pm',s:'Q4 & Father\'s Day',c:'Seasonal'},em:68,sm:32,cn:'Email for discovery. SMS for deadlines.'},
+    ],
+    // Source: stokes-ledbury-mvp:1840
+    segMap:{0:'loyal',1:'loyal',2:'lapsed',3:'browse',4:'browse',5:'new'},
+  },
+};
+
+// Resolve the active tenant's AE config, applying graceful fallback for any
+// missing variant (e.g. Ledbury has no 'churn' set).
+function getAEConfig(kind){
+  const tenantId = (typeof getActiveClient === 'function') ? getActiveClient().id : 'monese';
+  const conf = AE_BY_TENANT[tenantId] || AE_BY_TENANT.monese;
+  return {
+    AEC: conf[kind] || AE_BY_TENANT.monese[kind] || conf.best,
+    AED: conf.AED || AE_BY_TENANT.monese.AED,
+    AEDV: conf.AEDV || AE_BY_TENANT.monese.AEDV,
+    AEMKT: conf.AEMKT || AE_BY_TENANT.monese.AEMKT,
+    segMap: conf.segMap || AE_BY_TENANT.monese.segMap,
+  };
+}
+
 function bootAudienceExplorer(kind,msgId){
   kind = kind || 'best';
-  // "Best customer" view: the high-value, high-engagement clusters lead.
-  // "Churn risk" view: the same six clusters, re-weighted so churn-prone
-  // segments (Process Fearing, Disorganized Buyer, Reluctant Buyer) lead.
-  // Counts and percentages differ by intent; colors and names are stable
-  // because they're the same six clusters being viewed through a different
-  // lens — not a different segmentation.
-  const AEC = kind === 'churn' ? [
-    {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:23800,pct:.282,color:'#d0553a',hi:'#a83a22'},
-    {name:'Disorganized Buyer',      short:'DISORGANIZED\nBUYER',      count:18200,pct:.216,color:'#daa520',hi:'#b8860b'},
-    {name:'Reluctant Buyer',         short:'RELUCTANT\nBUYER',         count:14500,pct:.172,color:'#7c5cbf',hi:'#5c40a0'},
-    {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:12100,pct:.143,color:'#3892ff',hi:'#0b72fd'},
-    {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count: 9400,pct:.111,color:'#0b72fd',hi:'#0858c4'},
-    {name:'Long-Term Cost Conscious',short:'COST\nCONSCIOUS',          count: 6320,pct:.075,color:'#a8c8ff',hi:'#7fb0ff'},
-  ] : [
-    {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count:27000,pct:.320,color:'#0b72fd',hi:'#0858c4'},
-    {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:18500,pct:.219,color:'#3892ff',hi:'#0b72fd'},
-    {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:15200,pct:.180,color:'#5fa8ff',hi:'#3892ff'},
-    {name:'Long-Term Cost Conscious',short:'COST\nCONSCIOUS',          count:10950,pct:.130,color:'#a8c8ff',hi:'#7fb0ff'},
-    {name:'Disorganized Buyer',      short:'DISORGANIZED\nBUYER',      count:8450, pct:.100,color:'#daa520',hi:'#b8860b'},
-    {name:'Reluctant Buyer',         short:'RELUCTANT\nBUYER',         count:4220, pct:.050,color:'#7c5cbf',hi:'#5c40a0'},
-  ];
-  const AED=['Self-Reliance','Price Sensitivity','Long-Term Focus','Risk Aversion','Need for Simplicity','Trust Threshold','Decision Impulsivity','Support Reliance'];
-  const AEDV={0:[.80,.55,.60,.42,.58,.50,.30,.82],1:[.78,.96,.30,.32,.55,.35,.72,.30],2:[.35,.50,.50,.92,.94,.78,.18,.85],3:[.80,.78,.96,.72,.55,.78,.15,.50],4:[.55,.50,.18,.35,.88,.35,.92,.45],5:[.55,.62,.65,.94,.62,.94,.18,.55]};
-  const AEMKT=[
-    {ph:['Help when you need it','In-app chat 24/7','Self-serve with backup','Confident with us'],av:['Beginner-friendly','For first-timers','We will hold your hand'],t:{b:'Tue, Wed 10am to 12pm',s:'Steady cadence',c:'Bi-weekly digest'},em:74,sm:26,cn:'Lead with self-reliance, back with support. Long-form content works.'},
-    {ph:['Save vs the banks','Free transfers','Zero fees','Better than your last app'],av:['Premium feel','Curated','Considered'],t:{b:'Thu, Fri 5pm to 8pm',s:'Offer windows',c:'Promo-led'},em:55,sm:45,cn:'Lead with savings. Comparison framing. Short, punchy SMS performs.'},
-    {ph:['Three taps and you are done','Open an account in minutes','No paperwork','We are here every step'],av:['Apply now','Verification required','KYC checks','Detailed process'],t:{b:'Sun, Mon 11am to 1pm',s:'Onboarding triggers',c:'Just-in-time'},em:68,sm:32,cn:'Remove all friction from messaging. Process anxiety is the conversion blocker.'},
-    {ph:['Built for the long term','Lifetime value','Compounding savings','Future-proof your money'],av:['Limited time','Quick win','Instant cashback'],t:{b:'Sun 9am to 11am',s:'Quarterly planning',c:'Monthly digest'},em:82,sm:18,cn:'Long-form email. Build the case slowly. SMS feels short-sighted.'},
-    {ph:['One tap and it is done','Top up in seconds','Save while you spend','Now or never'],av:['Five-year plan','Set up a budget','Quarterly review'],t:{b:'Fri, Sat 8pm to 11pm',s:'Spontaneous triggers',c:'Push-driven'},em:42,sm:58,cn:'SMS first. Make the action obvious and immediate. Avoid planning language.'},
-    {ph:['Trusted by 2 million','FCA regulated','Try with £10','No commitment'],av:['Apply now','Sign up today','Limited time offer'],t:{b:'Sun 10am to 12pm',s:'Trust-building window',c:'Drip onboarding'},em:73,sm:27,cn:'Trust signals first. Risk-free trial framing. Long onboarding drip works.'},
-  ];
+  // Per-tenant data via getAEConfig — Ledbury sees apparel-mindset clusters
+  // (Deliberate Dresser, Loyalist, …); Monese sees fintech clusters (Capable
+  // Needy, Deal Seeker, …). Churn variants are Monese-only today; non-Monese
+  // tenants hitting the churn path get Monese churn clusters as a fallback.
+  const {AEC, AED, AEDV, AEMKT, segMap: __segMap} = getAEConfig(kind);
   function mkId(){return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&0x3|0x8)).toString(16);});}
   const AESAMP=Array.from({length:50},()=>({id:mkId(),match:(0.62+Math.random()*.34).toFixed(2)}));
   let aC=0,aS=0;
@@ -2861,8 +3096,7 @@ function bootAudienceExplorer(kind,msgId){
     setTimeout(()=>{
       const nm=document.getElementById('campName');
       if(nm&&!nm.value) nm.value=c.name+': Targeted Campaign';
-      const segMap={0:'loyal',1:'lapsed',2:'browse',3:'loyal',4:'lapsed',5:'new'};
-      const targetSeg=segMap[aC]||'loyal';
+      const targetSeg=__segMap[aC]||'loyal';
       SEGS.forEach(s=>s.selected=s.id===targetSeg);
       wizStep=2; renderWizUI(); renderSegs();
       showToast('Segment pre-loaded: '+c.name);
