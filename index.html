@@ -1660,6 +1660,37 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// ── PALETTE MAPS ─────────────────────────────────────────────────────────
+// Three maps with distinct, non-overlapping roles. Read carefully before
+// editing — they look similar but serve different purposes:
+//
+//   BRAND_PALETTES        → runtime CSS custom properties for the active
+//                           tenant's shell. Keys are CSS var names
+//                           (--brand-primary, --brand-primary-hover,
+//                           --brand-primary-rgb). Applied by
+//                           applyBrandPalette() and re-applied on every
+//                           setActiveTenant() switch.
+//
+//   WL_CLIENT_DEFAULTS    → "Reset to defaults" baseline for the white-
+//                           label editor. Keys are semantic 4-token shape
+//                           (primary, secondary, background, accent).
+//                           Read in renderCdWhiteLabel() when a client
+//                           has no saved wlColors override.
+//
+//   WL_BRAND_PALETTES     → "Pull from URL" discovery demo. Same shape as
+//                           WL_CLIENT_DEFAULTS but INTENTIONALLY may
+//                           diverge from a tenant's runtime palette to
+//                           simulate "we discovered your public-facing
+//                           brand from your homepage." E.g. monese.com
+//                           uses teal/green on its marketing site (entry
+//                           below) while the Monese app shell uses blue
+//                           — both palettes are real, both belong here.
+//
+// Adding a new tenant requires entries in all three maps. Primary values
+// in BRAND_PALETTES and WL_CLIENT_DEFAULTS for the same tenant SHOULD
+// match (both represent the tenant's identity); WL_BRAND_PALETTES MAY
+// diverge by design.
+// ─────────────────────────────────────────────────────────────────────────
 const BRAND_PALETTES = {
   monese: {
     '--brand-primary': '#0b72fd',
@@ -3614,14 +3645,39 @@ function testDsConnection(){
 // ════ WHITELABEL EDITOR ════
 
 // Per-client default colour palettes (used when a client has no wlColors saved yet).
+// "Reset to defaults" baseline for the white-label editor. Keyed by
+// client.palette. Primary/secondary values mirror BRAND_PALETTES for the
+// same tenant; background/accent extend the palette with tokens that the
+// runtime shell doesn't currently consume but the WL editor exposes.
 // Keys match WL_CSS_MAP tokens: primary, secondary, background, accent.
+//
+// Every CLIENTS entry that can reach the white-label tab MUST have a
+// matching key here — otherwise "Reset to defaults" falls through to the
+// generic `default` blue and the user sees the wrong brand. See header
+// comment above BRAND_PALETTES for the role distinction across the three
+// palette maps.
 const WL_CLIENT_DEFAULTS = {
-  monese:  {primary:'#0b72fd', secondary:'#3892ff', background:'#f7faf9', accent:'#1a1a2e'},
-  ledbury: {primary:'#4a6741', secondary:'#6a8f60', background:'#f5f2ed', accent:'#c8a96e'},
-  default: {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
+  monese:      {primary:'#0b72fd', secondary:'#3892ff', background:'#f7faf9', accent:'#1a1a2e'},
+  ledbury:     {primary:'#4a6741', secondary:'#6a8f60', background:'#f5f2ed', accent:'#c8a96e'},
+  pockit:      {primary:'#4a7fd4', secondary:'#6b94db', background:'#f5f7fa', accent:'#1a1a2e'},
+  virginmoney: {primary:'#d0553a', secondary:'#d97050', background:'#fff7f4', accent:'#1a1a2e'},
+  santander:   {primary:'#e8a020', secondary:'#f0b440', background:'#fffaf0', accent:'#1a1a2e'},
+  default:     {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
 };
 
-// Known domain → palette map for the URL pull-colors demo.
+// "Pull colours from URL" discovery demo. Keyed by hostname segment
+// (e.g. monese.com → 'monese'). Same shape as WL_CLIENT_DEFAULTS, but
+// values here represent each brand's PUBLIC marketing site palette,
+// which deliberately may differ from the brand's app/product palette.
+// The Monese entry is the canonical example: app shell uses #0b72fd
+// blue (BRAND_PALETTES.monese, WL_CLIENT_DEFAULTS.monese) while
+// monese.com's marketing site uses teal/green — the value below.
+// The white-label editor demos this discovery flow by surfacing the
+// "real" public brand and letting the user opt-in.
+//
+// Santander's #EC0000, Virgin Money's #E31837, Pockit's #6c47ff are
+// each their canonical public-brand reds/purples, similarly distinct
+// from the demo's app-shell colours.
 const WL_BRAND_PALETTES = {
   ledbury:     {primary:'#4a6741', secondary:'#6a8f60', background:'#f5f2ed', accent:'#c8a96e'},
   santander:   {primary:'#EC0000', secondary:'#cc0000', background:'#ffffff', accent:'#f5f5f5'},
