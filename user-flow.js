@@ -35,13 +35,6 @@
     root.innerHTML = `
       <style>
         :host, * { box-sizing: border-box; }
-        .ring {
-          position: fixed; pointer-events: none; border-radius: 10px;
-          box-shadow: 0 0 0 2px #0b72fd, 0 0 0 6px rgba(11,114,253,.28),
-                      0 8px 30px rgba(11,114,253,.35);
-          opacity: 0; transition: opacity .18s ease;
-        }
-        .ring.show { opacity: 1; }
         .cursor {
           position: fixed; left: 0; top: 0; width: 26px; height: 26px;
           pointer-events: none; will-change: transform;
@@ -50,13 +43,13 @@
         }
         .cursor svg { display:block; width:100%; height:100%; }
         .cursor.click-pulse::after {
-          content:""; position:absolute; left:6px; top:6px; width:14px; height:14px;
-          border-radius:50%; background: rgba(11,114,253,.5);
-          animation: uf-pulse .42s ease-out forwards;
+          content:""; position:absolute; left:8px; top:8px; width:10px; height:10px;
+          border-radius:50%; background: rgba(11,114,253,.45);
+          animation: uf-pulse .28s ease-out forwards;
         }
         @keyframes uf-pulse {
-          0%   { transform: scale(.4); opacity: .9; }
-          100% { transform: scale(2.6); opacity: 0; }
+          0%   { transform: scale(.5); opacity: .85; }
+          100% { transform: scale(2);  opacity: 0; }
         }
         .dock {
           position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
@@ -96,7 +89,6 @@
           overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .err { color: #ff8d6e; font-size: 11px; padding: 2px 4px 0; }
       </style>
-      <div class="ring" id="ring"></div>
       <div class="cursor" id="cursor">
         <svg viewBox="0 0 24 24" fill="none">
           <path d="M3 2.5 L3 19.5 L8.2 14.6 L11.8 22 L14.6 20.7 L11.1 13.3 L18 13.3 Z"
@@ -174,19 +166,16 @@
   function cursorState(root) {
     return root.__uf_cursor || (root.__uf_cursor = { x: window.innerWidth / 2, y: window.innerHeight - 80 });
   }
-  function placeCursor(root, x, y) {
-    const c = root.getElementById("cursor");
+  function placeCursor(root, cursor, x, y) {
     const s = cursorState(root);
     s.x = x; s.y = y;
-    c.style.transform = `translate3d(${x - 3}px, ${y - 3}px, 0)`;
+    cursor.style.transform = `translate3d(${x - 3}px, ${y - 3}px, 0)`;
   }
-  async function moveCursor(root, x, y, signal) {
-    const c = root.getElementById("cursor");
+  async function moveCursor(root, cursor, x, y, signal) {
     const s = cursorState(root);
-    const dx = x - s.x, dy = y - s.y;
-    const dist = Math.hypot(dx, dy);
+    const dist = Math.hypot(x - s.x, y - s.y);
     const dur = Math.min(CURSOR_DURATION_MAX, CURSOR_DURATION_BASE + dist * CURSOR_PER_PX);
-    const anim = c.animate(
+    const anim = cursor.animate(
       [
         { transform: `translate3d(${s.x - 3}px, ${s.y - 3}px, 0)` },
         { transform: `translate3d(${x - 3}px, ${y - 3}px, 0)` },
@@ -200,44 +189,25 @@
       if (signal) signal.addEventListener("abort", () => anim.cancel(), { once: true });
     }).catch(() => {});
   }
-  function pulseClick(root) {
-    const c = root.getElementById("cursor");
-    c.classList.remove("click-pulse");
-    void c.offsetWidth;
-    c.classList.add("click-pulse");
-    setTimeout(() => c.classList.remove("click-pulse"), 500);
+  function pulseClick(cursor) {
+    cursor.classList.remove("click-pulse");
+    void cursor.offsetWidth;
+    cursor.classList.add("click-pulse");
   }
-  function showRing(root, el) {
+  function rectCenter(el) {
     const r = el.getBoundingClientRect();
-    const ring = root.getElementById("ring");
-    const pad = 4;
-    ring.style.left = (r.left - pad) + "px";
-    ring.style.top = (r.top - pad) + "px";
-    ring.style.width = (r.width + pad * 2) + "px";
-    ring.style.height = (r.height + pad * 2) + "px";
-    ring.classList.add("show");
-    setTimeout(() => ring.classList.remove("show"), 700);
+    return [r.left + r.width / 2, r.top + r.height / 2];
   }
 
   // ── Event synthesis ────────────────────────────────────────────────────
   function fireClick(el) {
-    const r = el.getBoundingClientRect();
-    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-    const init = { bubbles: true, cancelable: true, view: window, clientX: cx, clientY: cy, button: 0 };
-    el.dispatchEvent(new MouseEvent("mousedown", init));
-    el.dispatchEvent(new MouseEvent("mouseup", init));
-    el.dispatchEvent(new MouseEvent("click", init));
-    if (typeof el.click === "function") {
-      try { el.click(); } catch (_) {}
-    }
+    el.click();
   }
   function fireHover(el) {
-    const r = el.getBoundingClientRect();
-    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const [cx, cy] = rectCenter(el);
     const init = { bubbles: true, cancelable: true, view: window, clientX: cx, clientY: cy };
     el.dispatchEvent(new MouseEvent("mouseover", init));
     el.dispatchEvent(new MouseEvent("mouseenter", init));
-    el.dispatchEvent(new MouseEvent("mousemove", init));
   }
   async function fireType(el, text, { clear = false, perChar = 28 } = {}, signal) {
     el.focus();
@@ -260,18 +230,21 @@
     let playing = false;
     let busy = false;
     let abortCtl = null;
-    const totalEl = () => root.getElementById("count");
-    const capEl = () => root.getElementById("caption");
-    const playIcon = () => root.getElementById("play-icon");
-    const pauseIcon = () => root.getElementById("pause-icon");
+    const cursor    = root.getElementById("cursor");
+    const totalEl   = root.getElementById("count");
+    const capEl     = root.getElementById("caption");
+    const playIcon  = root.getElementById("play-icon");
+    const pauseIcon = root.getElementById("pause-icon");
+    const prevBtn   = root.getElementById("prev");
+    const nextBtn   = root.getElementById("next");
 
     function setUI() {
-      totalEl().textContent = `${i} / ${steps.length}`;
-      capEl().textContent = steps[i] && steps[i].say ? steps[i].say : (i >= steps.length ? "Done" : "Ready");
-      playIcon().style.display = playing ? "none" : "";
-      pauseIcon().style.display = playing ? "" : "none";
-      root.getElementById("prev").disabled = i <= 0 || busy;
-      root.getElementById("next").disabled = busy;
+      totalEl.textContent = `${i} / ${steps.length}`;
+      capEl.textContent = steps[i] && steps[i].say ? steps[i].say : (i >= steps.length ? "Done" : "Ready");
+      playIcon.style.display = playing ? "none" : "";
+      pauseIcon.style.display = playing ? "" : "none";
+      prevBtn.disabled = i <= 0 || busy;
+      nextBtn.disabled = busy;
     }
     function abortInflight() {
       if (abortCtl) { abortCtl.abort(); abortCtl = null; }
@@ -304,12 +277,10 @@
       }
       const el = await resolveTarget(step, signal);
       if (!el) throw new Error("could not resolve target");
-      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-      await wait(180, signal);
-      const r = el.getBoundingClientRect();
-      await moveCursor(root, r.left + r.width / 2, r.top + r.height / 2, signal);
-      showRing(root, el);
-      if (action === "click") { pulseClick(root); fireClick(el); }
+      el.scrollIntoView({ block: "center", inline: "nearest" });
+      const [cx, cy] = rectCenter(el);
+      await moveCursor(root, cursor, cx, cy, signal);
+      if (action === "click") { pulseClick(cursor); fireClick(el); }
       else if (action === "hover") { fireHover(el); }
       else if (action === "type") { await fireType(el, step.text || "", { clear: step.clear, perChar: step.perChar }, signal); }
       if (step.ms) await wait(step.ms, signal);
@@ -322,12 +293,12 @@
       busy = true; setUI();
       abortCtl = new AbortController();
       try {
-        capEl().textContent = steps[target].say || `Step ${target + 1}`;
+        capEl.textContent = steps[target].say || `Step ${target + 1}`;
         await runStep(steps[target], abortCtl.signal);
         i = target + 1;
       } catch (e) {
         if (e && e.message === "abort") { /* paused */ }
-        else { capEl().textContent = "⚠︎ " + (e && e.message || "step failed"); playing = false; }
+        else { capEl.textContent = "⚠︎ " + (e && e.message || "step failed"); playing = false; }
       } finally {
         busy = false; abortCtl = null; setUI();
       }
@@ -336,8 +307,6 @@
     async function loop() {
       while (playing && i < steps.length) {
         await step(1);
-        if (!playing) break;
-        await wait(300).catch(() => {});
       }
       playing = false; setUI();
     }
@@ -357,8 +326,8 @@
     }
 
     root.getElementById("play").addEventListener("click", toggle);
-    root.getElementById("next").addEventListener("click", next);
-    root.getElementById("prev").addEventListener("click", prev);
+    nextBtn.addEventListener("click", next);
+    prevBtn.addEventListener("click", prev);
     root.getElementById("restart").addEventListener("click", restart);
 
     setUI();
@@ -367,6 +336,8 @@
 
   // ── Dock dragging ──────────────────────────────────────────────────────
   function enableDrag(root) {
+    if (root.__uf_drag) return;
+    root.__uf_drag = true;
     const dock = root.getElementById("dock");
     const grip = root.getElementById("grip");
     let sx = 0, sy = 0, ox = 0, oy = 0, dragging = false;
@@ -393,7 +364,7 @@
   function play(steps) {
     if (!Array.isArray(steps) || steps.length === 0) return;
     const root = buildHost();
-    placeCursor(root, window.innerWidth / 2, window.innerHeight - 80);
+    placeCursor(root, root.getElementById("cursor"), window.innerWidth / 2, window.innerHeight - 80);
     enableDrag(root);
     return Engine(root, steps);
   }
