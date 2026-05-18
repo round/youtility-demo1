@@ -860,14 +860,14 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <button class="login-btn" onclick="doLogin()">Sign in</button>
     <div class="login-users">
       <div class="login-users-lbl">QUICK ACCESS</div>
-      <div class="login-user-row" onclick="quickLogin('user')">
+      <div class="login-user-row" onclick="quickLogin('demo-admin')">
         <div class="login-user-av" style="background:var(--brand-primary);">SL</div>
         <div>
           <div class="login-user-name">Sarah L.</div>
           <div class="login-user-role">Marketing Manager</div>
         </div>
       </div>
-      <div class="login-user-row" onclick="quickLogin('admin')">
+      <div class="login-user-row" onclick="quickLogin('demo-super')">
         <div class="login-user-av" style="background:var(--accent3);">DS</div>
         <div>
           <div class="login-user-name">Dan S.</div>
@@ -1433,26 +1433,58 @@ function updateAdminNavVisibility(){
 // ── AUTH / SESSION ──
 function doLogin() {
   const email = (document.getElementById('loginEmail') || {}).value || '';
-  // Demo heuristic: admin if email contains 'admin', 'super', or 'youtility'
+  // Demo heuristic: route to a known demo identity based on the email.
   const lc = email.toLowerCase();
-  const isAdmin = lc.includes('admin') || lc.includes('super') || lc.includes('youtility');
-  quickLogin(isAdmin ? 'admin' : 'user');
+  let targetId = 'monese-demo';
+  if (lc.includes('youtility') || lc.includes('super')) targetId = 'demo-super';
+  else if (lc.includes('admin')) targetId = 'demo-admin';
+  quickLogin(targetId);
 }
 
-function quickLogin(role) {
-  // Find the first USERS entry matching the requested role; fall back to monese-demo
-  const match = Object.entries(USERS).find(([, u]) => u.role === role);
-  if (match) {
-    CURRENT_USER_ID = match[0];
+// Derive avatar initials/color so a USERS record missing those fields
+// can never re-break the sidebar avatar styling.
+function deriveUserInitials(u){
+  if (u && u.initials) return u.initials;
+  const name = (u && u.name) || '';
+  return name.split(/\s+/).filter(Boolean).map(s => s[0]).join('').slice(0, 2).toUpperCase() || '?';
+}
+function deriveUserColor(u){
+  if (u && u.color) return u.color;
+  return 'var(--brand-primary)';
+}
+
+// Accept either a USERS id (e.g. 'demo-admin') or a role string (e.g. 'admin').
+// If nothing matches, FAIL VISIBLY: keep the overlay open, keep the current
+// session intact, and surface an error — never silently log the user in as
+// somebody else and never blank CURRENT_USER_ID.
+function quickLogin(target) {
+  let matchedId = null;
+  if (target && Object.prototype.hasOwnProperty.call(USERS, target)) {
+    matchedId = target;
+  } else if (target) {
+    const byRole = Object.entries(USERS).find(([, u]) => u.role === target);
+    if (byRole) matchedId = byRole[0];
   }
-  // If no match, keep existing CURRENT_USER_ID
+  if (!matchedId) {
+    showToast('No demo user available for "' + target + '"');
+    return;
+  }
+  // Note: this function intentionally does NOT mutate ACTIVE_CLIENT_ID. Today
+  // every USERS record is either Monese-tenant or null (super admin), so the
+  // signed-in identity and the active tenant cannot diverge. If a future demo
+  // user is added under a different clientId, a proper tenant-switch pipeline
+  // (re-apply palette, re-inject copy, refresh PRODUCT_NAME) must be wired in
+  // before that switch path becomes reachable.
+  CURRENT_USER_ID = matchedId;
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.add('hidden');
   const u = getCurrentUser();
   if (u) {
+    const initials = deriveUserInitials(u);
+    const color = deriveUserColor(u);
     document.querySelectorAll('.user-av').forEach(el => {
-      el.textContent = u.initials;
-      el.style.background = u.color;
+      el.textContent = initials;
+      el.style.background = color;
     });
     document.querySelectorAll('.user-av-name').forEach(el => el.textContent = u.name);
     document.querySelectorAll('.user-av-role').forEach(el => el.textContent = u.role);
@@ -1475,7 +1507,7 @@ function renderClientAcctPanel(u, client){
     const switchTargets = getDemoUsers().filter(other => other.id !== u.id && isAdminRole(other.role));
     const switchSection = (!isSingleTenant && switchTargets.length > 0) ? `
     <div class="acct-section-lbl">SWITCH USER</div>
-    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
     ` : '';
     const signOutSection = isSingleTenant ? '' : `
     <div class="acct-divider"></div>
@@ -1506,7 +1538,7 @@ function renderClientAcctPanel(u, client){
     `;
     const switchSection = switchTargets.length > 0 ? `
     <div class="acct-section-lbl">SWITCH USER</div>
-    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name}</div></div>`).join('')}
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name}</div></div>`).join('')}
     ` : '';
     return `
     <div class="acct-user-card">
@@ -1529,7 +1561,7 @@ function renderClientAcctPanel(u, client){
     const roleLabel = r => r === 'admin' ? 'Client Admin' : r === 'super' ? 'Super Admin' : 'User';
     const switchSection = switchTargets.length > 0 ? `
     <div class="acct-section-lbl">SWITCH USER</div>
-    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.role}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${t.color || 'var(--brand-primary)'}">${t.initials || '?'}</div><div class="acct-menu-label">Switch to ${t.name} (${roleLabel(t.role)})</div></div>`).join('')}
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${roleLabel(t.role)})</div></div>`).join('')}
     ` : '';
     return `
     <div class="acct-user-card">
