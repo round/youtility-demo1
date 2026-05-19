@@ -2293,7 +2293,7 @@ const __LOADED_FONT_HREFS = new Set();
 
 // ── Sidebar / UI shell ──
 let sbState = 'full', sbUserOverride = null;
-let isLight = false;
+let isLight = true;
 let projDrop = false;
 
 // ── Workspace ──
@@ -4685,9 +4685,9 @@ function init() {
   injectClientFonts(client);
   applyBrandPalette(client.palette);
   injectClientCopy();
-  document.body.classList.remove('light-mode');
-  document.getElementById('themeIconDark').style.display = '';
-  document.getElementById('themeIconLight').style.display = 'none';
+  document.body.classList.add('light-mode');
+  document.getElementById('themeIconDark').style.display = 'none';
+  document.getElementById('themeIconLight').style.display = '';
   renderProds();
   switchWs('home');
   renderHomeList();
