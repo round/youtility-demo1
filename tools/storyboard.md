@@ -9,26 +9,28 @@ When the user asks "rerun the storyboard" (or similar), follow these instruction
 3. **Resize window.** Set the viewport to `viewport.width × viewport.height` via `mcp__claude-in-chrome__resize_window`.
 4. **Auth.**
    - If `auth === "fresh"`: clear the `yt_auth` cookie for the origin (via `mcp__claude-in-chrome__javascript_tool`: `document.cookie = "yt_auth=; Max-Age=0; path=/"`), then reload.
-   - If the page rendered is the `/__login` page (look for `input[type="password"][name="password"]`), submit the form: type `config.password` into the password field and click the Continue button. Wait for navigation.
+   - **Always**: if the page rendered is the `/__login` page (detected by the presence of `input[type="password"][name="password"]`), submit the form: type `config.password` into the password field and click the Continue button. Wait for navigation. This runs for both `"reuse"` and `"fresh"` modes — a `"reuse"` run on a fresh browser still needs to log in.
 5. **Sanity.** Confirm the demo loaded by checking `document.querySelector("#startScreen")` exists via `mcp__claude-in-chrome__javascript_tool`.
 
 ## Capture phase
 
 1. **Inject controller.** Run the contents of `tools/capture-controller.js` via `mcp__claude-in-chrome__javascript_tool`. Verify `typeof window.__storyboard.start === "function"`.
-2. **Discover flows.** Evaluate `JSON.stringify(UserFlow.getFlows())` — parse the result client-side. Note `flows[*].id`, `flows[*].name`, `flows[*].steps[*].say`, and `flows[*].steps.length`.
-3. **Prepare output.** Wipe `tools/out/` (delete recursively, then `mkdir -p tools/out`). Create one subdirectory per flow: `tools/out/<flow.id>/`.
-4. **For each flow:**
+2. **Wait for flows to register.** `UserFlow.play()` is called on the `load` event, so `UserFlow.getFlows()` returns `[]` until then. Poll `UserFlow.getFlows().length > 0` via `mcp__claude-in-chrome__javascript_tool`, up to 5 seconds. If it remains `0`, abort with "flows never registered; check that UserFlow.play() ran on the page".
+3. **Discover flows.** Evaluate `JSON.stringify(UserFlow.getFlows())` — parse the result client-side. Note `flows[*].id`, `flows[*].name`, `flows[*].steps[*].say`, and `flows[*].steps.length`.
+4. **Prepare output.** Wipe `tools/out/` (delete recursively, then `mkdir -p tools/out`). Create one subdirectory per flow: `tools/out/<flow.id>/`.
+5. **For each flow:**
    a. Reload the page (`mcp__claude-in-chrome__navigate` to `targetUrl`, or hard reload via `location.reload()`).
    b. Wait for `#startScreen` to be visible.
    c. Re-inject the controller (idempotent — needed because of the reload).
    d. Call `__storyboard.start(flowId)` via `mcp__claude-in-chrome__javascript_tool`. Do not await.
    e. Loop:
-      i. Poll `__storyboard.poll()` until `lastStep.idx` has changed since the last screenshot AND `awaitingAdvance === true`. Allow up to 8 seconds per step before treating it as failure.
+      i. Track `prevIdx` for this flow, initialized to `-1` before the loop. Poll `__storyboard.poll()` until `lastStep !== null && lastStep.idx > prevIdx && awaitingAdvance === true`. Allow up to 8 seconds per step before treating it as failure.
       ii. If `error` is set, abort the run, surface the message, and stop.
       iii. Take a **viewport-only** screenshot (not full-page) via the Chrome MCP screenshot tool. Save to `tools/out/<flow.id>/<NN>-<slug(say)>.png`, where `NN` is the zero-padded index (e.g. `03`) and `slug(say)` is a kebab-case slug of the step's `say` text (lowercase, non-alnum → `-`, collapse dashes, trim).
-      iv. Call `__storyboard.next()` to advance.
+      iv. Set `prevIdx = lastStep.idx`.
+      v. Call `__storyboard.next()` to advance.
    f. Break when `poll().done === true`.
-5. **Write manifest.** After all flows captured, write `tools/out/manifest.json`:
+6. **Write manifest.** After all flows captured, write `tools/out/manifest.json`:
 
    ```json
    {
