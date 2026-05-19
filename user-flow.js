@@ -101,8 +101,9 @@
       </style>
       <div class="cursor" id="cursor">
         <svg viewBox="0 0 24 24" fill="none">
-          <path d="M3 2.5 L3 19.5 L8.2 14.6 L11.8 22 L14.6 20.7 L11.1 13.3 L18 13.3 Z"
-                fill="#ffffff" stroke="#0b0d18" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M3 2.5 L5.8 18.3 L9.5 13.3 L13.8 19.4 L16.1 18.0 L12.0 12.1 L17.5 11.1 Z"
+                fill="#000000" stroke="#ffffff" stroke-width="1.5"
+                stroke-linejoin="round" stroke-linecap="round"/>
         </svg>
       </div>
       <div class="dock" id="dock">
@@ -150,28 +151,26 @@
     if (parseFloat(cs.opacity) < 0.1) return false;
     return true;
   }
+  function inferAction(step) {
+    return step.do || (step.sel || step.find ? "click" : "wait");
+  }
   async function scrollIntoViewSmooth(el, signal) {
     const r = el.getBoundingClientRect();
-    if (r.top >= SCROLL_MARGIN && r.bottom <= window.innerHeight - SCROLL_MARGIN) return;
+    if (r.top >= SCROLL_MARGIN && r.bottom <= window.innerHeight - SCROLL_MARGIN) return false;
     el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-    await new Promise((res) => {
-      let prev = el.getBoundingClientRect();
-      let stable = 0;
-      const start = performance.now();
-      const tick = () => {
-        if (signal && signal.aborted) return res();
-        const cur = el.getBoundingClientRect();
-        if (Math.abs(cur.top - prev.top) < 0.5 && Math.abs(cur.left - prev.left) < 0.5) {
-          if (++stable >= 4) return res();
-        } else {
-          stable = 0;
-        }
-        prev = cur;
-        if (performance.now() - start > SCROLL_SETTLE_TIMEOUT_MS) return res();
-        requestAnimationFrame(tick);
-      };
-      requestAnimationFrame(tick);
-    });
+    let prev = el.getBoundingClientRect();
+    let stable = 0;
+    await poll(() => {
+      const cur = el.getBoundingClientRect();
+      if (Math.abs(cur.top - prev.top) < 0.5 && Math.abs(cur.left - prev.left) < 0.5) {
+        if (++stable >= 4) return true;
+      } else {
+        stable = 0;
+      }
+      prev = cur;
+      return null;
+    }, { timeout: SCROLL_SETTLE_TIMEOUT_MS, interval: 16, signal });
+    return true;
   }
   function wait(ms, signal) {
     return new Promise((res, rej) => {
@@ -296,7 +295,7 @@
         }, { signal });
         if (!got) throw new Error("waitFor never resolved");
       }
-      const action = step.do || (step.sel || step.find ? "click" : "wait");
+      const action = inferAction(step);
       if (action === "wait") {
         if (step.ms != null) await wait(step.ms, signal);
         else if (!step.waitFor) await wait(WAIT_DEFAULT_MS, signal);
@@ -306,12 +305,14 @@
 
       let el = await resolveTarget(step, signal);
       if (!el) throw new Error("could not resolve target");
-      await scrollIntoViewSmooth(el, signal);
 
-      // Re-resolve in case the DOM swapped the node during the scroll.
-      const live = await resolveTarget(step, signal);
-      el = live && live.isConnected ? live : (el.isConnected ? el : null);
-      if (!el) throw new Error("target detached before action");
+      // Scroll can swap or re-render the target (virtualized lists, lazy mounts) —
+      // only re-check when a scroll actually happened.
+      if (await scrollIntoViewSmooth(el, signal)) {
+        const live = findOne(step);
+        if (live && isVisible(live)) el = live;
+        else if (!el.isConnected) throw new Error("target detached before action");
+      }
 
       const [cx, cy] = rectCenter(el);
       await moveCursor(root, cursor, cx, cy, signal);
@@ -348,9 +349,7 @@
     }
 
     function isSilentStep(s) {
-      if (!s) return false;
-      const action = s.do || (s.sel || s.find ? "click" : "wait");
-      return action === "wait" && s.ms == null && !!s.waitFor;
+      return !!s && inferAction(s) === "wait" && s.ms == null && !!s.waitFor;
     }
 
     function toggle() {
