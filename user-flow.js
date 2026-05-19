@@ -283,6 +283,10 @@
     let playing = false;
     let busy = false;
     let abortCtl = null;
+    // Promise chain that gates step() execution. Each step() awaits the
+    // previous one so callers (loop, next) can safely abort and then queue
+    // a fresh step without racing the in-flight finally block.
+    let stepGate = Promise.resolve();
     const cursor    = root.getElementById("cursor");
     const totalEl   = root.getElementById("count");
     const capEl     = root.getElementById("caption");
@@ -296,10 +300,12 @@
     function setUI() {
       const s = steps();
       totalEl.textContent = `${i} / ${s.length}`;
-      capEl.textContent = s[i] && s[i].say ? s[i].say : (i >= s.length ? "Done" : "Ready");
-      playIcon.style.display = playing ? "none" : "";
-      pauseIcon.style.display = playing ? "" : "none";
-      nextBtn.disabled = busy;
+      if (!busy) capEl.textContent = s[i] && s[i].say ? s[i].say : (i >= s.length ? "Done" : "Ready");
+      // Show pause icon whenever anything is happening (playing OR running a
+      // single step from NEXT), so the user can interrupt any state.
+      const active = playing || busy;
+      playIcon.style.display = active ? "none" : "";
+      pauseIcon.style.display = active ? "" : "none";
     }
     function abortInflight() {
       if (abortCtl) { abortCtl.abort(); abortCtl = null; }
@@ -373,28 +379,38 @@
       await wait(step.ms ?? POST_ACTION_MS, signal);
     }
 
-    async function step() {
-      if (busy) return;
-      const s = steps();
-      if (i >= s.length) { playing = false; setUI(); return; }
-      busy = true; setUI();
-      abortCtl = new AbortController();
-      const flowAtStart = activeIdx;
-      try {
-        capEl.textContent = s[i].say || `Step ${i + 1}`;
-        await runStep(s[i], abortCtl.signal);
-        // Don't advance the cursor if the user switched flows mid-step.
-        if (activeIdx === flowAtStart) i += 1;
-      } catch (e) {
-        if (e && e.message === "abort") { /* paused or flow switched */ }
-        else { capEl.textContent = "⚠︎ " + (e && e.message || "step failed"); playing = false; }
-      } finally {
-        busy = false; abortCtl = null; setUI();
-      }
+    function step() {
+      // Chain onto the gate so successive step() calls serialize cleanly even
+      // when the prior one is still inside its finally block after an abort.
+      const next = stepGate.then(async () => {
+        const s = steps();
+        if (i >= s.length) { playing = false; setUI(); return; }
+        busy = true; setUI();
+        abortCtl = new AbortController();
+        const flowAtStart = activeIdx;
+        try {
+          capEl.textContent = s[i].say || `Step ${i + 1}`;
+          await runStep(s[i], abortCtl.signal);
+          // Don't advance the cursor if the user switched flows mid-step.
+          if (activeIdx === flowAtStart) i += 1;
+        } catch (e) {
+          if (e && e.message === "abort") { /* paused or flow switched */ }
+          else { capEl.textContent = "⚠︎ " + (e && e.message || "step failed"); playing = false; }
+        } finally {
+          busy = false; abortCtl = null; setUI();
+        }
+      });
+      stepGate = next.catch(() => {});
+      return next;
     }
 
     async function loop() {
-      while (playing && i < steps().length) await step();
+      while (playing && i < steps().length) {
+        const before = i;
+        await step();
+        // Aborted/errored step left i unchanged — bail out so we don't spin.
+        if (i === before) break;
+      }
       playing = false; setUI();
     }
 
@@ -403,11 +419,26 @@
     }
 
     function toggle() {
-      if (playing) { playing = false; abortInflight(); setUI(); }
-      else { playing = true; setUI(); loop(); }
+      // Pause is available during ANY active state — continuous play OR a
+      // single-step NEXT animation. Either way, clicking stops it.
+      if (playing || busy) {
+        playing = false;
+        abortInflight();
+        setUI();
+        return;
+      }
+      if (i >= steps().length) return;
+      playing = true; setUI();
+      loop();
     }
     async function next() {
-      if (playing) { playing = false; abortInflight(); }
+      // From any state — settled, mid-animation, or interrupted — abort what's
+      // running and queue a fresh step. stepGate guarantees the queued step
+      // waits for the aborted one to fully settle before kicking off.
+      if (playing || busy) {
+        playing = false;
+        abortInflight();
+      }
       // Chain through silent gate-only steps so one click lands on a visible action.
       do {
         const before = i;
