@@ -692,6 +692,25 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
 .ds-test-btn:hover{border-color:var(--border3);color:var(--text);}
 .ds-save-btn{padding:7px 16px;border-radius:7px;background:var(--brand-primary);border:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s;}
 .ds-save-btn:hover{background:var(--brand-primary-hover);}
+.ds-confirm{padding:22px 18px 18px;display:flex;flex-direction:column;align-items:flex-start;}
+.ds-confirm-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin-bottom:12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);}
+.ds-confirm-icon.ok{background:rgba(46,168,106,.14);border-color:rgba(46,168,106,.35);color:#2ea86a;}
+.ds-confirm-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.ds-confirm-sub{font-size:11.5px;color:var(--text3);margin-bottom:16px;line-height:1.5;}
+.ds-confirm-meta{display:flex;flex-direction:column;gap:9px;width:100%;padding:12px 13px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;margin-bottom:14px;}
+.ds-confirm-row{display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:11.5px;}
+.ds-confirm-row label{font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);flex-shrink:0;}
+.ds-confirm-row span{color:var(--text2);text-align:right;}
+.ds-pill{display:inline-block;padding:3px 9px;border-radius:5px;font-size:9.5px;font-weight:700;letter-spacing:.05em;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);}
+.ds-pill.ok{background:rgba(46,168,106,.12);color:#2ea86a;border-color:rgba(46,168,106,.25);}
+.ds-pill.err{background:rgba(208,85,58,.12);color:#d0553a;border-color:rgba(208,85,58,.25);}
+.ds-pill.idle{background:rgba(85,90,114,.16);color:var(--text3);border-color:var(--border2);}
+.ds-confirm-cta{padding:8px 18px;border-radius:7px;background:var(--brand-primary);border:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s;}
+.ds-confirm-cta:hover{background:var(--brand-primary-hover);}
+.cd-ds-shortcut{margin-top:14px;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:9px;background:var(--bg3);border:1px solid var(--border);font-family:'Montserrat',sans-serif;color:var(--text2);cursor:pointer;transition:border-color .15s,background .15s;text-align:left;}
+.cd-ds-shortcut:hover{border-color:var(--accent3);color:var(--text);}
+.cd-ds-shortcut-title{font-size:12.5px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.cd-ds-shortcut-sub{font-size:10.5px;color:var(--text3);line-height:1.4;}
 /* ── WHITELABEL EDITOR ── */
 .wl-section{margin-bottom:20px;}
 .wl-lbl{font-size:10px;font-weight:700;letter-spacing:.09em;color:var(--text3);margin-bottom:10px;}
@@ -3948,7 +3967,14 @@ function renderCdOverview(client){
       <div class="cd-status-dot" style="background:${feat.userManagement ? '#2ea86a' : '#555a72'};"></div>
       <div class="cd-status-label">User management</div>
       <div class="cd-status-val" style="color:${feat.userManagement ? '#2ea86a' : 'var(--text3)'};">${feat.userManagement ? 'YES' : 'NO'}</div>
-    </div>`;
+    </div>
+    <button class="cd-ds-shortcut" onclick="switchCdTab('datasource'); selectDs('sf');">
+      <div class="cd-ds-shortcut-body">
+        <div class="cd-ds-shortcut-title">Connect a data source</div>
+        <div class="cd-ds-shortcut-sub">Walk through endpoint, auth, field mapping, and sync schedule.</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>`;
 }
 
 function renderCdUsers(client){
@@ -4081,7 +4107,7 @@ function selectDs(id){
 
 function renderDsSettings(src){
   const isConnected = src.status === 'connected';
-  const tabs = ['Connection','Authentication','Field mapping','Sync schedule'];
+  const tabs = ['Connection','Authentication','Field mapping','Sync schedule','Confirmation'];
   const tabHtml = tabs.map((t, i) => {
     const key = t.toLowerCase().replace(' ', '');
     return `<div class="ds-conn-tab ${dsConnTab === key || (!i && dsConnTab === 'connection') ? 'active' : ''}" onclick="switchDsTab('${key}')">${t}</div>`;
@@ -4152,12 +4178,41 @@ function renderDsTabBody(tab, src){
       <div><div class="ds-toggle-label">Real-time webhooks</div><div class="ds-toggle-sub">Push updates instantly on record change</div></div>
       <div class="ds-toggle on" onclick="this.classList.toggle('on')"></div>
     </div>`;
+  if (tab === 'confirmation') {
+    const ok = src.status === 'connected';
+    const pillClass = ok ? 'ok' : (src.status === 'error' ? 'err' : 'idle');
+    const pillText = (src.status || 'idle').toUpperCase();
+    const headline = ok ? `${src.name} connected` : `${src.name} — not connected yet`;
+    const subline = ok
+      ? 'First sync starting now. Next run in ~6 hours.'
+      : 'Run "Test connection" to verify credentials and finalise the link.';
+    return `
+      <div class="ds-confirm">
+        <div class="ds-confirm-icon ${ok ? 'ok' : 'idle'}">${ok ? '✓' : '…'}</div>
+        <div class="ds-confirm-title">${headline}</div>
+        <div class="ds-confirm-sub">${subline}</div>
+        <div class="ds-confirm-meta">
+          <div class="ds-confirm-row"><label>ENDPOINT</label><span>https://your-instance.salesforce.com</span></div>
+          <div class="ds-confirm-row"><label>RECORDS MAPPED</label><span>4 attributes · customer_id, email, last_purchase_at, segment_label</span></div>
+          <div class="ds-confirm-row"><label>FREQUENCY</label><span>Every 6 hours · real-time webhooks enabled</span></div>
+          <div class="ds-confirm-row"><label>STATUS</label><span class="ds-pill ${pillClass}">${pillText}</span></div>
+        </div>
+        ${ok ? '<button class="ds-confirm-cta" onclick="switchWs(\'home\')">View dashboard</button>' : '<button class="ds-confirm-cta" onclick="testDsConnection()">Test connection</button>'}
+      </div>`;
+  }
   return '';
 }
 
 function testDsConnection(){
   showToast('Testing connection…');
-  setTimeout(() => showToast('Connection successful'), 1400);
+  setTimeout(() => {
+    const sel = DS_SOURCES.find(s => s.id === dsSelected);
+    if (sel) sel.status = 'connected';
+    dsConnTab = 'confirmation';
+    const client = (typeof getDetailClient === 'function') ? getDetailClient() : null;
+    if (client) renderCdDataSources(client);
+    showToast('Connection successful');
+  }, 1400);
 }
 
 // ════ WHITELABEL EDITOR ════
