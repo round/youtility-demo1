@@ -33,6 +33,8 @@
   const SCROLL_MARGIN = 96;             // viewport safe-zone for "needs scroll"
   const SCROLL_SETTLE_TIMEOUT_MS = 1500;
 
+  let CURRENT_FLOWS = null;
+
   // ── Shadow DOM scaffold ────────────────────────────────────────────────
   function buildHost() {
     let host = document.getElementById(HOST_ID);
@@ -497,11 +499,22 @@
   function play(input) {
     const flows = normalizeFlows(input);
     if (!flows || flows.length === 0) return;
+    CURRENT_FLOWS = flows;
     const root = buildHost();
     placeCursor(root, root.getElementById("cursor"), window.innerWidth / 2, window.innerHeight - 80);
     enableDrag(root);
     return Engine(root, flows);
   }
 
-  window.UserFlow = { play };
+  window.UserFlow = {
+    play,
+    getFlows() {
+      if (!CURRENT_FLOWS) return [];
+      return CURRENT_FLOWS.map(f => ({
+        id: f.id,
+        name: f.name,
+        steps: f.steps.map(s => ({ say: s.say || null })),
+      }));
+    },
+  };
 })();
