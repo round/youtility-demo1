@@ -2797,7 +2797,7 @@ function switchWs(ws){
   // Leaving the detail editor: restore the signed-in tenant's branding so palette
   // overrides applied while editing another client don't leak into the shell.
   if(wasInDetail && typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
-  if(ws==='campaign'){renderCampSb();renderOverview();}
+  if(ws==='campaign'){renderCampSb();if(cwCur==='report')renderOverview();}
   if(isCs) renderCS(ws);
 }
 
@@ -3313,16 +3313,13 @@ function bootAudienceExplorer(kind,msgId){
   }
   function launchCampaign(){
     const c=AEC[aC];
+    const targetSeg=__segMap[aC]||'loyal';
+    SEGS.forEach(s=>s.selected=s.id===targetSeg);
     switchWs('campaign');
     switchCwTab('create');
-    setTimeout(()=>{
-      const nm=document.getElementById('campName');
-      if(nm&&!nm.value) nm.value=c.name+': Targeted Campaign';
-      const targetSeg=__segMap[aC]||'loyal';
-      SEGS.forEach(s=>s.selected=s.id===targetSeg);
-      wizStep=2; renderWizUI(); renderSegs();
-      showToast('Segment pre-loaded: '+c.name);
-    },300);
+    const nm=document.getElementById('campName');
+    if(nm&&!nm.value) nm.value=c.name+': Targeted Campaign';
+    showToast('Campaign pre-filled for '+c.name);
   }
   function selC(i){aC=i;aS=0;const c=AEC[i];
     const vb=document.getElementById('ae-vbadge-'+msgId);if(vb)vb.textContent='VIEWING: '+c.name.toUpperCase();
@@ -4665,6 +4662,8 @@ document.addEventListener('DOMContentLoaded', init);
         sel: "[id^='ae-leg-'] > div", text: "Reluctant Buyer" },
       { say: "Create a campaign for this segment",
         sel: "[id^='ae-create-btn-']" },
+      { say: "Continue to segment confirmation",
+        sel: "#wizNext", waitForTextEquals: "Continue" },
       { say: "Generate content",
         sel: "#wizNext", waitForTextEquals: "Generate content" },
     ]);
