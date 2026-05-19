@@ -4548,6 +4548,8 @@ function renderClientAcctPanel(u, client){
         <span class="acct-badge badge-client">CLIENT</span>
       </div>
     </div>
+    <div class="acct-section-lbl">WORKSPACE</div>
+    <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}','datasource')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg><div class="acct-menu-label">Data sources</div></div>
     <div class="acct-section-lbl">ACCOUNT</div>
     <div class="acct-menu-item" onclick="showToast('Profile settings — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><div class="acct-menu-label">Profile settings</div></div>
     <div class="acct-menu-item" onclick="showToast('Change password — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div class="acct-menu-label">Change password</div></div>
@@ -4739,28 +4741,9 @@ document.addEventListener('DOMContentLoaded', init);
         steps: [
           { say: "Start at home", waitFor: "#startScreen" },
           { say: "Open the account menu",
-            find: () => {
-              // Connect-flow prereq: the avatar's CLIENT LIST (with "Monese") only
-              // renders for role:'super'. Default tenant user is role:'user', so
-              // promote silently — bypass quickLogin() because its setTimeout
-              // auto-route to showAdminView would steal the home view from the
-              // churn flow if the user switches flows mid-demo.
-              if (typeof CURRENT_USER_ID !== 'undefined' && CURRENT_USER_ID !== 'demo-super') {
-                CURRENT_USER_ID = 'demo-super';
-                if (typeof updateAdminNavVisibility === 'function') updateAdminNavVisibility();
-              }
-              // Below BP_ICON (580px) the sidebar collapses to width:0/opacity:0
-              // and the avatar fails checkVisibility. Pin it open for the demo.
-              if (typeof sbState !== 'undefined' && sbState === 'collapsed') {
-                sbUserOverride = 'full';
-                setSbState('full');
-              }
-              return document.querySelector('.sb-home .user-avatar-btn');
-            } },
-          { say: "Pick a client to configure",
-            sel: "#accountModal .acct-menu-item", text: "Monese" },
-          { say: "Open Data sources",
-            sel: "#cdt-datasource" },
+            sel: ".sb-home .user-avatar-btn" },
+          { say: "Open data sources",
+            sel: "#accountModal .acct-menu-item", text: "Data sources" },
           { say: "Choose HubSpot CRM",
             waitFor: "#cdpTabDatasource.visible",
             sel: ".ds-card", text: "HubSpot" },
