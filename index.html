@@ -4739,7 +4739,24 @@ document.addEventListener('DOMContentLoaded', init);
         steps: [
           { say: "Start at home", waitFor: "#startScreen" },
           { say: "Open the account menu",
-            sel: ".sb-home .user-avatar-btn" },
+            find: () => {
+              // Connect-flow prereq: the avatar's CLIENT LIST (with "Monese") only
+              // renders for role:'super'. Default tenant user is role:'user', so
+              // promote silently — bypass quickLogin() because its setTimeout
+              // auto-route to showAdminView would steal the home view from the
+              // churn flow if the user switches flows mid-demo.
+              if (typeof CURRENT_USER_ID !== 'undefined' && CURRENT_USER_ID !== 'demo-super') {
+                CURRENT_USER_ID = 'demo-super';
+                if (typeof updateAdminNavVisibility === 'function') updateAdminNavVisibility();
+              }
+              // Below BP_ICON (580px) the sidebar collapses to width:0/opacity:0
+              // and the avatar fails checkVisibility. Pin it open for the demo.
+              if (typeof sbState !== 'undefined' && sbState === 'collapsed') {
+                sbUserOverride = 'full';
+                setSbState('full');
+              }
+              return document.querySelector('.sb-home .user-avatar-btn');
+            } },
           { say: "Pick a client to configure",
             sel: "#accountModal .acct-menu-item", text: "Monese" },
           { say: "Open Data sources",
