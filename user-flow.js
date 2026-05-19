@@ -233,6 +233,72 @@
     }, { signal });
   }
 
+  // ── Capture walker ────────────────────────────────────────────────────
+  async function captureSettle(nextStep, signal) {
+    // Two rAFs: one to commit the action's state change, one to ensure paint.
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    if (!nextStep) {
+      await wait(200, signal);
+      return;
+    }
+    const gateSpec = nextStep.waitFor || (nextStep.sel || nextStep.find ? nextStep : null);
+    if (!gateSpec) {
+      await wait(200, signal);
+      return;
+    }
+    await poll(() => {
+      const el = findOne(gateSpec);
+      return el && isVisible(el) ? el : null;
+    }, { signal, timeout: 4000 });
+  }
+
+  async function captureStep(step, nextStep, signal) {
+    if (step.waitFor) {
+      const got = await poll(() => {
+        const el = findOne(step.waitFor);
+        return el && isVisible(el) ? el : null;
+      }, { signal });
+      if (!got) throw new Error("waitFor gate never resolved");
+    }
+
+    const action = inferAction(step);
+    if (action === "wait") {
+      if (step.ms != null) await wait(step.ms, signal);
+      return captureSettle(nextStep, signal);
+    }
+
+    const el = await resolveTarget(step, signal);
+    if (!el) throw new Error("could not resolve target");
+
+    // Instant scroll. The screenshot is of the viewport; we want target in view, no easing.
+    el.scrollIntoView({ block: "center", inline: "nearest" });
+
+    if (action === "click") fireClick(el);
+    else if (action === "hover") fireHover(el);
+    else if (action === "type") await fireType(el, step.text || "", { clear: step.clear, perChar: 0 }, signal);
+
+    return captureSettle(nextStep, signal);
+  }
+
+  async function captureFlow(flowId, { onStepDone, signal } = {}) {
+    const flow = CURRENT_FLOWS && CURRENT_FLOWS.find(f => f.id === flowId);
+    if (!flow) throw new Error("unknown flow: " + flowId);
+
+    document.documentElement.classList.add("uf-capture-mode");
+    try {
+      for (let i = 0; i < flow.steps.length; i++) {
+        const step = flow.steps[i];
+        const nextStep = flow.steps[i + 1] || null;
+        await captureStep(step, nextStep, signal);
+        if (onStepDone) {
+          await onStepDone({ flowId, idx: i, total: flow.steps.length, say: step.say || null });
+        }
+      }
+    } finally {
+      document.documentElement.classList.remove("uf-capture-mode");
+    }
+  }
+
   // ── Cursor ─────────────────────────────────────────────────────────────
   function cursorState(root) {
     return root.__uf_cursor || (root.__uf_cursor = { x: window.innerWidth / 2, y: window.innerHeight - 80 });
@@ -522,5 +588,6 @@
         steps: f.steps.map(s => ({ say: s.say || null })),
       }));
     },
+    capture: captureFlow,
   };
 })();
