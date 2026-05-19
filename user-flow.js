@@ -248,7 +248,11 @@
     }
     await poll(() => {
       const el = findOne(gateSpec);
-      return el && isVisible(el) ? el : null;
+      if (!el || !isVisible(el)) return null;
+      if (gateSpec.waitForTextEquals != null) {
+        if ((el.textContent || "").trim() !== gateSpec.waitForTextEquals) return null;
+      }
+      return el;
     }, { signal, timeout: 4000 });
   }
 
@@ -257,7 +261,7 @@
       const got = await poll(() => {
         const el = findOne(step.waitFor);
         return el && isVisible(el) ? el : null;
-      }, { signal });
+      }, { signal, timeout: 4000 });
       if (!got) throw new Error("waitFor gate never resolved");
     }
 
@@ -283,10 +287,12 @@
   async function captureFlow(flowId, { onStepDone, signal } = {}) {
     const flow = CURRENT_FLOWS && CURRENT_FLOWS.find(f => f.id === flowId);
     if (!flow) throw new Error("unknown flow: " + flowId);
+    if (signal && signal.aborted) throw new Error("abort");
 
     document.documentElement.classList.add("uf-capture-mode");
     try {
       for (let i = 0; i < flow.steps.length; i++) {
+        if (signal && signal.aborted) throw new Error("abort");
         const step = flow.steps[i];
         const nextStep = flow.steps[i + 1] || null;
         await captureStep(step, nextStep, signal);
