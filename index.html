@@ -2466,6 +2466,28 @@ function doLogin() {
   quickLogin(targetId);
 }
 
+// Push the current user's identity into every avatar pill on the page. Run
+// from init() (so the static "Dan S. · MONESE · ADMIN" placeholder doesn't
+// out-live boot) and from quickLogin() on every persona switch.
+function syncAvatarUI(){
+  const u = getCurrentUser();
+  if (!u) return;
+  const client = getActiveClient();
+  const clientName = (client && client.name) || '';
+  const roleLabel = u.role === 'super' ? 'SUPER ADMIN'
+                  : u.role === 'admin' ? 'ADMIN'
+                  : 'USER';
+  const roleText = clientName ? `${clientName.toUpperCase()} · ${roleLabel}` : roleLabel;
+  const initials = deriveUserInitials(u);
+  const color = deriveUserColor(u);
+  document.querySelectorAll('.user-av').forEach(el => {
+    el.textContent = initials;
+    el.style.background = color;
+  });
+  document.querySelectorAll('.user-av-name').forEach(el => el.textContent = u.name);
+  document.querySelectorAll('.user-av-role').forEach(el => el.textContent = roleText);
+}
+
 // Accept either a USERS id (e.g. 'demo-admin') or a role string (e.g. 'admin').
 // If nothing matches, FAIL VISIBLY: keep the overlay open, keep the current
 // session intact, and surface an error — never silently log the user in as
@@ -2494,17 +2516,8 @@ function quickLogin(target) {
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.add('hidden');
   const u = getCurrentUser();
-  if (u) {
-    const initials = deriveUserInitials(u);
-    const color = deriveUserColor(u);
-    document.querySelectorAll('.user-av').forEach(el => {
-      el.textContent = initials;
-      el.style.background = color;
-    });
-    document.querySelectorAll('.user-av-name').forEach(el => el.textContent = u.name);
-    document.querySelectorAll('.user-av-role').forEach(el => el.textContent = u.role);
-    showToast('Welcome back, ' + u.name.split(' ')[0]);
-  }
+  syncAvatarUI();
+  if (u) showToast('Welcome back, ' + u.name.split(' ')[0]);
   updateAdminNavVisibility();
   // Super-admin auto-route: dropping a Youtility super into the chat shell of
   // whatever tenant was last active is disorienting — their canonical home is
@@ -2518,14 +2531,6 @@ function quickLogin(target) {
 function signOut() {
   CURRENT_USER_ID = '';
   if (typeof closeAccountModal === 'function') closeAccountModal();
-  // singleTenant clients (e.g. Monese) bypass the login screen at boot, so
-  // surfacing it here on sign-out is a one-way trapdoor: the user can never
-  // get back in without reloading. For those clients we suppress the login
-  // overlay and just close the modal; the next "sign in" would have to come
-  // from a different flow (e.g. account-modal switch user). multiTenant
-  // clients keep the original behaviour.
-  const client = (typeof getActiveClient === 'function') ? getActiveClient() : null;
-  if (client && client.mode === 'singleTenant') return;
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.remove('hidden');
 }
@@ -4528,15 +4533,25 @@ function searchModalSelect(id){
   if(typeof selectChat==='function') selectChat(id);
 }
 // ── ACCOUNT MODAL ──
+// Pin the canonical opposite persona at the top of SWITCH USER so the demo's
+// client ↔ super-admin flip is always one click away. Super sees Sarah L. even
+// though her role:'admin' would be excluded by the admin panel's own filter;
+// every other persona sees Dan S.
+function pinSwitchOpposite(currentUser, baseTargets){
+  const oppositeId = currentUser.role === 'super' ? 'demo-admin' : 'demo-super';
+  const pinned = USERS[oppositeId];
+  if (!pinned || pinned.id === currentUser.id) return baseTargets;
+  return [pinned, ...baseTargets.filter(t => t.id !== pinned.id)];
+}
+
 function renderClientAcctPanel(u, client){
-    const isSingleTenant = client.mode === 'singleTenant';
     const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
-    const switchTargets = getDemoUsers().filter(other => other.id !== u.id && isAdminRole(other.role));
-    const switchSection = (!isSingleTenant && switchTargets.length > 0) ? `
+    const switchTargets = pinSwitchOpposite(u, getDemoUsers().filter(other => other.id !== u.id && isAdminRole(other.role)));
+    const switchSection = switchTargets.length > 0 ? `
     <div class="acct-section-lbl">SWITCH USER</div>
     ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
     ` : '';
-    const signOutSection = isSingleTenant ? '' : `
+    const signOutSection = `
     <div class="acct-divider"></div>
     <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
     return `
@@ -4560,10 +4575,14 @@ function renderClientAcctPanel(u, client){
 
   function renderAdminAcctPanel(u){
     const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
-    const switchTargets = getDemoUsers().filter(other => other.id !== u.id && !isAdminRole(other.role));
+    const switchTargets = pinSwitchOpposite(u, getDemoUsers().filter(other => other.id !== u.id && !isAdminRole(other.role)));
     const clientListSection = `
     <div class="acct-section-lbl">CLIENT LIST</div>
-    ${CLIENTS.map(c => `<div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${c.id}')"><div class="admin-client-dot" style="background:${c.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${c.name}</div></div>`).join('')}
+    ${CLIENTS.map(c => {
+      const sClass = c.status === 'setup' ? 'status-setup' : 'status-live';
+      const sLabel = c.status === 'setup' ? 'SETUP' : 'LIVE';
+      return `<div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${c.id}')"><div class="admin-client-dot" style="background:${c.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label" style="flex:1">${c.name}</div><span class="admin-client-status ${sClass}">${sLabel}</span></div>`;
+    }).join('')}
     `;
     const switchSection = switchTargets.length > 0 ? `
     <div class="acct-section-lbl">SWITCH USER</div>
@@ -4586,7 +4605,7 @@ function renderClientAcctPanel(u, client){
 
   function renderClientAdminAcctPanel(u, client){
     const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
-    const switchTargets = getDemoUsers().filter(other => other.id !== u.id);
+    const switchTargets = pinSwitchOpposite(u, getDemoUsers().filter(other => other.id !== u.id));
     const roleLabel = r => r === 'admin' ? 'Client Admin' : r === 'super' ? 'Super Admin' : 'User';
     const switchSection = switchTargets.length > 0 ? `
     <div class="acct-section-lbl">SWITCH USER</div>
@@ -4666,6 +4685,7 @@ function init() {
   renderProds();
   switchWs('home');
   renderHomeList();
+  syncAvatarUI();
   showStartScreen();
   // applyBreakpoint must run AFTER renderHomeList: in icon mode it calls
   // attachIconTooltips(), which queries .sb-item rows that renderHomeList
@@ -4731,8 +4751,23 @@ document.addEventListener('DOMContentLoaded', init);
             sel: "[id^='ae-create-btn-']" },
           { say: "Continue to segment confirmation",
             sel: "#wizNext", waitForTextEquals: "Continue" },
+          { say: "Also target Lapsed 60-Day",
+            waitFor: "#sg-lapsed",
+            sel: "#sg-lapsed" },
           { say: "Generate content",
             sel: "#wizNext", waitForTextEquals: "Generate content" },
+          { say: "Edit the email body",
+            waitFor: "#ws3.visible",
+            find: () => {
+              const blocks = document.querySelectorAll('#ws3 .c-block');
+              for (const b of blocks) {
+                const lbl = b.querySelector('.cb-lbl');
+                if (lbl && lbl.textContent.trim() === 'EMAIL BODY') {
+                  return b.querySelector('.cb-acts .cact:last-child');
+                }
+              }
+              return null;
+            } },
         ],
       },
       {
