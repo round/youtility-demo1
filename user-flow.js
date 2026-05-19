@@ -21,6 +21,11 @@
   const CURSOR_DURATION_MAX = 900;
   const RESOLVE_TIMEOUT_MS = 8000;
   const POLL_MS = 80;
+  const WAIT_DEFAULT_MS = 600;          // explicit { do: "wait" } step default
+  const SETTLE_BEFORE_CLICK_MS = 140;   // micro-pause at target before firing
+  const POST_ACTION_MS = 900;           // dwell so the result is visible
+  const SCROLL_MARGIN = 96;             // viewport safe-zone for "needs scroll"
+  const SCROLL_SETTLE_TIMEOUT_MS = 1500;
 
   // ── Shadow DOM scaffold ────────────────────────────────────────────────
   function buildHost() {
@@ -43,13 +48,18 @@
         }
         .cursor svg { display:block; width:100%; height:100%; }
         .cursor.click-pulse::after {
-          content:""; position:absolute; left:8px; top:8px; width:10px; height:10px;
-          border-radius:50%; background: rgba(11,114,253,.45);
-          animation: uf-pulse .28s ease-out forwards;
+          content: ""; position: absolute;
+          left: 3px; top: 3px;
+          width: 28px; height: 28px;
+          margin-left: -14px; margin-top: -14px;
+          border-radius: 50%;
+          border: 2px solid rgba(11, 114, 253, .9);
+          background: rgba(11, 114, 253, .22);
+          animation: uf-pulse .38s cubic-bezier(.2, .7, .2, 1) forwards;
         }
         @keyframes uf-pulse {
-          0%   { transform: scale(.5); opacity: .85; }
-          100% { transform: scale(2);  opacity: 0; }
+          0%   { transform: scale(.25); opacity: 1; }
+          100% { transform: scale(1.4); opacity: 0; }
         }
         .dock {
           position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
@@ -97,16 +107,6 @@
       </div>
       <div class="dock" id="dock">
         <div class="grip" id="grip"><span></span><span></span><span></span><span></span></div>
-        <button class="btn" id="restart" title="Restart">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/>
-          </svg>
-        </button>
-        <button class="btn" id="prev" title="Previous">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
         <button class="btn primary" id="play" title="Play / pause">
           <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>
           <svg id="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none">
@@ -150,7 +150,29 @@
     if (parseFloat(cs.opacity) < 0.1) return false;
     return true;
   }
-  function nextFrame() { return new Promise(r => requestAnimationFrame(r)); }
+  async function scrollIntoViewSmooth(el, signal) {
+    const r = el.getBoundingClientRect();
+    if (r.top >= SCROLL_MARGIN && r.bottom <= window.innerHeight - SCROLL_MARGIN) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+    await new Promise((res) => {
+      let prev = el.getBoundingClientRect();
+      let stable = 0;
+      const start = performance.now();
+      const tick = () => {
+        if (signal && signal.aborted) return res();
+        const cur = el.getBoundingClientRect();
+        if (Math.abs(cur.top - prev.top) < 0.5 && Math.abs(cur.left - prev.left) < 0.5) {
+          if (++stable >= 4) return res();
+        } else {
+          stable = 0;
+        }
+        prev = cur;
+        if (performance.now() - start > SCROLL_SETTLE_TIMEOUT_MS) return res();
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }
   function wait(ms, signal) {
     return new Promise((res, rej) => {
       const t = setTimeout(res, ms);
@@ -241,7 +263,6 @@
     const capEl     = root.getElementById("caption");
     const playIcon  = root.getElementById("play-icon");
     const pauseIcon = root.getElementById("pause-icon");
-    const prevBtn   = root.getElementById("prev");
     const nextBtn   = root.getElementById("next");
 
     function setUI() {
@@ -249,7 +270,6 @@
       capEl.textContent = steps[i] && steps[i].say ? steps[i].say : (i >= steps.length ? "Done" : "Ready");
       playIcon.style.display = playing ? "none" : "";
       pauseIcon.style.display = playing ? "" : "none";
-      prevBtn.disabled = i <= 0 || busy;
       nextBtn.disabled = busy;
     }
     function abortInflight() {
@@ -278,38 +298,42 @@
       }
       const action = step.do || (step.sel || step.find ? "click" : "wait");
       if (action === "wait") {
-        await wait(step.ms || 400, signal);
+        if (step.ms != null) await wait(step.ms, signal);
+        else if (!step.waitFor) await wait(WAIT_DEFAULT_MS, signal);
+        // waitFor-only steps are pure gates — no extra dwell once the gate opens.
         return;
       }
+
       let el = await resolveTarget(step, signal);
       if (!el) throw new Error("could not resolve target");
-      el.scrollIntoView({ block: "center", inline: "nearest" });
-      await nextFrame();
-      const travelTo = rectCenter(el);
-      await moveCursor(root, cursor, travelTo[0], travelTo[1], signal);
+      await scrollIntoViewSmooth(el, signal);
 
+      // Re-resolve in case the DOM swapped the node during the scroll.
       const live = await resolveTarget(step, signal);
       el = live && live.isConnected ? live : (el.isConnected ? el : null);
-      if (!el) throw new Error("target detached during travel");
-      const [cx, cy] = rectCenter(el);
-      placeCursor(root, cursor, cx, cy);
+      if (!el) throw new Error("target detached before action");
 
-      if (action === "click") { pulseClick(cursor); fireClick(el); }
+      const [cx, cy] = rectCenter(el);
+      await moveCursor(root, cursor, cx, cy, signal);
+      placeCursor(root, cursor, cx, cy);
+      await wait(SETTLE_BEFORE_CLICK_MS, signal);
+
+      if (action === "click")      { pulseClick(cursor); fireClick(el); }
       else if (action === "hover") { fireHover(el); }
-      else if (action === "type") { await fireType(el, step.text || "", { clear: step.clear, perChar: step.perChar }, signal); }
-      if (step.ms) await wait(step.ms, signal);
+      else if (action === "type")  { await fireType(el, step.text || "", { clear: step.clear, perChar: step.perChar }, signal); }
+
+      await wait(step.ms ?? POST_ACTION_MS, signal);
     }
 
-    async function step(dir) {
+    async function step() {
       if (busy) return;
-      const target = dir > 0 ? i : i - 1;
-      if (target < 0 || target >= steps.length) { playing = false; setUI(); return; }
+      if (i >= steps.length) { playing = false; setUI(); return; }
       busy = true; setUI();
       abortCtl = new AbortController();
       try {
-        capEl.textContent = steps[target].say || `Step ${target + 1}`;
-        await runStep(steps[target], abortCtl.signal);
-        i = target + 1;
+        capEl.textContent = steps[i].say || `Step ${i + 1}`;
+        await runStep(steps[i], abortCtl.signal);
+        i += 1;
       } catch (e) {
         if (e && e.message === "abort") { /* paused */ }
         else { capEl.textContent = "⚠︎ " + (e && e.message || "step failed"); playing = false; }
@@ -319,33 +343,35 @@
     }
 
     async function loop() {
-      while (playing && i < steps.length) {
-        await step(1);
-      }
+      while (playing && i < steps.length) await step();
       playing = false; setUI();
+    }
+
+    function isSilentStep(s) {
+      if (!s) return false;
+      const action = s.do || (s.sel || s.find ? "click" : "wait");
+      return action === "wait" && s.ms == null && !!s.waitFor;
     }
 
     function toggle() {
       if (playing) { playing = false; abortInflight(); setUI(); }
       else { playing = true; setUI(); loop(); }
     }
-    function next() { if (playing) { playing = false; abortInflight(); } step(1); }
-    function prev() {
-      if (busy) abortInflight();
-      if (i > 0) i--;
-      setUI();
-    }
-    function restart() {
-      playing = false; abortInflight(); i = 0; setUI();
+    async function next() {
+      if (playing) { playing = false; abortInflight(); }
+      // Chain through silent gate-only steps so one click lands on a visible action.
+      do {
+        const before = i;
+        await step();
+        if (i === before) return; // step failed or aborted
+      } while (i < steps.length && isSilentStep(steps[i - 1]));
     }
 
     root.getElementById("play").addEventListener("click", toggle);
     nextBtn.addEventListener("click", next);
-    prevBtn.addEventListener("click", prev);
-    root.getElementById("restart").addEventListener("click", restart);
 
     setUI();
-    return { toggle, next, prev, restart };
+    return { toggle, next };
   }
 
   // ── Dock dragging ──────────────────────────────────────────────────────
