@@ -409,7 +409,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .urg-pill{padding:6px 13px;border-radius:7px;border:1px solid var(--border2);background:var(--bg4);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;}
 .urg-pill:hover{border-color:var(--border3);}
 .urg-pill.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);color:var(--brand-primary-hover);}
-/* ── STEP 2 SEGMENTS ── */
+/* ── STEP 1 SEGMENTS ── */
 .seg-intro{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;}
 .seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
 .seg-card{border:1px solid var(--border2);border-radius:11px;background:var(--bg3);padding:13px;cursor:pointer;transition:all .15s;position:relative;}
@@ -1134,8 +1134,11 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
     <!-- CREATE CAMPAIGN -->
     <div class="cw-panel" id="cwp-create">
       <div class="step-track" id="stepTrack"></div>
-      <!-- STEP 1: BRIEF -->
-      <div class="wiz-step visible" id="ws1">
+      <!-- STEP 1: SEGMENTS -->
+      <div class="wiz-step visible" id="ws1"><div id="segContent"></div></div>
+
+      <!-- STEP 2: BRIEF -->
+      <div class="wiz-step" id="ws2">
 
         <!-- Campaign type -->
         <div class="brief-section-lbl">CAMPAIGN TYPE</div>
@@ -1226,9 +1229,6 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
           </div>
         </div>
       </div>
-
-      <!-- STEP 2: SEGMENTS -->
-      <div class="wiz-step" id="ws2"><div id="segContent"></div></div>
 
       <!-- STEP 3: OUTPUT -->
       <div class="wiz-step" id="ws3"><div id="outputContent"></div></div>
@@ -1359,7 +1359,7 @@ const ROLE_BADGE_STYLES = {
 const BP_FULL = 900, BP_ICON = 580;
 
 // ══ WIZARD ══
-const WLBL=['Campaign brief','Confirm segments','Review content'];
+const WLBL=['Confirm segments','Campaign brief','Review content'];
 // Wizard channel label map
 const chanLbls={email:'Email',sms:'SMS',ad:'Ad brief'};
 
@@ -3464,7 +3464,7 @@ function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!
 function renderOverview(){const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const brandPri=resolveBrandColor('brand-primary');const ucs=[{l:'Promotional',n:8,c:brandPri},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
 
 // ══ CAMPAIGN WORKSPACE TABS ══
-function switchCwTab(tab){cwCur=tab;['report','create'].forEach(t=>{document.getElementById(`cwt-${t}`).classList.toggle('active',t===tab);document.getElementById(`cwp-${t}`).classList.toggle('visible',t===tab);});document.getElementById('wizNav').style.display=tab==='create'?'':'none';document.getElementById('gcCard').classList.toggle('active',tab==='report');if(tab==='create'){wizStep=1;renderWizUI();}if(tab==='report')renderOverview();}
+function switchCwTab(tab){cwCur=tab;['report','create'].forEach(t=>{document.getElementById(`cwt-${t}`).classList.toggle('active',t===tab);document.getElementById(`cwp-${t}`).classList.toggle('visible',t===tab);});document.getElementById('wizNav').style.display=tab==='create'?'':'none';document.getElementById('gcCard').classList.toggle('active',tab==='report');if(tab==='create'){wizStep=1;renderWizUI();renderSegs();}if(tab==='report')renderOverview();}
 
 // Returns the current tenant's copy for a given segment, or null when the
 // tenant hasn't authored content for it. We deliberately do NOT fall back
@@ -3475,12 +3475,12 @@ function getCdataForSeg(segId){
   return (CDATA && CDATA[segId]) || null;
 }
 
-function renderWizUI(){[1,2,3].forEach(i=>document.getElementById(`ws${i}`).classList.toggle('visible',i===wizStep));document.getElementById('wizBack').style.display=wizStep===1?'none':'';document.getElementById('wizNext').textContent=wizStep===1?'Continue':wizStep===2?'Generate content':'Export campaign';document.getElementById('wizNext').className=wizStep===3?'wiz-btn finish':'wiz-btn next';document.getElementById('wizInfo').innerHTML=wizStep===2?`<span>${SEGS.filter(s=>s.selected).length} segments selected</span>`:wizStep===3?`<span>${SEGS.filter(s=>s.selected).length} segs</span> · <span>3 channels</span>`:'';renderWizTrack();}
+function renderWizUI(){[1,2,3].forEach(i=>document.getElementById(`ws${i}`).classList.toggle('visible',i===wizStep));document.getElementById('wizBack').style.display=wizStep===1?'none':'';document.getElementById('wizNext').textContent=wizStep===1?'Continue':wizStep===2?'Generate content':'Export campaign';document.getElementById('wizNext').className=wizStep===3?'wiz-btn finish':'wiz-btn next';document.getElementById('wizInfo').innerHTML=wizStep===3?`<span>${SEGS.filter(s=>s.selected).length} segs</span> · <span>3 channels</span>`:`<span>${SEGS.filter(s=>s.selected).length} segments selected</span>`;renderWizTrack();}
 
 function renderWizTrack(){document.getElementById('stepTrack').innerHTML=WLBL.map((l,i)=>{const n=i+1,st=n<wizStep?'done':n===wizStep?'active':'pending',icon=st==='done'?IC.chk:n,line=i<WLBL.length-1?`<div class="step-line ${n<wizStep?'done':''}"></div>`:'';return `<div class="step-node"><div class="step-circ ${st}">${icon}</div><div class="step-lbl ${st}">${l}</div></div>${line}`;}).join('');}
 
 function wNext(){
-  if(wizStep===1){wizStep=2;renderWizUI();renderSegs();}
+  if(wizStep===1){wizStep=2;renderWizUI();}
   else if(wizStep===2){
     wizStep=3;renderWizUI();renderGenOverlay();
     sbUserOverride='icon';setSbState('icon');
@@ -4755,11 +4755,11 @@ document.addEventListener('DOMContentLoaded', init);
             sel: "[id^='ae-leg-'] > div", text: "Reluctant Buyer" },
           { say: "Create a campaign for this segment",
             sel: "[id^='ae-create-btn-']" },
-          { say: "Continue to segment confirmation",
-            sel: "#wizNext", waitForTextEquals: "Continue" },
           { say: "Also target Lapsed 60-Day",
             waitFor: "#sg-lapsed",
             sel: "#sg-lapsed" },
+          { say: "Continue to campaign brief",
+            sel: "#wizNext", waitForTextEquals: "Continue" },
           { say: "Generate content",
             sel: "#wizNext", waitForTextEquals: "Generate content" },
           { say: "Edit the email body",
