@@ -213,6 +213,17 @@
       await wait(interval, signal);
     }
   }
+  async function resolveTarget(step, signal) {
+    if (!step.sel && !step.find) return null;
+    return await poll(() => {
+      const cand = findOne(step);
+      if (!cand || !isVisible(cand)) return null;
+      if (step.waitForTextEquals) {
+        if ((cand.textContent || "").trim() !== step.waitForTextEquals) return null;
+      }
+      return cand;
+    }, { signal });
+  }
 
   // ── Cursor ─────────────────────────────────────────────────────────────
   function cursorState(root) {
@@ -326,18 +337,6 @@
       i = 0;
       pickEl.value = flows[activeIdx].id;
       setUI();
-    }
-
-    async function resolveTarget(step, signal) {
-      if (!step.sel && !step.find) return null;
-      return await poll(() => {
-        const cand = findOne(step);
-        if (!cand || !isVisible(cand)) return null;
-        if (step.waitForTextEquals) {
-          if ((cand.textContent || "").trim() !== step.waitForTextEquals) return null;
-        }
-        return cand;
-      }, { signal });
     }
 
     async function runStep(step, signal) {
