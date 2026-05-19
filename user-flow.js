@@ -1,6 +1,6 @@
 /* user-flow.js — standalone story navigator.
    Lightweight, no deps, no host changes. Drop the script tag at the end of <body>,
-   then call UserFlow.play([...steps]).
+   then call UserFlow.play([...steps]) or UserFlow.play([{id, name, steps}, ...]).
 
    Step shape:
      { sel: "#x" }                              // CSS selector
@@ -11,6 +11,12 @@
      { waitFor: "#foo" | { sel, text } }        // gate before resolving target
      { waitForTextEquals: "Generate content" }  // poll target until its text matches
      { say: "caption shown in dock" }
+
+   Multi-flow shape (enables the dock's flow picker):
+     [
+       { id: "churn",   name: "Churn campaign",     steps: [ ...steps ] },
+       { id: "connect", name: "Connect data source", steps: [ ...steps ] },
+     ]
 */
 (function () {
   if (window.UserFlow) return;
@@ -98,6 +104,22 @@
         .caption { font-size: 12px; color: #e8eaf2; line-height: 1.3;
           overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .err { color: #ff8d6e; font-size: 11px; padding: 2px 4px 0; }
+        .pick {
+          height: 28px; max-width: 170px;
+          background: rgba(255,255,255,.06);
+          border: 1px solid rgba(255,255,255,.1);
+          border-radius: 7px;
+          color: #e8eaf2;
+          font-family: inherit; font-size: 11px;
+          padding: 0 22px 0 8px; cursor: pointer;
+          appearance: none; -webkit-appearance: none;
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238b90a8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+          background-repeat: no-repeat;
+          background-position: right 6px center;
+        }
+        .pick:hover { background-color: rgba(255,255,255,.12); }
+        .pick:focus { outline: none; border-color: rgba(11,114,253,.6); }
+        .pick option { background: #0e121e; color: #e8eaf2; }
       </style>
       <div class="cursor" id="cursor">
         <svg viewBox="0 0 24 24" fill="none">
@@ -118,6 +140,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
+        <select class="pick" id="flowPick" title="Choose flow"></select>
         <div class="meta">
           <div class="count" id="count">0 / 0</div>
           <div class="caption" id="caption">Ready</div>
@@ -252,7 +275,8 @@
   }
 
   // ── Engine ─────────────────────────────────────────────────────────────
-  function Engine(root, steps) {
+  function Engine(root, flows) {
+    let activeIdx = 0;
     let i = 0;
     let playing = false;
     let busy = false;
@@ -263,16 +287,37 @@
     const playIcon  = root.getElementById("play-icon");
     const pauseIcon = root.getElementById("pause-icon");
     const nextBtn   = root.getElementById("next");
+    const pickEl    = root.getElementById("flowPick");
+
+    function steps() { return flows[activeIdx].steps; }
 
     function setUI() {
-      totalEl.textContent = `${i} / ${steps.length}`;
-      capEl.textContent = steps[i] && steps[i].say ? steps[i].say : (i >= steps.length ? "Done" : "Ready");
+      const s = steps();
+      totalEl.textContent = `${i} / ${s.length}`;
+      capEl.textContent = s[i] && s[i].say ? s[i].say : (i >= s.length ? "Done" : "Ready");
       playIcon.style.display = playing ? "none" : "";
       pauseIcon.style.display = playing ? "" : "none";
       nextBtn.disabled = busy;
     }
     function abortInflight() {
       if (abortCtl) { abortCtl.abort(); abortCtl = null; }
+    }
+
+    // Populate the picker. Hide it if there's only one flow.
+    pickEl.innerHTML = flows.map(f =>
+      `<option value="${f.id}">${(f.name || f.id || "Flow").replace(/&/g, "&amp;").replace(/</g, "&lt;")}</option>`
+    ).join("");
+    pickEl.value = flows[activeIdx].id;
+    if (flows.length < 2) pickEl.style.display = "none";
+
+    function selectFlow(id) {
+      const idx = flows.findIndex(f => f.id === id);
+      if (idx < 0 || idx === activeIdx) return;
+      if (playing || busy) { playing = false; abortInflight(); }
+      activeIdx = idx;
+      i = 0;
+      pickEl.value = flows[activeIdx].id;
+      setUI();
     }
 
     async function resolveTarget(step, signal) {
@@ -328,15 +373,18 @@
 
     async function step() {
       if (busy) return;
-      if (i >= steps.length) { playing = false; setUI(); return; }
+      const s = steps();
+      if (i >= s.length) { playing = false; setUI(); return; }
       busy = true; setUI();
       abortCtl = new AbortController();
+      const flowAtStart = activeIdx;
       try {
-        capEl.textContent = steps[i].say || `Step ${i + 1}`;
-        await runStep(steps[i], abortCtl.signal);
-        i += 1;
+        capEl.textContent = s[i].say || `Step ${i + 1}`;
+        await runStep(s[i], abortCtl.signal);
+        // Don't advance the cursor if the user switched flows mid-step.
+        if (activeIdx === flowAtStart) i += 1;
       } catch (e) {
-        if (e && e.message === "abort") { /* paused */ }
+        if (e && e.message === "abort") { /* paused or flow switched */ }
         else { capEl.textContent = "⚠︎ " + (e && e.message || "step failed"); playing = false; }
       } finally {
         busy = false; abortCtl = null; setUI();
@@ -344,7 +392,7 @@
     }
 
     async function loop() {
-      while (playing && i < steps.length) await step();
+      while (playing && i < steps().length) await step();
       playing = false; setUI();
     }
 
@@ -363,14 +411,15 @@
         const before = i;
         await step();
         if (i === before) return; // step failed or aborted
-      } while (i < steps.length && isSilentStep(steps[i - 1]));
+      } while (i < steps().length && isSilentStep(steps()[i - 1]));
     }
 
     root.getElementById("play").addEventListener("click", toggle);
     nextBtn.addEventListener("click", next);
+    pickEl.addEventListener("change", e => selectFlow(e.target.value));
 
     setUI();
-    return { toggle, next };
+    return { toggle, next, selectFlow };
   }
 
   // ── Dock dragging ──────────────────────────────────────────────────────
@@ -400,12 +449,26 @@
   }
 
   // ── Public API ─────────────────────────────────────────────────────────
-  function play(steps) {
-    if (!Array.isArray(steps) || steps.length === 0) return;
+  // Accepts either a flat array of steps (legacy) OR an array of flow objects
+  // [{ id, name, steps }, ...]. Flat-array callers get a single anonymous flow
+  // wrapper so the dock's picker stays hidden.
+  function normalizeFlows(input) {
+    if (!Array.isArray(input) || input.length === 0) return null;
+    const first = input[0];
+    const looksLikeFlow = first && typeof first === "object" && Array.isArray(first.steps);
+    if (!looksLikeFlow) return [{ id: "default", name: "Flow", steps: input }];
+    return input
+      .filter(f => f && Array.isArray(f.steps) && f.steps.length > 0)
+      .map((f, idx) => ({ id: f.id || `flow-${idx}`, name: f.name || f.id || `Flow ${idx + 1}`, steps: f.steps }));
+  }
+
+  function play(input) {
+    const flows = normalizeFlows(input);
+    if (!flows || flows.length === 0) return;
     const root = buildHost();
     placeCursor(root, root.getElementById("cursor"), window.innerWidth / 2, window.innerHeight - 80);
     enableDrag(root);
-    return Engine(root, steps);
+    return Engine(root, flows);
   }
 
   window.UserFlow = { play };

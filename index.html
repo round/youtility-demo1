@@ -4204,11 +4204,17 @@ function renderDsTabBody(tab, src){
 }
 
 function testDsConnection(){
+  // Snapshot the source under test so a mid-flight source switch can't cause
+  // the timeout to mark the wrong source connected.
+  const targetId = dsSelected;
   showToast('Testing connection…');
   setTimeout(() => {
-    const sel = DS_SOURCES.find(s => s.id === dsSelected);
+    const sel = DS_SOURCES.find(s => s.id === targetId);
     if (sel) sel.status = 'connected';
-    dsConnTab = 'confirmation';
+    // Only advance the panel to the confirmation tab if the user is still
+    // viewing the source we tested; otherwise just refresh the list so the
+    // updated status dot is reflected without yanking their current tab.
+    if (dsSelected === targetId) dsConnTab = 'confirmation';
     const client = (typeof getDetailClient === 'function') ? getDetailClient() : null;
     if (client) renderCdDataSources(client);
     showToast('Connection successful');
@@ -4709,18 +4715,53 @@ document.addEventListener('DOMContentLoaded', init);
 <script>
   window.addEventListener('load', () => {
     UserFlow.play([
-      { say: "Start screen", waitFor: "#startScreen" },
-      { say: "Ask: customers most likely to churn",
-        sel: ".start-pill", text: "Customers most likely to churn" },
-      { say: "Inspect the Reluctant Buyer segment",
-        waitFor: "[id^='ae-widget-']",
-        sel: "[id^='ae-leg-'] > div", text: "Reluctant Buyer" },
-      { say: "Create a campaign for this segment",
-        sel: "[id^='ae-create-btn-']" },
-      { say: "Continue to segment confirmation",
-        sel: "#wizNext", waitForTextEquals: "Continue" },
-      { say: "Generate content",
-        sel: "#wizNext", waitForTextEquals: "Generate content" },
+      {
+        id: 'churn',
+        name: 'Churn campaign',
+        steps: [
+          { say: "Start screen", waitFor: "#startScreen" },
+          { say: "Ask: customers most likely to churn",
+            sel: ".start-pill", text: "Customers most likely to churn" },
+          { say: "Inspect the Reluctant Buyer segment",
+            waitFor: "[id^='ae-widget-']",
+            sel: "[id^='ae-leg-'] > div", text: "Reluctant Buyer" },
+          { say: "Create a campaign for this segment",
+            sel: "[id^='ae-create-btn-']" },
+          { say: "Continue to segment confirmation",
+            sel: "#wizNext", waitForTextEquals: "Continue" },
+          { say: "Generate content",
+            sel: "#wizNext", waitForTextEquals: "Generate content" },
+        ],
+      },
+      {
+        id: 'connect',
+        name: 'Connect data source',
+        steps: [
+          { say: "Start at home", waitFor: "#startScreen" },
+          { say: "Open the account menu",
+            sel: ".sb-home .user-avatar-btn" },
+          { say: "Pick a client to configure",
+            sel: "#accountModal .acct-menu-item", text: "Monese" },
+          { say: "Open Data sources",
+            sel: "#cdt-datasource" },
+          { say: "Choose HubSpot CRM",
+            waitFor: "#cdpTabDatasource.visible",
+            sel: ".ds-card", text: "HubSpot" },
+          { say: "Endpoint configuration",
+            waitFor: ".ds-conn-tabs",
+            do: "hover", sel: ".ds-conn-body .ds-field input", ms: 1400 },
+          { say: "Configure authentication",
+            sel: ".ds-conn-tab", text: "Authentication" },
+          { say: "Map fields to behavioural attributes",
+            sel: ".ds-conn-tab", text: "Field mapping" },
+          { say: "Set the sync schedule",
+            sel: ".ds-conn-tab", text: "Sync schedule" },
+          { say: "Test the connection",
+            sel: ".ds-test-btn" },
+          { say: "Connected · first sync starting",
+            waitFor: ".ds-pill.ok", ms: 1600 },
+        ],
+      },
     ]);
   });
 </script>
