@@ -37,6 +37,12 @@
 
   // ── Shadow DOM scaffold ────────────────────────────────────────────────
   function buildHost() {
+    if (!document.getElementById("__uf_capture_style__")) {
+      const style = document.createElement("style");
+      style.id = "__uf_capture_style__";
+      style.textContent = `html.uf-capture-mode #${HOST_ID} { display: none !important; }`;
+      document.head.appendChild(style);
+    }
     let host = document.getElementById(HOST_ID);
     if (host) return host.shadowRoot;
     host = document.createElement("div");
