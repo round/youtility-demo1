@@ -2,3 +2,4 @@
 docs/
 .wrangler/
 node_modules/
+tools/out/
