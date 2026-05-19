@@ -2427,7 +2427,13 @@ function injectClientFonts(client){
 
 function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
 
-function getDemoUsers(){ return Object.values(USERS); }
+// SWITCH USER is intentionally narrowed to the three canonical demo personas:
+// the Monese demo user, Sarah L. (client admin), and Dan S. (super admin).
+// Other USERS entries still power the per-tenant Users tab in client detail;
+// they just don't appear as switchable personas in the account modal.
+function getDemoUsers(){
+  return ['monese-demo', 'demo-admin', 'demo-super'].map(id => USERS[id]).filter(Boolean);
+}
 
 // ── AUTH / SESSION ──
 function doLogin() {

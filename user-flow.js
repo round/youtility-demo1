@@ -70,7 +70,7 @@
         .dock {
           position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
           display: flex; align-items: center; gap: 8px;
-          padding: 8px 10px; min-width: 360px; max-width: 560px;
+          padding: 8px 10px; width: 480px;
           background: rgba(14,18,30,.92); color: #e8eaf2;
           border: 1px solid rgba(255,255,255,.12); border-radius: 12px;
           font-family: -apple-system, "Inter", "Montserrat", system-ui, sans-serif;
@@ -100,18 +100,20 @@
         .grip:active { cursor: grabbing; }
         .grip span { display:block; width: 3px; height: 3px; border-radius: 50%; background:#e8eaf2; margin: 0 auto; }
         .meta { display:flex; flex-direction:column; gap: 2px; min-width: 0; flex:1; }
-        .count { font-size: 10px; letter-spacing: .08em; color: #8b90a8; text-transform: uppercase; }
+        .count { font-size: 10px; letter-spacing: .08em; color: #8b90a8; text-transform: uppercase;
+          font-variant-numeric: tabular-nums; min-width: 52px; }
         .caption { font-size: 12px; color: #e8eaf2; line-height: 1.3;
           overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
         .err { color: #ff8d6e; font-size: 11px; padding: 2px 4px 0; }
         .pick {
-          height: 28px; max-width: 170px;
+          height: 28px; width: 160px; flex: 0 0 auto;
           background: rgba(255,255,255,.06);
           border: 1px solid rgba(255,255,255,.1);
           border-radius: 7px;
           color: #e8eaf2;
           font-family: inherit; font-size: 11px;
           padding: 0 22px 0 8px; cursor: pointer;
+          text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
           appearance: none; -webkit-appearance: none;
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238b90a8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
           background-repeat: no-repeat;
