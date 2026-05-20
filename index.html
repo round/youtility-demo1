@@ -412,7 +412,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 /* ── STEP 1 SEGMENTS ── */
 .seg-intro{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;max-height:120px;overflow:hidden;transition:opacity .22s ease,max-height .25s ease,margin .25s ease;}
 #segContent:has(.seg-grid.phase-brief) .seg-intro{opacity:0;max-height:0;margin-bottom:0;pointer-events:none;}
-.seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;transition:grid-template-columns .35s ease,gap .25s ease;}
+.seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
 .seg-grid.phase-brief{grid-template-columns:repeat(var(--seg-n,1),1fr);gap:9px;}
 .seg-card{border:1px solid var(--border2);border-radius:11px;background:var(--bg3);padding:13px;cursor:pointer;position:relative;overflow:hidden;max-height:560px;transition:border-color .15s ease,background .2s ease,opacity .22s ease,max-height .28s ease,padding .28s ease,margin .28s ease,transform .22s ease;}
 .seg-card:hover{border-color:var(--border3);}
