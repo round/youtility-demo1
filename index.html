@@ -3670,44 +3670,58 @@ function renderBriefIntro(){
 function triggerPhaseBrief(){
   const grid=document.getElementById('segGrid');if(!grid)return;
   const exiting=Array.from(grid.querySelectorAll('.seg-card:not(.sel)'));
-  exiting.forEach(c=>c.classList.add('exiting'));
-  // Wait for the exit fade/collapse to play, then reflow grid + morph selected.
+  const survivors=Array.from(grid.querySelectorAll('.seg-card.sel'));
+  // Snapshot positions BEFORE any layout changes.
+  const firstRects=survivors.map(c=>c.getBoundingClientRect());
+  const gridRect=grid.getBoundingClientRect();
+  const exitRects=exiting.map(c=>c.getBoundingClientRect());
+  // Take exiting cards out of grid flow so they can fade in place while the
+  // surviving cards FLIP to their new layout simultaneously.
+  grid.style.position='relative';
+  exiting.forEach((c,i)=>{
+    const r=exitRects[i];
+    c.style.position='absolute';
+    c.style.left=(r.left-gridRect.left)+'px';
+    c.style.top=(r.top-gridRect.top)+'px';
+    c.style.width=r.width+'px';
+    c.classList.add('exiting');
+  });
+  // Apply the new layout — top intro collapses, grid template switches.
+  grid.style.setProperty('--seg-n',survivors.length);
+  grid.classList.add('phase-brief');
+  const lastRects=survivors.map(c=>c.getBoundingClientRect());
+  // INVERT + PLAY for survivors. Position + width animate together.
+  survivors.forEach((c,i)=>{
+    const dx=firstRects[i].left-lastRects[i].left;
+    const dy=firstRects[i].top-lastRects[i].top;
+    c.style.justifySelf='start';
+    c.style.transition='none';
+    c.style.transform=`translate(${dx}px,${dy}px)`;
+    c.style.width=firstRects[i].width+'px';
+  });
+  void grid.offsetHeight;
+  survivors.forEach((c,i)=>{
+    c.style.transition='transform .35s ease, width .35s ease';
+    c.style.transform='';
+    c.style.width=lastRects[i].width+'px';
+  });
   setTimeout(()=>{
-    exiting.forEach(c=>{c.style.display='none';});
-    const survivors=Array.from(grid.querySelectorAll('.seg-card.sel'));
-    // FLIP: snapshot survivor rects BEFORE the layout change.
-    const firstRects=survivors.map(c=>c.getBoundingClientRect());
-    grid.style.setProperty('--seg-n',survivors.length);
-    grid.classList.add('phase-brief');
-    // (Intentionally NOT adding 'phase-brief' to individual cards — keeps inner
-    // content static during the outer position/size animation.)
-    const lastRects=survivors.map(c=>c.getBoundingClientRect());
-    // INVERT: lock each survivor visually back at its old position AND old width.
-    survivors.forEach((c,i)=>{
-      const dx=firstRects[i].left-lastRects[i].left;
-      const dy=firstRects[i].top-lastRects[i].top;
-      c.style.justifySelf='start';
-      c.style.transition='none';
-      c.style.transform=`translate(${dx}px,${dy}px)`;
-      c.style.width=firstRects[i].width+'px';
+    survivors.forEach(c=>{
+      c.style.transition='';
+      c.style.justifySelf='';
+      c.style.width='';
     });
-    void grid.offsetHeight;
-    // PLAY: animate to new position + width together.
-    survivors.forEach((c,i)=>{
-      c.style.transition='transform .35s ease, width .35s ease';
-      c.style.transform='';
-      c.style.width=lastRects[i].width+'px';
+    exiting.forEach(c=>{
+      c.style.display='none';
+      c.style.position='';
+      c.style.left='';
+      c.style.top='';
+      c.style.width='';
     });
-    setTimeout(()=>{
-      survivors.forEach(c=>{
-        c.style.transition='';
-        c.style.justifySelf='';
-        c.style.width='';
-      });
-    },380);
-    if(typeof reorderCtCards==='function')reorderCtCards();
-    if(typeof syncBriefRecState==='function')syncBriefRecState();
-  },240);
+    grid.style.position='';
+  },380);
+  if(typeof reorderCtCards==='function')reorderCtCards();
+  if(typeof syncBriefRecState==='function')syncBriefRecState();
 }
 
 // Reverse the morph: rec-extension hides, desc/note return, grid reflows to
