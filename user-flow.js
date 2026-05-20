@@ -33,8 +33,16 @@
   const SCROLL_MARGIN = 96;             // viewport safe-zone for "needs scroll"
   const SCROLL_SETTLE_TIMEOUT_MS = 1500;
 
+  let CURRENT_FLOWS = null;
+
   // ── Shadow DOM scaffold ────────────────────────────────────────────────
   function buildHost() {
+    if (!document.getElementById("__uf_capture_style__")) {
+      const style = document.createElement("style");
+      style.id = "__uf_capture_style__";
+      style.textContent = `html.uf-capture-mode #${HOST_ID} { display: none !important; }`;
+      document.head.appendChild(style);
+    }
     let host = document.getElementById(HOST_ID);
     if (host) return host.shadowRoot;
     host = document.createElement("div");
@@ -213,6 +221,89 @@
       await wait(interval, signal);
     }
   }
+  async function resolveTarget(step, signal) {
+    if (!step.sel && !step.find) return null;
+    return await poll(() => {
+      const cand = findOne(step);
+      if (!cand || !isVisible(cand)) return null;
+      if (step.waitForTextEquals) {
+        if ((cand.textContent || "").trim() !== step.waitForTextEquals) return null;
+      }
+      return cand;
+    }, { signal });
+  }
+
+  // ── Capture walker ────────────────────────────────────────────────────
+  async function captureSettle(nextStep, signal) {
+    // Two rAFs: one to commit the action's state change, one to ensure paint.
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    if (!nextStep) {
+      await wait(200, signal);
+      return;
+    }
+    const gateSpec = nextStep.waitFor || (nextStep.sel || nextStep.find ? nextStep : null);
+    if (!gateSpec) {
+      await wait(200, signal);
+      return;
+    }
+    await poll(() => {
+      const el = findOne(gateSpec);
+      if (!el || !isVisible(el)) return null;
+      if (gateSpec.waitForTextEquals != null) {
+        if ((el.textContent || "").trim() !== gateSpec.waitForTextEquals) return null;
+      }
+      return el;
+    }, { signal, timeout: 4000 });
+  }
+
+  async function captureStep(step, nextStep, signal) {
+    if (step.waitFor) {
+      const got = await poll(() => {
+        const el = findOne(step.waitFor);
+        return el && isVisible(el) ? el : null;
+      }, { signal, timeout: 4000 });
+      if (!got) throw new Error("waitFor gate never resolved");
+    }
+
+    const action = inferAction(step);
+    if (action === "wait") {
+      if (step.ms != null) await wait(step.ms, signal);
+      return captureSettle(nextStep, signal);
+    }
+
+    const el = await resolveTarget(step, signal);
+    if (!el) throw new Error("could not resolve target");
+
+    // Instant scroll. The screenshot is of the viewport; we want target in view, no easing.
+    el.scrollIntoView({ block: "center", inline: "nearest" });
+
+    if (action === "click") fireClick(el);
+    else if (action === "hover") fireHover(el);
+    else if (action === "type") await fireType(el, step.text || "", { clear: step.clear, perChar: 0 }, signal);
+
+    return captureSettle(nextStep, signal);
+  }
+
+  async function captureFlow(flowId, { onStepDone, signal } = {}) {
+    const flow = CURRENT_FLOWS && CURRENT_FLOWS.find(f => f.id === flowId);
+    if (!flow) throw new Error("unknown flow: " + flowId);
+    if (signal && signal.aborted) throw new Error("abort");
+
+    document.documentElement.classList.add("uf-capture-mode");
+    try {
+      for (let i = 0; i < flow.steps.length; i++) {
+        if (signal && signal.aborted) throw new Error("abort");
+        const step = flow.steps[i];
+        const nextStep = flow.steps[i + 1] || null;
+        await captureStep(step, nextStep, signal);
+        if (onStepDone) {
+          await onStepDone({ flowId, idx: i, total: flow.steps.length, say: step.say || null });
+        }
+      }
+    } finally {
+      document.documentElement.classList.remove("uf-capture-mode");
+    }
+  }
 
   // ── Cursor ─────────────────────────────────────────────────────────────
   function cursorState(root) {
@@ -326,18 +417,6 @@
       i = 0;
       pickEl.value = flows[activeIdx].id;
       setUI();
-    }
-
-    async function resolveTarget(step, signal) {
-      if (!step.sel && !step.find) return null;
-      return await poll(() => {
-        const cand = findOne(step);
-        if (!cand || !isVisible(cand)) return null;
-        if (step.waitForTextEquals) {
-          if ((cand.textContent || "").trim() !== step.waitForTextEquals) return null;
-        }
-        return cand;
-      }, { signal });
     }
 
     async function runStep(step, signal) {
@@ -498,11 +577,23 @@
   function play(input) {
     const flows = normalizeFlows(input);
     if (!flows || flows.length === 0) return;
+    CURRENT_FLOWS = flows;
     const root = buildHost();
     placeCursor(root, root.getElementById("cursor"), window.innerWidth / 2, window.innerHeight - 80);
     enableDrag(root);
     return Engine(root, flows);
   }
 
-  window.UserFlow = { play };
+  window.UserFlow = {
+    play,
+    getFlows() {
+      if (!CURRENT_FLOWS) return [];
+      return CURRENT_FLOWS.map(f => ({
+        id: f.id,
+        name: f.name,
+        steps: f.steps.map(s => ({ say: s.say || null })),
+      }));
+    },
+    capture: captureFlow,
+  };
 })();
