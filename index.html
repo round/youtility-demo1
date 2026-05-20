@@ -431,12 +431,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .sig-tag.mid{background:rgba(232,160,32,.1);color:var(--accent2);border:1px solid rgba(232,160,32,.2);}
 .sig-tag.low{background:rgba(208,85,58,.1);color:var(--accent);border:1px solid rgba(208,85,58,.2);}
 .seg-note{font-size:10px;color:var(--text3);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5;max-height:120px;opacity:1;overflow:hidden;transition:opacity .2s ease,max-height .25s ease,margin .25s ease,padding .25s ease,border-color .25s ease;}
-/* phase-brief: selected cards morph into rationale cards in place */
-.seg-card.phase-brief.sel{cursor:pointer;}
+/* phase-brief: cards drop toggle vocabulary — no checkmark, accent-based active state replaces the old brand-primary toggle */
+.seg-card.phase-brief.sel{cursor:pointer;border-color:var(--border2);background:var(--bg3);}
 .seg-card.phase-brief.sel:hover{border-color:var(--brc-accent,var(--border3));}
-.seg-card.phase-brief.sel.selected{border-color:var(--brc-accent,var(--brand-primary));background:color-mix(in srgb,var(--brc-accent,var(--brand-primary)) 6%,var(--bg3));}
-.seg-card.phase-brief.sel.muted{opacity:.42;}
-.seg-card.phase-brief.sel.muted:hover{opacity:.82;}
+.seg-card.phase-brief.sel.active{border-color:var(--brc-accent,var(--brand-primary));background:color-mix(in srgb,var(--brc-accent,var(--brand-primary)) 6%,var(--bg3));}
+.seg-card.phase-brief .seg-chk{display:none;}
+.seg-card.phase-brief .seg-name{padding-right:0;}
 .seg-card.phase-brief .seg-desc,.seg-card.phase-brief .seg-note{opacity:0;max-height:0;margin-top:0;margin-bottom:0;padding-top:0;border-top-color:transparent;}
 /* in-card rec extension (rendered hidden in phase 1, revealed in phase 2) */
 .seg-rec-extension{opacity:0;max-height:0;overflow:hidden;margin-top:0;padding-top:0;border-top:1px dashed transparent;transition:opacity .25s ease .08s,max-height .3s ease .05s,margin-top .25s ease,padding-top .25s ease,border-top-color .25s ease;}
@@ -3481,7 +3481,7 @@ function startCampRename(id){
 }
 
 // ══ CAMPAIGN TYPE SELECTOR ══
-function selectType(el){document.querySelectorAll('.ct-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedType=el.dataset.type;document.getElementById('promoPanel').style.display=selectedType==='promo'?'':'none';document.getElementById('productPanel').style.display=selectedType==='product'||selectedType==='arrival'?'':'none';document.getElementById('seriesPanel').style.display=selectedType==='series'?'':'none';if(typeof syncBriefRecState==='function')syncBriefRecState();}
+function selectType(el){document.querySelectorAll('.ct-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedType=el.dataset.type;document.getElementById('promoPanel').style.display=selectedType==='promo'?'':'none';document.getElementById('productPanel').style.display=selectedType==='product'||selectedType==='arrival'?'':'none';document.getElementById('seriesPanel').style.display=selectedType==='series'?'':'none';syncSegActive();}
 
 function selDiscount(el,val){document.querySelectorAll('#discountPills .offer-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');if(val!=='custom')document.getElementById('discPct').value=val;}
 
@@ -3664,19 +3664,19 @@ function renderBriefIntro(){
   triggerPhaseBrief();
 }
 
-// Morph step-1 segment cards in place into step-2 rationale cards. Unselected
-// cards fade + collapse, the grid reflows to a single column, and each
-// selected card's rec-extension reveals (rec tile + rationale + mindsets).
+const MORPH_MS=350;
+
+// Step 1 → step 2: surviving cards FLIP to a single row of N (position + width),
+// exiting cards are pinned out of grid flow so they fade in place without
+// affecting layout. Everything starts on the same tick.
 function triggerPhaseBrief(){
   const grid=document.getElementById('segGrid');if(!grid)return;
+  if(grid._phaseTimer){clearTimeout(grid._phaseTimer);grid._phaseTimer=0;}
   const exiting=Array.from(grid.querySelectorAll('.seg-card:not(.sel)'));
   const survivors=Array.from(grid.querySelectorAll('.seg-card.sel'));
-  // Snapshot positions BEFORE any layout changes.
   const firstRects=survivors.map(c=>c.getBoundingClientRect());
   const gridRect=grid.getBoundingClientRect();
   const exitRects=exiting.map(c=>c.getBoundingClientRect());
-  // Take exiting cards out of grid flow so they can fade in place while the
-  // surviving cards FLIP to their new layout simultaneously.
   grid.style.position='relative';
   exiting.forEach((c,i)=>{
     const r=exitRects[i];
@@ -3686,11 +3686,13 @@ function triggerPhaseBrief(){
     c.style.width=r.width+'px';
     c.classList.add('exiting');
   });
-  // Apply the new layout — top intro collapses, grid template switches.
   grid.style.setProperty('--seg-n',survivors.length);
   grid.classList.add('phase-brief');
+  // Apply phase-brief to each survivor so the per-card inner morph (hide
+  // checkmark, hide desc/note, reveal rec extension) actually fires. The
+  // earlier "outer-only" guard relied on dead CSS — see commit 754df8c.
+  survivors.forEach(c=>c.classList.add('phase-brief'));
   const lastRects=survivors.map(c=>c.getBoundingClientRect());
-  // INVERT + PLAY for survivors. Position + width animate together.
   survivors.forEach((c,i)=>{
     const dx=firstRects[i].left-lastRects[i].left;
     const dy=firstRects[i].top-lastRects[i].top;
@@ -3699,13 +3701,16 @@ function triggerPhaseBrief(){
     c.style.transform=`translate(${dx}px,${dy}px)`;
     c.style.width=firstRects[i].width+'px';
   });
+  // Force reflow so INVERT commits before PLAY — otherwise the browser
+  // coalesces both writes and the animation never plays.
   void grid.offsetHeight;
   survivors.forEach((c,i)=>{
-    c.style.transition='transform .35s ease, width .35s ease';
+    c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease`;
     c.style.transform='';
     c.style.width=lastRects[i].width+'px';
   });
-  setTimeout(()=>{
+  grid._phaseTimer=setTimeout(()=>{
+    grid._phaseTimer=0;
     survivors.forEach(c=>{
       c.style.transition='';
       c.style.justifySelf='';
@@ -3719,22 +3724,34 @@ function triggerPhaseBrief(){
       c.style.width='';
     });
     grid.style.position='';
-  },380);
-  if(typeof reorderCtCards==='function')reorderCtCards();
-  if(typeof syncBriefRecState==='function')syncBriefRecState();
+  },MORPH_MS+30);
+  reorderCtCards();
+  syncSegActive();
 }
 
-// Reverse the morph: rec-extension hides, desc/note return, grid reflows to
-// two-column, then previously-exited cards fade back into layout.
+// Reverse: drop the phase-brief layout class, clear any inline styles left by
+// triggerPhaseBrief (in case Back fires during the cleanup window), then fade
+// exited cards back in.
 function triggerPhaseSelect(){
   const grid=document.getElementById('segGrid');if(!grid)return;
-  Array.from(grid.querySelectorAll('.seg-card.phase-brief')).forEach(c=>c.classList.remove('phase-brief'));
+  if(grid._phaseTimer){clearTimeout(grid._phaseTimer);grid._phaseTimer=0;}
   grid.classList.remove('phase-brief');
+  grid.querySelectorAll('.seg-card.phase-brief').forEach(c=>{c.classList.remove('phase-brief','active');});
   grid.style.removeProperty('--seg-n');
+  grid.style.position='';
+  grid.querySelectorAll('.seg-card.sel').forEach(c=>{
+    c.style.transition='';
+    c.style.transform='';
+    c.style.justifySelf='';
+    c.style.width='';
+  });
   setTimeout(()=>{
-    Array.from(grid.querySelectorAll('.seg-card.exiting')).forEach(c=>{
+    grid.querySelectorAll('.seg-card.exiting').forEach(c=>{
       c.style.display='';
-      // Force reflow so display change settles before the opacity transition fires.
+      c.style.position='';
+      c.style.left='';
+      c.style.top='';
+      c.style.width='';
       void c.offsetHeight;
       c.classList.remove('exiting');
     });
@@ -3747,19 +3764,15 @@ function pickRecCt(type){
   if(card)selectType(card);
 }
 
-// In phase-brief, the morphed seg-cards play the role of rationale cards:
-// the one whose recommended type matches the current ct-card selection lights
-// up; others go muted; if no card matches, all stay neutral.
-function syncBriefRecState(){
+// In phase-brief, the top cards are activators, not toggles. The card(s) whose
+// recommendation type matches the current ct selection get .active (accent border
+// + soft accent tint); the rest stay neutral. No muting — inactive cards still
+// show their full rationale; only the activator highlight differs.
+function syncSegActive(){
   const cards=document.querySelectorAll('.seg-card.phase-brief.sel');
   if(!cards.length)return;
   const t=(typeof selectedType==='string')?selectedType:'promo';
-  const anyMatch=Array.from(cards).some(c=>c.dataset.recType===t);
-  cards.forEach(c=>{
-    c.classList.remove('selected','muted');
-    if(c.dataset.recType===t)c.classList.add('selected');
-    else if(anyMatch)c.classList.add('muted');
-  });
+  cards.forEach(c=>c.classList.toggle('active',c.dataset.recType===t));
 }
 
 // Reorder CAMPAIGN TYPE cards so the ones recommended by the selected segments
