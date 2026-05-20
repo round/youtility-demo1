@@ -3619,6 +3619,7 @@ function renderBriefIntro(){
       </div>
     </div>`;
   }).join('');
+  reorderCtCards();
   syncBriefRecState();
 }
 
@@ -3643,6 +3644,21 @@ function syncBriefRecState(){
     if(c.dataset.recType===t)c.classList.add('selected');
     else if(anyMatch)c.classList.add('muted');
   });
+}
+
+// Reorder CAMPAIGN TYPE cards so the ones recommended by the selected segments
+// surface first, in the order those segments appear. Non-recommended types fall
+// in behind, keeping their original relative order.
+function reorderCtCards(){
+  const grid=document.getElementById('ctGrid');if(!grid)return;
+  const cards=Array.from(grid.querySelectorAll('.ct-card'));
+  if(!cards.length)return;
+  const sel=SEGS.filter(s=>s.selected);
+  const recTypes=[];
+  sel.forEach(s=>{const r=SEG_CAMPAIGN_REC[s.id];if(r&&r.type&&!recTypes.includes(r.type))recTypes.push(r.type);});
+  const original=cards.map(c=>c.dataset.type);
+  const ordered=[...recTypes.filter(t=>original.includes(t)),...original.filter(t=>!recTypes.includes(t))];
+  ordered.forEach(t=>{const c=cards.find(x=>x.dataset.type===t);if(c)grid.appendChild(c);});
 }
 
 function renderGenOverlay(){
