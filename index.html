@@ -428,20 +428,37 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .sig-tag.low{background:rgba(208,85,58,.1);color:var(--accent);border:1px solid rgba(208,85,58,.2);}
 .seg-note{font-size:10px;color:var(--text3);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5;}
 /* ── STEP 2 BRIEF — RATIONALE ── */
-.brief-rec-wrap{margin-bottom:18px;}
-.brief-rec-lbl{font-family:'Montserrat',sans-serif;font-size:9.5px;letter-spacing:.09em;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.brief-rec-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
-.brief-rec-grid{display:grid;grid-template-columns:1fr;gap:9px;}
-.brief-rec-card{border:1px solid var(--border2);border-radius:10px;background:var(--bg3);padding:11px 13px;display:grid;grid-template-columns:minmax(140px,1fr) 1fr;gap:13px;align-items:start;}
-.brief-rec-seg{display:flex;flex-direction:column;gap:3px;border-right:1px solid var(--border);padding-right:11px;}
-.brief-rec-seg-name{font-size:12px;font-weight:600;color:var(--text);}
-.brief-rec-seg-size{font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3);}
-.brief-rec-body{display:flex;flex-direction:column;gap:7px;}
-.brief-rec-row{font-size:11px;color:var(--text2);line-height:1.5;}
-.brief-rec-row b{color:var(--text);font-weight:600;}
-.brief-rec-mindset-lbl{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.08em;color:var(--text3);margin-top:1px;}
-.brief-rec-chips{display:flex;flex-wrap:wrap;gap:4px;}
-.brief-rec-chip{font-family:'Montserrat',sans-serif;font-size:8.5px;padding:2px 7px;border-radius:10px;background:rgb(var(--brand-primary-rgb) / .1);color:var(--brand-primary-hover);border:1px solid rgb(var(--brand-primary-rgb) / .25);}
+.brief-rec-wrap{margin:2px 0 22px;display:flex;flex-direction:column;gap:8px;}
+.brief-rec-card{position:relative;border:1px solid var(--border2);border-radius:12px;background:var(--bg3);padding:13px 15px 13px 18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:stretch;overflow:hidden;cursor:pointer;transition:border-color .15s,background .15s,opacity .15s,transform .15s;}
+.brief-rec-card:hover{border-color:var(--border3);}
+.brief-rec-card::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:2px;border-radius:2px;background:var(--brc-accent,var(--brand-primary));opacity:.55;transition:opacity .15s,top .15s,bottom .15s;}
+.brief-rec-card.selected{border-color:var(--brc-accent,var(--brand-primary));background:color-mix(in srgb, var(--brc-accent,var(--brand-primary)) 6%, var(--bg3));}
+.brief-rec-card.selected::before{opacity:1;top:0;bottom:0;width:3px;}
+.brief-rec-card.muted{opacity:.42;}
+.brief-rec-card.muted:hover{opacity:.78;}
+.brief-rec-left{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.brief-rec-seg-row{display:flex;align-items:baseline;gap:9px;}
+.brief-rec-seg-name{font-size:12.5px;font-weight:600;color:var(--text);letter-spacing:.005em;}
+.brief-rec-seg-size{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.06em;color:var(--text3);}
+.brief-rec-because{font-size:10.5px;color:var(--text3);font-family:'Montserrat',sans-serif;letter-spacing:.07em;margin-top:4px;}
+.brief-rec-sigs{display:flex;flex-wrap:wrap;gap:4px;margin-top:1px;}
+.brief-rec-sig{font-family:'Montserrat',sans-serif;font-size:8.5px;padding:2px 6px;border-radius:3px;letter-spacing:.02em;}
+.brief-rec-sig .lvl{font-weight:700;letter-spacing:.05em;opacity:.85;margin-left:4px;}
+.brief-rec-sig.high{background:rgba(46,168,106,.1);color:var(--green);border:1px solid rgba(46,168,106,.2);}
+.brief-rec-sig.mid{background:rgba(232,160,32,.09);color:var(--accent2);border:1px solid rgba(232,160,32,.2);}
+.brief-rec-sig.low{background:rgba(208,85,58,.08);color:var(--accent);border:1px solid rgba(208,85,58,.2);}
+.brief-rec-right{display:flex;flex-direction:column;gap:8px;border-left:1px solid var(--border);padding-left:18px;min-width:0;}
+.brief-rec-rec-head{display:flex;align-items:center;gap:9px;}
+.brief-rec-ct-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--brc-tint,rgb(var(--brand-primary-rgb) / .12));color:var(--brc-accent,var(--brand-primary));}
+.brief-rec-ct-icon svg{width:14px;height:14px;}
+.brief-rec-rec-meta{display:flex;flex-direction:column;gap:1px;min-width:0;}
+.brief-rec-rec-kicker{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);}
+.brief-rec-rec-name{font-size:12px;font-weight:600;color:var(--text);}
+.brief-rec-rationale{font-size:11px;color:var(--text2);line-height:1.5;font-style:italic;}
+.brief-rec-mindsets{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;margin-top:2px;padding-top:8px;border-top:1px dashed var(--border);}
+.brief-rec-mindsets-lbl{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);}
+.brief-rec-mindset{font-size:10.5px;color:var(--text);font-weight:500;}
+.brief-rec-mindset+.brief-rec-mindset::before{content:'·';color:var(--text3);margin:0 5px;font-weight:400;}
 /* ── STEP 3 OUTPUT — SPLIT LAYOUT ── */
 .output-split{display:grid;grid-template-columns:1fr 1fr;gap:18px;height:100%;min-height:0;}
 .output-left{display:flex;flex-direction:column;min-width:0;}
@@ -3467,7 +3484,7 @@ function startCampRename(id){
 }
 
 // ══ CAMPAIGN TYPE SELECTOR ══
-function selectType(el){document.querySelectorAll('.ct-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedType=el.dataset.type;document.getElementById('promoPanel').style.display=selectedType==='promo'?'':'none';document.getElementById('productPanel').style.display=selectedType==='product'||selectedType==='arrival'?'':'none';document.getElementById('seriesPanel').style.display=selectedType==='series'?'':'none';}
+function selectType(el){document.querySelectorAll('.ct-card').forEach(c=>c.classList.remove('selected'));el.classList.add('selected');selectedType=el.dataset.type;document.getElementById('promoPanel').style.display=selectedType==='promo'?'':'none';document.getElementById('productPanel').style.display=selectedType==='product'||selectedType==='arrival'?'':'none';document.getElementById('seriesPanel').style.display=selectedType==='series'?'':'none';if(typeof syncBriefRecState==='function')syncBriefRecState();}
 
 function selDiscount(el,val){document.querySelectorAll('#discountPills .offer-pill').forEach(p=>p.classList.remove('selected'));el.classList.add('selected');if(val!=='custom')document.getElementById('discPct').value=val;}
 
@@ -3533,14 +3550,23 @@ function joinSegNames(segs){
   return `${names.slice(0,-1).join(', ')}, and ${names[names.length-1]}`;
 }
 
-// Per-segment recommendation: which CAMPAIGN TYPE card matches which segment,
-// plus a one-line rationale grounded in that segment's behavioural note.
+// CT identity per type — matches the CAMPAIGN TYPE cards in markup so the
+// rationale card visually inherits the type it's recommending (icon + accent).
+const CT_IDENTITY = {
+  promo:  {icon:'<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',                                    accent:'#3892ff', tint:'rgba(56,146,255,.14)'},
+  product:{icon:'<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>',                                  accent:'#4a7fd4', tint:'rgba(74,127,212,.12)'},
+  arrival:{icon:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',                                                  accent:'#2ea86a', tint:'rgba(46,168,106,.12)'},
+  series: {icon:'<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',accent:'#e8a020', tint:'rgba(232,160,32,.12)'},
+};
+
+// Per-segment recommendation: which CAMPAIGN TYPE card matches each segment
+// + a one-line rationale grounded in that segment's behavioural note.
 // Keys match SEGS ids; values stay tenant-agnostic (loyal/lapsed/browse/new).
 const SEG_CAMPAIGN_REC = {
-  loyal:  {type:'product', label:'Feature spotlight',  rationale:'Lead with newness and previews — promo erodes premium signal'},
-  lapsed: {type:'promo',   label:'Promotional offer',  rationale:'Reactivation ROI peaks with a value-led, time-bound hook'},
-  browse: {type:'arrival', label:'New feature',        rationale:'Trust signals and friction-removal beat discounting here'},
-  new:    {type:'product', label:'Feature spotlight',  rationale:'Introduce the product first — protect long-term value perception'},
+  loyal:  {type:'product', label:'Feature spotlight', rationale:'Lead with newness and previews — promo erodes premium signal.'},
+  lapsed: {type:'promo',   label:'Promotional offer', rationale:'Reactivation ROI peaks with a value-led, time-bound hook.'},
+  browse: {type:'arrival', label:'New feature',       rationale:'Trust signals and friction-removal outperform discounting here.'},
+  new:    {type:'product', label:'Feature spotlight', rationale:'Introduce the product first — protect long-term value perception.'},
 };
 
 // Resolve mindset profile names for a segment by inverting the active tenant's
@@ -3554,21 +3580,69 @@ function getMindsetsForSeg(segId){
   return names;
 }
 
+// Reformat a raw signal like "Tx frequency HIGH" → {label, level} so we can
+// render the label and the level chip-side-by-side with distinct weights.
+function splitSignal(raw){
+  const m=String(raw||'').match(/^(.*?)\s+(HIGH|MID|LOW|YES|NO)$/i);
+  if(m)return {label:m[1].trim(),level:m[2].toUpperCase()};
+  return {label:String(raw||'').trim(),level:''};
+}
+
 function renderBriefIntro(){
   const el=document.getElementById('briefIntro');if(!el)return;
   const sel=SEGS.filter(s=>s.selected);
   const rec=document.getElementById('briefRec');
   if(!sel.length){el.innerHTML='';if(rec)rec.innerHTML='';return;}
   const n=sel.length;
-  el.innerHTML=`Set the campaign angle for the ${n} segment${n!==1?'s':''} you selected: ${joinSegNames(sel)}. ${getProductName()} will tailor copy, channel mix, and CTA to each segment's signals in the next step.`;
-  if(rec){
-    rec.innerHTML=`<div class="brief-rec-lbl">RECOMMENDED MATCHES</div><div class="brief-rec-grid">${sel.map(s=>{
-      const r=SEG_CAMPAIGN_REC[s.id]||{label:'Promotional offer',rationale:s.note||''};
-      const mindsets=getMindsetsForSeg(s.id);
-      const chips=mindsets.length?`<div class="brief-rec-mindset-lbl">INFORMED BY MINDSET PROFILES</div><div class="brief-rec-chips">${mindsets.map(m=>`<span class="brief-rec-chip">${m}</span>`).join('')}</div>`:'';
-      return `<div class="brief-rec-card"><div class="brief-rec-seg"><div class="brief-rec-seg-name">${s.name}</div><div class="brief-rec-seg-size">${s.size} customers</div></div><div class="brief-rec-body"><div class="brief-rec-row"><b>Campaign type:</b> ${r.label}</div><div class="brief-rec-row" style="color:var(--text3);font-style:italic">${r.rationale}</div>${chips}</div></div>`;
-    }).join('')}</div>`;
-  }
+  el.innerHTML=`You selected ${n} segment${n!==1?'s':''} — ${joinSegNames(sel)}. Each card below binds the brief to one segment, drawn from its behavioural signals and the mindset profiles powering it.`;
+  if(!rec)return;
+  rec.innerHTML=sel.map(s=>{
+    const r=SEG_CAMPAIGN_REC[s.id]||{type:'promo',label:'Promotional offer',rationale:s.note||''};
+    const ct=CT_IDENTITY[r.type]||CT_IDENTITY.promo;
+    const sigs=(s.signals||[]).map((raw,i)=>{const {label,level}=splitSignal(raw);const tone=(s.types&&s.types[i])||'mid';return `<span class="brief-rec-sig ${tone}">${label}${level?`<span class="lvl">${level}</span>`:''}</span>`;}).join('');
+    const mindsets=getMindsetsForSeg(s.id);
+    const mindsetLine=mindsets.length?`<div class="brief-rec-mindsets"><span class="brief-rec-mindsets-lbl">MINDSETS</span>${mindsets.map(m=>`<span class="brief-rec-mindset">${m}</span>`).join('')}</div>`:'';
+    const style=`--brc-accent:${ct.accent};--brc-tint:${ct.tint}`;
+    return `<div class="brief-rec-card" data-rec-type="${r.type}" style="${style}" onclick="pickRecCt('${r.type}')">
+      <div class="brief-rec-left">
+        <div class="brief-rec-seg-row"><div class="brief-rec-seg-name">${s.name}</div><div class="brief-rec-seg-size">${s.size} CUSTOMERS</div></div>
+        <div class="brief-rec-because">BECAUSE THEY SHOW</div>
+        <div class="brief-rec-sigs">${sigs}</div>
+      </div>
+      <div class="brief-rec-right">
+        <div class="brief-rec-rec-head">
+          <div class="brief-rec-ct-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ct.icon}</svg></div>
+          <div class="brief-rec-rec-meta"><div class="brief-rec-rec-kicker">${getProductName().toUpperCase()} IS DRAFTING</div><div class="brief-rec-rec-name">${r.label}</div></div>
+        </div>
+        <div class="brief-rec-rationale">${r.rationale}</div>
+        ${mindsetLine}
+      </div>
+    </div>`;
+  }).join('');
+  syncBriefRecState();
+}
+
+// Two-way binding between rationale cards (top) and CAMPAIGN TYPE cards.
+// - Clicking a rationale card selects the matching ct-card.
+// - The rationale matching the current ct-card type is .selected.
+// - If at least one rationale matches, non-matchers go .muted.
+// - If no rationale matches (user picked an unrelated type), all stay neutral —
+//   the rationale set is effectively deselected, which is intentional.
+function pickRecCt(type){
+  const card=document.querySelector(`.ct-card[data-type="${type}"]`);
+  if(card)selectType(card);
+}
+
+function syncBriefRecState(){
+  const cards=document.querySelectorAll('.brief-rec-card');
+  if(!cards.length)return;
+  const t=(typeof selectedType==='string')?selectedType:'promo';
+  const anyMatch=Array.from(cards).some(c=>c.dataset.recType===t);
+  cards.forEach(c=>{
+    c.classList.remove('selected','muted');
+    if(c.dataset.recType===t)c.classList.add('selected');
+    else if(anyMatch)c.classList.add('muted');
+  });
 }
 
 function renderGenOverlay(){
