@@ -1140,6 +1140,8 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
       <!-- STEP 2: BRIEF -->
       <div class="wiz-step" id="ws2">
 
+        <p class="seg-intro" id="briefIntro"></p>
+
         <!-- Campaign type -->
         <div class="brief-section-lbl">CAMPAIGN TYPE</div>
         <div class="ct-grid" id="ctGrid">
@@ -3481,7 +3483,7 @@ function renderWizUI(){[1,2,3].forEach(i=>document.getElementById(`ws${i}`).clas
 function renderWizTrack(){document.getElementById('stepTrack').innerHTML=WLBL.map((l,i)=>{const n=i+1,st=n<wizStep?'done':n===wizStep?'active':'pending',icon=st==='done'?IC.chk:n,line=i<WLBL.length-1?`<div class="step-line ${n<wizStep?'done':''}"></div>`:'';return `<div class="step-node"><div class="step-circ ${st}">${icon}</div><div class="step-lbl ${st}">${l}</div></div>${line}`;}).join('');}
 
 function wNext(){
-  if(wizStep===1){wizStep=2;renderWizUI();}
+  if(wizStep===1){wizStep=2;renderWizUI();renderBriefIntro();}
   else if(wizStep===2){
     wizStep=3;renderWizUI();renderGenOverlay();
     sbUserOverride='icon';setSbState('icon');
@@ -3507,6 +3509,22 @@ function renderSegs(){document.getElementById('segContent').innerHTML=`<p class=
 
 function toggleSeg(id){const s=SEGS.find(x=>x.id===id);if(!s)return;s.selected=!s.selected;const c=document.getElementById(`sg-${id}`);c.className=`seg-card ${s.selected?'sel':'desel'}`;c.querySelector('.seg-chk').innerHTML=s.selected?IC.chk:'';const n=SEGS.filter(x=>x.selected).length;document.getElementById('wizInfo').innerHTML=`<span>${n} segment${n!==1?'s':''} selected</span>`;}
 
+function joinSegNames(segs){
+  const names=segs.map(s=>`<strong style="color:var(--text)">${s.name}</strong>`);
+  if(!names.length)return '';
+  if(names.length===1)return names[0];
+  if(names.length===2)return `${names[0]} and ${names[1]}`;
+  return `${names.slice(0,-1).join(', ')}, and ${names[names.length-1]}`;
+}
+
+function renderBriefIntro(){
+  const el=document.getElementById('briefIntro');if(!el)return;
+  const sel=SEGS.filter(s=>s.selected);
+  if(!sel.length){el.innerHTML='';return;}
+  const n=sel.length;
+  el.innerHTML=`Set the campaign angle for the ${n} segment${n!==1?'s':''} you selected: ${joinSegNames(sel)}. ${getProductName()} will tailor copy, channel mix, and CTA to each segment's signals in the next step.`;
+}
+
 function renderGenOverlay(){
   document.getElementById('outputContent').innerHTML=`<div class="gen-overlay"><div class="gen-spin"></div><div class="gen-lbl">Generating segment-tailored content for ${getActiveClient().name}</div><div class="gen-sub">Applying ${getProductName()} behavioural profiles...</div></div>`;
 }
@@ -3514,7 +3532,10 @@ function renderGenOverlay(){
 function renderOutput(){
   const sel=SEGS.filter(s=>s.selected);if(!sel.length)return;
   aSegTab=sel[0].id;aChanTab='email';
+  const n=sel.length;
+  const intro=`<p class="seg-intro">Based on ${joinSegNames(sel)}, ${getProductName()} drafted ${n===1?'a campaign':`${n} campaigns`} for <strong style="color:var(--text)">${getActiveClient().name}</strong> — ${n===1?'tied':'each tied'} back to that segment's purchase, email, and browse signals. ${n===1?'Review':'Switch tabs to review each'} below.</p>`;
   document.getElementById('outputContent').innerHTML=`
+    ${intro}
     <div class="out-tabs" id="outTabs">${sel.map(s=>`<div class="otab ${s.id===aSegTab?'active':''}" onclick="swSeg('${s.id}')">${s.name}</div>`).join('')}</div>
     <div class="output-split" id="outputSplit">
       <div class="output-left" id="outputLeft"></div>
