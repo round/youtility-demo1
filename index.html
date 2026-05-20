@@ -427,6 +427,21 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .sig-tag.mid{background:rgba(232,160,32,.1);color:var(--accent2);border:1px solid rgba(232,160,32,.2);}
 .sig-tag.low{background:rgba(208,85,58,.1);color:var(--accent);border:1px solid rgba(208,85,58,.2);}
 .seg-note{font-size:10px;color:var(--text3);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5;}
+/* ── STEP 2 BRIEF — RATIONALE ── */
+.brief-rec-wrap{margin-bottom:18px;}
+.brief-rec-lbl{font-family:'Montserrat',sans-serif;font-size:9.5px;letter-spacing:.09em;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.brief-rec-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
+.brief-rec-grid{display:grid;grid-template-columns:1fr;gap:9px;}
+.brief-rec-card{border:1px solid var(--border2);border-radius:10px;background:var(--bg3);padding:11px 13px;display:grid;grid-template-columns:minmax(140px,1fr) 1fr;gap:13px;align-items:start;}
+.brief-rec-seg{display:flex;flex-direction:column;gap:3px;border-right:1px solid var(--border);padding-right:11px;}
+.brief-rec-seg-name{font-size:12px;font-weight:600;color:var(--text);}
+.brief-rec-seg-size{font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3);}
+.brief-rec-body{display:flex;flex-direction:column;gap:7px;}
+.brief-rec-row{font-size:11px;color:var(--text2);line-height:1.5;}
+.brief-rec-row b{color:var(--text);font-weight:600;}
+.brief-rec-mindset-lbl{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.08em;color:var(--text3);margin-top:1px;}
+.brief-rec-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.brief-rec-chip{font-family:'Montserrat',sans-serif;font-size:8.5px;padding:2px 7px;border-radius:10px;background:rgb(var(--brand-primary-rgb) / .1);color:var(--brand-primary-hover);border:1px solid rgb(var(--brand-primary-rgb) / .25);}
 /* ── STEP 3 OUTPUT — SPLIT LAYOUT ── */
 .output-split{display:grid;grid-template-columns:1fr 1fr;gap:18px;height:100%;min-height:0;}
 .output-left{display:flex;flex-direction:column;min-width:0;}
@@ -1141,6 +1156,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
       <div class="wiz-step" id="ws2">
 
         <p class="seg-intro" id="briefIntro"></p>
+        <div id="briefRec" class="brief-rec-wrap"></div>
 
         <!-- Campaign type -->
         <div class="brief-section-lbl">CAMPAIGN TYPE</div>
@@ -3517,12 +3533,42 @@ function joinSegNames(segs){
   return `${names.slice(0,-1).join(', ')}, and ${names[names.length-1]}`;
 }
 
+// Per-segment recommendation: which CAMPAIGN TYPE card matches which segment,
+// plus a one-line rationale grounded in that segment's behavioural note.
+// Keys match SEGS ids; values stay tenant-agnostic (loyal/lapsed/browse/new).
+const SEG_CAMPAIGN_REC = {
+  loyal:  {type:'product', label:'Feature spotlight',  rationale:'Lead with newness and previews — promo erodes premium signal'},
+  lapsed: {type:'promo',   label:'Promotional offer',  rationale:'Reactivation ROI peaks with a value-led, time-bound hook'},
+  browse: {type:'arrival', label:'New feature',        rationale:'Trust signals and friction-removal beat discounting here'},
+  new:    {type:'product', label:'Feature spotlight',  rationale:'Introduce the product first — protect long-term value perception'},
+};
+
+// Resolve mindset profile names for a segment by inverting the active tenant's
+// AE segMap (cluster index → segment id) against AEC cluster names.
+function getMindsetsForSeg(segId){
+  if(typeof getAEConfig!=='function')return [];
+  const {AEC,segMap}=getAEConfig('best');
+  if(!AEC||!segMap)return [];
+  const names=[];
+  Object.keys(segMap).forEach(k=>{if(segMap[k]===segId){const c=AEC[+k];if(c&&c.name&&!names.includes(c.name))names.push(c.name);}});
+  return names;
+}
+
 function renderBriefIntro(){
   const el=document.getElementById('briefIntro');if(!el)return;
   const sel=SEGS.filter(s=>s.selected);
-  if(!sel.length){el.innerHTML='';return;}
+  const rec=document.getElementById('briefRec');
+  if(!sel.length){el.innerHTML='';if(rec)rec.innerHTML='';return;}
   const n=sel.length;
   el.innerHTML=`Set the campaign angle for the ${n} segment${n!==1?'s':''} you selected: ${joinSegNames(sel)}. ${getProductName()} will tailor copy, channel mix, and CTA to each segment's signals in the next step.`;
+  if(rec){
+    rec.innerHTML=`<div class="brief-rec-lbl">RECOMMENDED MATCHES</div><div class="brief-rec-grid">${sel.map(s=>{
+      const r=SEG_CAMPAIGN_REC[s.id]||{label:'Promotional offer',rationale:s.note||''};
+      const mindsets=getMindsetsForSeg(s.id);
+      const chips=mindsets.length?`<div class="brief-rec-mindset-lbl">INFORMED BY MINDSET PROFILES</div><div class="brief-rec-chips">${mindsets.map(m=>`<span class="brief-rec-chip">${m}</span>`).join('')}</div>`:'';
+      return `<div class="brief-rec-card"><div class="brief-rec-seg"><div class="brief-rec-seg-name">${s.name}</div><div class="brief-rec-seg-size">${s.size} customers</div></div><div class="brief-rec-body"><div class="brief-rec-row"><b>Campaign type:</b> ${r.label}</div><div class="brief-rec-row" style="color:var(--text3);font-style:italic">${r.rationale}</div>${chips}</div></div>`;
+    }).join('')}</div>`;
+  }
 }
 
 function renderGenOverlay(){
