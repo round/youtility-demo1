@@ -412,8 +412,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 /* ── STEP 1 SEGMENTS ── */
 .seg-intro{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;max-height:120px;overflow:hidden;transition:opacity .22s ease,max-height .25s ease,margin .25s ease;}
 #segContent:has(.seg-grid.phase-brief) .seg-intro{opacity:0;max-height:0;margin-bottom:0;pointer-events:none;}
-.seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;transition:gap .25s ease;}
-.seg-grid.phase-brief{grid-template-columns:1fr;gap:9px;}
+.seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;transition:grid-template-columns .35s ease,gap .25s ease;}
+.seg-grid.phase-brief{grid-template-columns:repeat(var(--seg-n,1),1fr);gap:9px;}
 .seg-card{border:1px solid var(--border2);border-radius:11px;background:var(--bg3);padding:13px;cursor:pointer;position:relative;overflow:hidden;max-height:560px;transition:border-color .15s ease,background .2s ease,opacity .22s ease,max-height .28s ease,padding .28s ease,margin .28s ease,transform .22s ease;}
 .seg-card:hover{border-color:var(--border3);}
 .seg-card.sel{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .06);}
@@ -3673,8 +3673,37 @@ function triggerPhaseBrief(){
   // Wait for the exit fade/collapse to play, then reflow grid + morph selected.
   setTimeout(()=>{
     exiting.forEach(c=>{c.style.display='none';});
+    const survivors=Array.from(grid.querySelectorAll('.seg-card.sel'));
+    // FLIP: snapshot survivor rects BEFORE the layout change.
+    const firstRects=survivors.map(c=>c.getBoundingClientRect());
+    grid.style.setProperty('--seg-n',survivors.length);
     grid.classList.add('phase-brief');
-    Array.from(grid.querySelectorAll('.seg-card.sel')).forEach(c=>c.classList.add('phase-brief'));
+    // (Intentionally NOT adding 'phase-brief' to individual cards — keeps inner
+    // content static during the outer position/size animation.)
+    const lastRects=survivors.map(c=>c.getBoundingClientRect());
+    // INVERT: lock each survivor visually back at its old position AND old width.
+    survivors.forEach((c,i)=>{
+      const dx=firstRects[i].left-lastRects[i].left;
+      const dy=firstRects[i].top-lastRects[i].top;
+      c.style.justifySelf='start';
+      c.style.transition='none';
+      c.style.transform=`translate(${dx}px,${dy}px)`;
+      c.style.width=firstRects[i].width+'px';
+    });
+    void grid.offsetHeight;
+    // PLAY: animate to new position + width together.
+    survivors.forEach((c,i)=>{
+      c.style.transition='transform .35s ease, width .35s ease';
+      c.style.transform='';
+      c.style.width=lastRects[i].width+'px';
+    });
+    setTimeout(()=>{
+      survivors.forEach(c=>{
+        c.style.transition='';
+        c.style.justifySelf='';
+        c.style.width='';
+      });
+    },380);
     if(typeof reorderCtCards==='function')reorderCtCards();
     if(typeof syncBriefRecState==='function')syncBriefRecState();
   },240);
@@ -3686,6 +3715,7 @@ function triggerPhaseSelect(){
   const grid=document.getElementById('segGrid');if(!grid)return;
   Array.from(grid.querySelectorAll('.seg-card.phase-brief')).forEach(c=>c.classList.remove('phase-brief'));
   grid.classList.remove('phase-brief');
+  grid.style.removeProperty('--seg-n');
   setTimeout(()=>{
     Array.from(grid.querySelectorAll('.seg-card.exiting')).forEach(c=>{
       c.style.display='';
