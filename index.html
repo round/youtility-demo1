@@ -422,8 +422,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .seg-intro{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;max-height:120px;overflow:hidden;transition:opacity 0.7s ease,max-height 0.7s ease,margin 0.7s ease;}
 #briefIntro{text-align:center;color:var(--brand-primary-hover);font-weight:600;padding:18px 16px;margin-bottom:18px;max-height:none;}
 #segContent:has(.seg-grid.phase-brief) .seg-intro{opacity:0;max-height:0;margin-bottom:0;pointer-events:none;}
-.seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
-.seg-grid.phase-brief{grid-template-columns:repeat(var(--seg-n,1),1fr);gap:9px;}
+.seg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;}
+.seg-grid.phase-brief{grid-template-columns:repeat(var(--seg-n,1),minmax(0,1fr));gap:9px;}
 .seg-card{border:1px solid var(--border2);border-radius:11px;background:var(--bg3);padding:13px;cursor:pointer;position:relative;overflow:hidden;max-height:560px;transition:border-color .15s ease,background 0.7s ease,opacity 0.7s ease,max-height 0.7s ease,padding 0.7s ease,margin 0.7s ease,transform 0.7s ease;}
 .seg-card:hover{border-color:var(--border3);}
 .seg-card.sel{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .06);}
@@ -3716,10 +3716,16 @@ function triggerPhaseBrief(){
   // transform & width stay at 0s so the upcoming INVERT still snaps.
   // position:relative + z-index lifts survivors above the absolute exit cards
   // so their FLIP doesn't visually pass under the fading rectangles.
+  // min-width:0 stops grid items' default min-width:auto from inflating the
+  // 1fr tracks once we pin width to the (much larger) pre-morph value — without
+  // it, cells balloon to fit the explicit width and the FLIP dx (measured
+  // against the un-inflated lastRects) lands every card except col-1 at the
+  // wrong x, producing a visible teleport on frame 1.
   survivors.forEach(c=>{
     c.style.transition=`transform 0s, width 0s, border-color ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease`;
     c.style.position='relative';
     c.style.zIndex='2';
+    c.style.minWidth='0';
   });
 
   // Pin exited cards out of flow at their original position and size, then
@@ -3813,6 +3819,7 @@ function triggerPhaseBrief(){
       c.style.transition='';
       c.style.justifySelf='';
       c.style.width='';
+      c.style.minWidth='';
       c.style.maxHeight='';
       c.style.position='';
       c.style.zIndex='';
@@ -3936,11 +3943,16 @@ function triggerPhaseSelect(){
   grid.style.transition=`height ${MORPH_MS-EXIT_FADE_MS}ms ease`;
 
   // INVERT survivors back to their phase-brief positions.
+  // min-width:0 keeps the 1fr grid tracks from inflating to fit the explicit
+  // width — same reason as the forward path, kept here for symmetry even
+  // though firstRects.width (phase-brief size) is typically smaller than the
+  // 2-col cell width and wouldn't grow tracks on its own.
   survivors.forEach((c,i)=>{
     const dx=firstRects[i].left-lastRects[i].left;
     const dy=firstRects[i].top-lastRects[i].top;
     c.style.transform=`translate(${dx}px,${dy}px)`;
     c.style.width=firstRects[i].width+'px';
+    c.style.minWidth='0';
     c.style.justifySelf='start';
   });
 
@@ -3973,6 +3985,7 @@ function triggerPhaseSelect(){
       c.style.transition='';
       c.style.justifySelf='';
       c.style.width='';
+      c.style.minWidth='';
       c.style.maxHeight='';
     });
     exited.forEach(c=>{
