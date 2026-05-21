@@ -47,6 +47,8 @@ body{background:var(--bg);color:var(--text);font-family:'Montserrat',sans-serif;
 .login-field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 13px;font-family:'Montserrat',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;}
 .login-field input:focus{border-color:var(--brand-primary-hover);}
 .login-field input::placeholder{color:var(--text3);}
+.login-field.err input{border-color:#c0524a;}
+.login-err{font-size:11px;color:#c0524a;margin-top:6px;min-height:14px;}
 .login-btn{width:100%;padding:11px;background:var(--brand-primary);border:none;border-radius:9px;font-family:'Montserrat',sans-serif;font-size:13.5px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s;margin-top:8px;}
 .login-btn:hover{background:var(--brand-primary-hover);}
 .login-users{margin-top:24px;padding-top:20px;border-top:1px solid var(--border);}
@@ -125,6 +127,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .gc-live{display:flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;font-size:9px;color:var(--green);}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ae-skel{background:linear-gradient(90deg,var(--bg4) 0%,var(--bg3) 50%,var(--bg4) 100%);background-size:200% 100%;animation:ae-shimmer 1.4s ease-in-out infinite;border-radius:4px;display:block;}
+@keyframes ae-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.ae-fade-in{animation:ae-fade .22s ease-out;}
+@keyframes ae-fade{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
 .gc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .gc-m-val{font-size:15px;font-weight:600;color:var(--text);line-height:1;}
 .gc-m-val.pos{color:var(--green);}
@@ -867,9 +873,10 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
       <label>EMAIL</label>
       <input type="email" id="loginEmail" placeholder="you@ledbury.com" />
     </div>
-    <div class="login-field">
+    <div class="login-field" id="loginPassField">
       <label>PASSWORD</label>
-      <input type="password" id="loginPass" placeholder="••••••••" />
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+      <div class="login-err" id="loginErr"></div>
     </div>
     <button class="login-btn" onclick="doLogin()">Sign in</button>
     <div class="login-users">
@@ -2481,7 +2488,47 @@ function getDemoUsers(){
 }
 
 // ── AUTH / SESSION ──
+// Shared-secret gate. Visible in source — this is link-sharing convenience,
+// not real auth. The URL bypass (#pw=flow) lets shared links unlock the demo
+// without anyone having to type the password.
+const DEMO_SECRET = 'flow';
+const DEMO_UNLOCK_KEY = 'demoUnlocked';
+function isDemoUnlocked(){
+  try { return localStorage.getItem(DEMO_UNLOCK_KEY) === '1'; } catch(e){ return false; }
+}
+function markDemoUnlocked(){
+  try { localStorage.setItem(DEMO_UNLOCK_KEY, '1'); } catch(e){}
+}
+function clearDemoUnlock(){
+  try { localStorage.removeItem(DEMO_UNLOCK_KEY); } catch(e){}
+}
+function getShareLink(){
+  return `${location.origin}${location.pathname}${location.search}#pw=${DEMO_SECRET}`;
+}
+function copyShareLink(){
+  const link = getShareLink();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(() => showToast('Share link copied')).catch(() => showToast('Copy failed — link: ' + link));
+  } else {
+    showToast(link);
+  }
+}
+const SHARE_LINK_MENU_ITEM = `<div class="acct-menu-item" onclick="closeAccountModal(); copyShareLink()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><div class="acct-menu-label">Copy share link</div></div>`;
+
 function doLogin() {
+  const passEl = document.getElementById('loginPass');
+  const fieldEl = document.getElementById('loginPassField');
+  const errEl = document.getElementById('loginErr');
+  const entered = passEl ? passEl.value : '';
+  if (entered !== DEMO_SECRET) {
+    if (fieldEl) fieldEl.classList.add('err');
+    if (errEl) errEl.textContent = 'Incorrect password';
+    if (passEl) { passEl.focus(); passEl.select && passEl.select(); }
+    return;
+  }
+  if (fieldEl) fieldEl.classList.remove('err');
+  if (errEl) errEl.textContent = '';
+  markDemoUnlocked();
   const email = (document.getElementById('loginEmail') || {}).value || '';
   const lc = email.toLowerCase();
   let targetId = 'monese-demo';
@@ -2555,6 +2602,10 @@ function quickLogin(target) {
     showToast('No demo user available for "' + target + '"');
     return;
   }
+  // Quick-access rows on the login screen bypass doLogin() — record the
+  // unlock here so the device stays unlocked across reloads. In-app
+  // "Switch user" callsites are already past the gate; this is idempotent.
+  markDemoUnlocked();
   CURRENT_USER_ID = matchedId;
   // If the selected user lives in a different tenant than the one currently
   // active, switch the whole shell over (palette, fonts, injected copy, admin
@@ -2581,6 +2632,7 @@ function quickLogin(target) {
 
 function signOut() {
   CURRENT_USER_ID = '';
+  clearDemoUnlock();
   if (typeof closeAccountModal === 'function') closeAccountModal();
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.remove('hidden');
@@ -3224,6 +3276,78 @@ function autoResizeEl(el){el.style.height='auto';el.style.height=Math.min(el.scr
 // each other via a shared window.* global.
 window._aeReg = window._aeReg || {};
 
+const AE_SKELETON_HTML = (() => {
+  const row = (w,h,extra)=>`<span class="ae-skel" style="width:${w};height:${h}px;${extra||''}"></span>`;
+  const segRow = `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);">
+    <span class="ae-skel" style="width:14px;height:14px;border-radius:50%;flex-shrink:0;"></span>
+    <span class="ae-skel" style="flex:1;height:9px;"></span>
+    <span class="ae-skel" style="width:24px;height:9px;"></span>
+  </div>`;
+  const dimRow = `<div style="margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+      ${row('38%',9)}
+      ${row('14%',9)}
+    </div>
+    ${row('100%',5,'border-radius:3px;')}
+  </div>`;
+  const mktCard = `<div style="border:1px solid var(--border);border-radius:10px;padding:11px 12px;display:flex;flex-direction:column;gap:7px;">
+    ${row('55%',10)}
+    ${row('90%',8)}
+    ${row('72%',8)}
+  </div>`;
+  const legendRow = `<div style="display:flex;align-items:center;gap:6px;"><span class="ae-skel" style="width:8px;height:8px;border-radius:50%;"></span>${row('100%',9)}</div>`;
+  return `<div style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;max-width:100%;">
+  <div style="padding:11px 16px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:7px;">
+      <span class="ae-skel" style="width:13px;height:13px;border-radius:3px;"></span>
+      ${row('120px',12)}
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      ${row('180px',9)}
+      ${row('118px',24,'border-radius:8px;')}
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:250px 1fr;min-height:480px;">
+    <div style="border-right:1px solid var(--border);display:flex;flex-direction:column;">
+      <div style="padding:12px 14px 10px;display:flex;flex-direction:column;align-items:center;border-bottom:1px solid var(--border);">
+        <div style="width:100%;margin-bottom:8px;">${row('40%',8)}</div>
+        <span class="ae-skel" style="width:180px;height:180px;border-radius:50%;"></span>
+        <div style="width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;">${legendRow.repeat(4)}</div>
+        <span class="ae-skel" style="width:88px;height:18px;border-radius:20px;margin-top:10px;"></span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);">
+        ${row('45%',8)}
+        ${row('18px',8)}
+      </div>
+      <div style="overflow:hidden;">${segRow.repeat(4)}</div>
+    </div>
+    <div style="display:flex;flex-direction:column;min-width:0;">
+      <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+          <span class="ae-skel" style="width:11px;height:11px;border-radius:50%;"></span>
+          ${row('48%',11)}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${row('80px',16,'border-radius:20px;')}
+          ${row('38%',9)}
+        </div>
+      </div>
+      <div style="padding:13px 14px;">
+        <div style="margin-bottom:12px;">${row('44%',8)}</div>
+        ${dimRow.repeat(5)}
+      </div>
+      <div style="padding:0 14px 13px;display:flex;flex-direction:column;gap:10px;">
+        ${mktCard.repeat(2)}
+      </div>
+    </div>
+  </div>
+  <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgb(var(--brand-primary-rgb) / .04);">
+    ${row('260px',10)}
+    ${row('200px',26,'border-radius:8px;')}
+  </div>
+</div>`;
+})();
+
 function buildAudienceExplorerHTML(msgId){
   const _copy=(getActiveClient()||{}).copy||{};
   const _aeLbl=_copy.audienceExplorerLabel||'';
@@ -3301,9 +3425,6 @@ function injectAudienceExplorer(kind){
     return;
   }
   const id=nMsgId++;
-  // Brief typing simulation then inject widget
-  streaming=true;
-  document.getElementById('stopBar').classList.add('visible');
   const _clientName = getActiveClient().name;
   const analysingText = kind==='churn'
     ? 'Analysing '+_clientName+' churn-risk profiles...'
@@ -3311,17 +3432,14 @@ function injectAudienceExplorer(kind){
   const introText = kind==='churn'
     ? 'Here are the customer mindset profiles most likely to churn for '+_clientName+'.'
     : 'Here is your customer mindset breakdown for '+_clientName+'.';
-  const placeholder={id,role:'ai',text:analysingText,feedback:null};
-  msgs.push(placeholder); renderMsgs();
+  msgs.push({id,role:'ai',widget:true,feedback:null,widgetHTML:AE_SKELETON_HTML,widgetIntro:analysingText});
+  renderMsgs();
   setTimeout(()=>{
-    streaming=false;
-    document.getElementById('stopBar').classList.remove('visible');
-    // Replace placeholder with widget
     const idx=msgs.findIndex(m=>m.id===id);
     if(idx!==-1){
       msgs[idx]={id,role:'ai',widget:true,feedback:null,widgetHTML:buildAudienceExplorerHTML(id),widgetIntro:introText,widgetKind:kind};
       renderMsgs();
-      // Boot the audience explorer JS after it's in the DOM
+      document.getElementById('widget-'+id).classList.add('ae-fade-in');
       bootAudienceExplorer(kind,id);
     }
   },1200);
@@ -4383,9 +4501,11 @@ function buildDonutChart(data,color){
   </div>`;
 }
 
-  // Bootstrap: show login screen only for multi-tenant clients
+  // Bootstrap: site-wide password gate. The gate shows for every tenant
+  // until the user enters DEMO_SECRET or arrives via a share link with
+  // #pw=<secret>. Unlock state is persisted in localStorage so a device
+  // stays unlocked across reloads until sign-out.
   (function bootstrapSession(){
-    const client = getActiveClient();
     // Cache header-logo originals BEFORE any tenant-switch logo write can fire.
     // restoreActiveTenantBranding may apply a tenant-default logo (PR2) on the
     // very first tenant switch — without a pre-cached original, the Monese
@@ -4394,12 +4514,28 @@ function buildDonutChart(data,color){
       document.querySelectorAll('.client-logo-img').forEach(_cdCacheOriginalSrc);
       document.querySelectorAll('.cw-client-logo img').forEach(_cdCacheOriginalSrc);
     }
+    // Parse #pw=… out of the hash. Treat the hash as a mini querystring so
+    // it composes cleanly with any other fragment params we add later.
+    const rawHash = (location.hash || '').replace(/^#/, '');
+    if (rawHash) {
+      const params = new URLSearchParams(rawHash);
+      if (params.get('pw') === DEMO_SECRET) {
+        markDemoUnlocked();
+        params.delete('pw');
+        const remaining = params.toString();
+        // Strip the secret from the address bar so screenshots / re-shares
+        // of the live URL don't leak it. Keep any other hash params intact.
+        history.replaceState(null, '', `${location.pathname}${location.search}${remaining ? '#' + remaining : ''}`);
+      }
+    }
     const loginEl = document.getElementById('loginScreen');
     if (!loginEl) return;
-    if (client.mode === 'singleTenant') {
+    if (isDemoUnlocked()) {
       loginEl.classList.add('hidden');
     } else {
       loginEl.classList.remove('hidden');
+      const passEl = document.getElementById('loginPass');
+      if (passEl) setTimeout(() => passEl.focus(), 0);
     }
     updateAdminNavVisibility();
     if (typeof updateProjectSwitcherVisibility === 'function') updateProjectSwitcherVisibility();
@@ -5105,6 +5241,7 @@ function renderClientAcctPanel(u, client){
     ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
     ` : '';
     const signOutSection = `
+    ${SHARE_LINK_MENU_ITEM}
     <div class="acct-divider"></div>
     <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
     return `
@@ -5153,6 +5290,8 @@ function renderClientAcctPanel(u, client){
     ${clientListSection}
     ${switchSection}
     <div class="acct-divider"></div>
+    ${SHARE_LINK_MENU_ITEM}
+    <div class="acct-divider"></div>
     <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
   }
 
@@ -5178,6 +5317,8 @@ function renderClientAcctPanel(u, client){
     ${client.enabledFeatures && client.enabledFeatures.whitelabel ? `
     <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}','whitelabel')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text2);"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><div class="acct-menu-label">Edit branding</div></div>` : ''}
     ${switchSection}
+    <div class="acct-divider"></div>
+    ${SHARE_LINK_MENU_ITEM}
     <div class="acct-divider"></div>
     <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
   }

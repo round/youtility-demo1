@@ -140,6 +140,13 @@
       </div>
       <div class="dock" id="dock">
         <div class="grip" id="grip"><span></span><span></span><span></span><span></span></div>
+        <button class="btn" id="reset" title="Reset (reload page)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+        </button>
         <button class="btn primary" id="play" title="Play / pause">
           <svg id="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20"/></svg>
           <svg id="pause-icon" viewBox="0 0 24 24" fill="currentColor" style="display:none">
@@ -528,6 +535,7 @@
 
     root.getElementById("play").addEventListener("click", toggle);
     nextBtn.addEventListener("click", next);
+    root.getElementById("reset").addEventListener("click", () => window.location.reload());
     pickEl.addEventListener("change", e => selectFlow(e.target.value));
 
     setUI();
