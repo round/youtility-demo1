@@ -335,8 +335,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .col-n{flex:2;}.col-st{flex:1;}.col-ty{flex:1;}.col-se{flex:1;text-align:right;}.col-or{flex:1;text-align:right;}.col-rv{flex:1;text-align:right;}.col-ro{flex:1;text-align:right;}
 /* ══ CREATE CAMPAIGN PANEL ══ */
 .step-track{display:flex;align-items:center;margin-bottom:22px;}
-.step-node{display:flex;align-items:center;gap:7px;flex:1;}
-.step-node:last-child{flex:0;}
+.step-node{display:flex;align-items:center;gap:7px;flex:0 0 auto;}
 .step-circ{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:10.5px;font-weight:500;flex-shrink:0;transition:all .2s;}
 .step-circ.done{background:var(--brand-primary);color:#fff;}
 .step-circ.active{background:var(--bg5);color:var(--brand-primary-hover);border:1.5px solid var(--brand-primary);}
@@ -3726,34 +3725,95 @@ function triggerPhaseBrief(){
   syncSegActive();
 }
 
-// Reverse: drop the phase-brief layout class, clear any inline styles left by
-// triggerPhaseBrief (in case Back fires during the cleanup window), then fade
-// exited cards back in.
+// Reverse of triggerPhaseBrief: a mirrored FLIP — survivors translate from
+// their phase-brief positions back to the original 2-col cells, exited cards
+// fade + un-scale in place. Inner content un-collapses via the same .35s CSS
+// transitions used in the forward path, so motion stays in lockstep.
 function triggerPhaseSelect(){
   const grid=document.getElementById('segGrid');if(!grid)return;
   if(grid._phaseTimer){clearTimeout(grid._phaseTimer);grid._phaseTimer=0;}
+  const survivors=Array.from(grid.querySelectorAll('.seg-card.sel'));
+  const exited=Array.from(grid.querySelectorAll('.seg-card.exiting'));
+
+  // FIRST — snapshot survivors' current (phase-brief) visual positions.
+  const firstRects=survivors.map(c=>c.getBoundingClientRect());
+
+  // Re-seat exited cards into the grid at full size but invisible. They need
+  // to occupy their grid cells during measurement so survivors land in their
+  // ORIGINAL positions, not auto-flowed top-left.
+  exited.forEach(c=>{
+    c.style.transition='none';
+    c.style.position='';
+    c.style.left='';
+    c.style.top='';
+    c.style.width='';
+    c.style.display='';
+    c.classList.remove('exiting');
+    c.style.opacity='0';
+    c.style.transform='scale(.96)';
+    c.style.pointerEvents='none';
+  });
+
+  // Drop phase-brief layout off the grid and clear any forward-FLIP inline
+  // state on survivors. Keep the per-card phase-brief class on survivors so
+  // their inner content stays collapsed until PLAY fires it back via CSS.
   grid.classList.remove('phase-brief');
-  grid.querySelectorAll('.seg-card.phase-brief').forEach(c=>{c.classList.remove('phase-brief','active');});
   grid.style.removeProperty('--seg-n');
   grid.style.position='';
-  grid.querySelectorAll('.seg-card.sel').forEach(c=>{
-    c.style.transition='';
+  survivors.forEach(c=>{
+    c.style.transition='none';
     c.style.transform='';
-    c.style.justifySelf='';
     c.style.width='';
+    c.style.height='';
+    c.style.justifySelf='';
   });
+
+  // LAST — measure the 2-col destination with all cards in flow.
+  void grid.offsetHeight;
+  const lastRects=survivors.map(c=>c.getBoundingClientRect());
+
+  // INVERT survivors back to their phase-brief positions.
+  survivors.forEach((c,i)=>{
+    const dx=firstRects[i].left-lastRects[i].left;
+    const dy=firstRects[i].top-lastRects[i].top;
+    c.style.transform=`translate(${dx}px,${dy}px)`;
+    c.style.width=firstRects[i].width+'px';
+    c.style.justifySelf='start';
+  });
+
+  void grid.offsetHeight;
+
+  // PLAY — animate position/width/color over MORPH_MS and drop the per-card
+  // phase-brief class so CSS inner-content transitions fire on the same tick.
+  survivors.forEach((c,i)=>{
+    c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
+    c.style.transform='';
+    c.style.width=lastRects[i].width+'px';
+    c.classList.remove('phase-brief','active');
+  });
+
+  // Fade exited cards back in alongside the FLIP — they're already in flow at
+  // full size, so we only need to transition opacity + scale.
+  exited.forEach(c=>{
+    c.style.transition=`opacity ${MORPH_MS}ms ease, transform ${MORPH_MS}ms ease`;
+    c.style.opacity='';
+    c.style.transform='';
+    c.style.pointerEvents='';
+  });
+
   grid._phaseTimer=setTimeout(()=>{
     grid._phaseTimer=0;
-    grid.querySelectorAll('.seg-card.exiting').forEach(c=>{
-      c.style.display='';
-      c.style.position='';
-      c.style.left='';
-      c.style.top='';
+    survivors.forEach(c=>{
+      c.style.transition='';
+      c.style.justifySelf='';
       c.style.width='';
-      void c.offsetHeight;
-      c.classList.remove('exiting');
     });
-  },220);
+    exited.forEach(c=>{
+      c.style.transition='';
+      c.style.opacity='';
+      c.style.transform='';
+    });
+  },MORPH_MS+30);
 }
 
 // Click a rationale card → set the matching ct-card.
