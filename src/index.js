@@ -8,6 +8,20 @@ export default {
     const password = env.SITE_PASSWORD || "flow";
     const expected = await sign(password);
 
+    // URL-parameter bypass: ?pw=<password> sets the auth cookie, then
+    // redirects to the same URL with the param stripped.
+    if (url.searchParams.get("pw") === password) {
+      url.searchParams.delete("pw");
+      return new Response(null, {
+        status: 303,
+        headers: {
+          "Location": url.pathname + url.search,
+          "Set-Cookie": `${COOKIE_NAME}=${expected}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${COOKIE_MAX_AGE}`,
+          "Cache-Control": "no-store",
+        },
+      });
+    }
+
     if (url.pathname === LOGIN_PATH && request.method === "POST") {
       const form = await request.formData();
       const submitted = form.get("password");
