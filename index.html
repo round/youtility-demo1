@@ -125,7 +125,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .gc-live{display:flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;font-size:9px;color:var(--green);}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.ae-skel{background:linear-gradient(90deg,var(--bg4) 0%,var(--bg3) 50%,var(--bg4) 100%);background-size:200% 100%;animation:ae-shimmer 1.4s ease-in-out infinite;border-radius:4px;display:block;}
+.ae-skel{background:linear-gradient(90deg,var(--bg5) 0%,var(--bg4) 50%,var(--bg5) 100%);background-size:200% 100%;animation:ae-shimmer 1.4s ease-in-out infinite;border-radius:4px;display:block;}
+body.light-mode .ae-skel{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg2) 50%,var(--bg3) 100%);background-size:200% 100%;}
 @keyframes ae-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .ae-fade-in{animation:ae-fade .22s ease-out;}
 @keyframes ae-fade{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
@@ -3190,7 +3191,7 @@ function rAI(m,last){
       <div class="msg-row"><div class="msg-avatar">${IC.bot}</div>
         <div style="font-size:12.5px;color:var(--text2);font-style:italic;padding-top:4px">${m.widgetIntro||('Here is your customer mindset breakdown for '+getActiveClient().name+'.')}</div>
       </div>
-      <div style="margin-top:10px;" id="widget-${m.id}">${m.widgetHTML||''}</div>
+      <div style="margin-top:10px;align-self:stretch;" id="widget-${m.id}">${m.widgetHTML||''}</div>
       <div class="msg-actions">
         <button class="act-btn" onclick="vote(${m.id},'up')">${IC.up}<span class="tip">Helpful</span></button>
         <button class="act-btn${m.feedback==='down'?' voted-down':''}" id="dn-${m.id}" onclick="vote(${m.id},'down')">${IC.down}<span class="tip">Not helpful</span></button>
@@ -3231,83 +3232,14 @@ function autoResizeEl(el){el.style.height='auto';el.style.height=Math.min(el.scr
 // each other via a shared window.* global.
 window._aeReg = window._aeReg || {};
 
-const AE_SKELETON_HTML = (() => {
-  const row = (w,h,extra)=>`<span class="ae-skel" style="width:${w};height:${h}px;${extra||''}"></span>`;
-  const segRow = `<div style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);">
-    <span class="ae-skel" style="width:14px;height:14px;border-radius:50%;flex-shrink:0;"></span>
-    <span class="ae-skel" style="flex:1;height:9px;"></span>
-    <span class="ae-skel" style="width:24px;height:9px;"></span>
-  </div>`;
-  const dimRow = `<div style="margin-bottom:12px;">
-    <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-      ${row('38%',9)}
-      ${row('14%',9)}
-    </div>
-    ${row('100%',5,'border-radius:3px;')}
-  </div>`;
-  const mktCard = `<div style="border:1px solid var(--border);border-radius:10px;padding:11px 12px;display:flex;flex-direction:column;gap:7px;">
-    ${row('55%',10)}
-    ${row('90%',8)}
-    ${row('72%',8)}
-  </div>`;
-  const legendRow = `<div style="display:flex;align-items:center;gap:6px;"><span class="ae-skel" style="width:8px;height:8px;border-radius:50%;"></span>${row('100%',9)}</div>`;
-  return `<div style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;max-width:100%;">
-  <div style="padding:11px 16px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
-    <div style="display:flex;align-items:center;gap:7px;">
-      <span class="ae-skel" style="width:13px;height:13px;border-radius:3px;"></span>
-      ${row('120px',12)}
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      ${row('180px',9)}
-      ${row('118px',24,'border-radius:8px;')}
-    </div>
-  </div>
-  <div style="display:grid;grid-template-columns:250px 1fr;min-height:480px;">
-    <div style="border-right:1px solid var(--border);display:flex;flex-direction:column;">
-      <div style="padding:12px 14px 10px;display:flex;flex-direction:column;align-items:center;border-bottom:1px solid var(--border);">
-        <div style="width:100%;margin-bottom:8px;">${row('40%',8)}</div>
-        <span class="ae-skel" style="width:180px;height:180px;border-radius:50%;"></span>
-        <div style="width:100%;margin-top:10px;display:flex;flex-direction:column;gap:6px;">${legendRow.repeat(4)}</div>
-        <span class="ae-skel" style="width:88px;height:18px;border-radius:20px;margin-top:10px;"></span>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);">
-        ${row('45%',8)}
-        ${row('18px',8)}
-      </div>
-      <div style="overflow:hidden;">${segRow.repeat(4)}</div>
-    </div>
-    <div style="display:flex;flex-direction:column;min-width:0;">
-      <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border);">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-          <span class="ae-skel" style="width:11px;height:11px;border-radius:50%;"></span>
-          ${row('48%',11)}
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          ${row('80px',16,'border-radius:20px;')}
-          ${row('38%',9)}
-        </div>
-      </div>
-      <div style="padding:13px 14px;">
-        <div style="margin-bottom:12px;">${row('44%',8)}</div>
-        ${dimRow.repeat(5)}
-      </div>
-      <div style="padding:0 14px 13px;display:flex;flex-direction:column;gap:10px;">
-        ${mktCard.repeat(2)}
-      </div>
-    </div>
-  </div>
-  <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgb(var(--brand-primary-rgb) / .04);">
-    ${row('260px',10)}
-    ${row('200px',26,'border-radius:8px;')}
-  </div>
-</div>`;
-})();
+const AE_WIDGET_H = 600;
+const AE_SKELETON_HTML = `<div class="ae-skel" style="height:${AE_WIDGET_H}px;border-radius:14px;"></div>`;
 
 function buildAudienceExplorerHTML(msgId){
   const _copy=(getActiveClient()||{}).copy||{};
   const _aeLbl=_copy.audienceExplorerLabel||'';
   const _aePop=_copy.audiencePopulation||'';
-  return `<div id="ae-widget-${msgId}" style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;max-width:100%;">
+  return `<div id="ae-widget-${msgId}" style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;max-width:100%;height:${AE_WIDGET_H}px;display:flex;flex-direction:column;">
   <div style="padding:11px 16px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text);">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--brand-primary)"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -3321,8 +3253,8 @@ function buildAudienceExplorerHTML(msgId){
       </button>
     </div>
   </div>
-  <div style="display:grid;grid-template-columns:250px 1fr;min-height:480px;">
-    <div style="border-right:1px solid var(--border);display:flex;flex-direction:column;">
+  <div style="display:grid;grid-template-columns:250px 1fr;grid-template-rows:minmax(0,1fr);flex:1;min-height:0;">
+    <div style="border-right:1px solid var(--border);display:flex;flex-direction:column;min-height:0;">
       <div style="padding:12px 14px 10px;display:flex;flex-direction:column;align-items:center;border-bottom:1px solid var(--border);">
         <div style="width:100%;font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--text3);margin-bottom:8px;text-align:left;">MINDSET PROFILES</div>
         <div style="position:relative;width:180px;height:180px;">
@@ -3338,9 +3270,9 @@ function buildAudienceExplorerHTML(msgId){
         <span id="ae-slbl-${msgId}" style="font-size:9px;font-weight:700;letter-spacing:.09em;color:var(--text3);"></span>
         <span style="font-size:10px;font-weight:500;color:var(--text2);">50</span>
       </div>
-      <div id="ae-slist-${msgId}" style="overflow-y:auto;max-height:190px;"></div>
+      <div id="ae-slist-${msgId}" style="overflow-y:auto;flex:1;min-height:0;"></div>
     </div>
-    <div style="display:flex;flex-direction:column;min-width:0;">
+    <div style="display:flex;flex-direction:column;min-width:0;min-height:0;">
       <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border);">
         <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:5px;">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--brand-primary)"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
