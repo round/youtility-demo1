@@ -3688,9 +3688,6 @@ function triggerPhaseBrief(){
   });
   grid.style.setProperty('--seg-n',survivors.length);
   grid.classList.add('phase-brief');
-  // Apply phase-brief to each survivor so the per-card inner morph (hide
-  // checkmark, hide desc/note, reveal rec extension) actually fires. The
-  // earlier "outer-only" guard relied on dead CSS — see commit 754df8c.
   survivors.forEach(c=>c.classList.add('phase-brief'));
   const lastRects=survivors.map(c=>c.getBoundingClientRect());
   survivors.forEach((c,i)=>{
@@ -3745,7 +3742,8 @@ function triggerPhaseSelect(){
     c.style.justifySelf='';
     c.style.width='';
   });
-  setTimeout(()=>{
+  grid._phaseTimer=setTimeout(()=>{
+    grid._phaseTimer=0;
     grid.querySelectorAll('.seg-card.exiting').forEach(c=>{
       c.style.display='';
       c.style.position='';
@@ -3764,15 +3762,12 @@ function pickRecCt(type){
   if(card)selectType(card);
 }
 
-// In phase-brief, the top cards are activators, not toggles. The card(s) whose
-// recommendation type matches the current ct selection get .active (accent border
-// + soft accent tint); the rest stay neutral. No muting — inactive cards still
-// show their full rationale; only the activator highlight differs.
+// In phase-brief the top cards are activators: highlight the one whose
+// rec-type matches the current ct selection; leave the rest neutral.
 function syncSegActive(){
-  const cards=document.querySelectorAll('.seg-card.phase-brief.sel');
-  if(!cards.length)return;
-  const t=(typeof selectedType==='string')?selectedType:'promo';
-  cards.forEach(c=>c.classList.toggle('active',c.dataset.recType===t));
+  const grid=document.getElementById('segGrid');
+  if(!grid||!grid.classList.contains('phase-brief'))return;
+  grid.querySelectorAll('.seg-card.sel').forEach(c=>c.classList.toggle('active',c.dataset.recType===selectedType));
 }
 
 // Reorder CAMPAIGN TYPE cards so the ones recommended by the selected segments
