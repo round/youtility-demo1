@@ -428,10 +428,10 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .seg-card:hover{border-color:var(--border3);}
 .seg-card.sel{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .06);}
 .seg-card.desel{opacity:.4;}
-.seg-card.exiting{opacity:0;pointer-events:none;}
+.seg-card.exiting{opacity:0;background:transparent;border-color:transparent;pointer-events:none;}
 .seg-chk{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:5px;border:1px solid var(--border2);background:var(--bg4);display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .seg-card.sel .seg-chk{background:var(--brand-primary);border-color:var(--brand-primary);}
-.seg-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;padding-right:24px;}
+.seg-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;padding-right:24px;min-height:2.4em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .seg-sz{font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3);margin-bottom:7px;}
 .seg-desc{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:9px;max-height:120px;opacity:1;overflow:hidden;transition:opacity .35s ease,max-height .35s ease,margin .35s ease;}
 .seg-tags{display:flex;flex-wrap:wrap;gap:4px;}
@@ -3693,26 +3693,42 @@ function triggerPhaseBrief(){
   const survivors=Array.from(grid.querySelectorAll('.seg-card.sel'));
   const firstRects=survivors.map(c=>c.getBoundingClientRect());
   const gridRect=grid.getBoundingClientRect();
+  const oldGridH=gridRect.height;
   const exitRects=exiting.map(c=>c.getBoundingClientRect());
+  // Snapshot each survivor's natural height NOW (pre-morph). scrollHeight
+  // bypasses the static 560px cap on .seg-card; clamp back to that cap when
+  // applying so we never override the cap downward.
+  const SEG_CARD_CAP=560;
+  const initialCardHeights=survivors.map(c=>Math.min(c.scrollHeight,SEG_CARD_CAP));
   grid.style.position='relative';
+  // align-content:start keeps the grid's single row sized to card content
+  // instead of stretching to fill the locked container height. Without this,
+  // survivors inflate to fill the lock and snap back to natural at cleanup.
+  grid.style.alignContent='start';
 
   // Pre-install inline transitions BEFORE the class change. border-color &
   // background get MORPH_MS so the .sel → .phase-brief.sel color shift
   // animates instead of snapping on frame 1 (was the visible "flicker").
   // transform & width stay at 0s so the upcoming INVERT still snaps.
+  // position:relative + z-index lifts survivors above the absolute exit cards
+  // so their FLIP doesn't visually pass under the fading rectangles.
   survivors.forEach(c=>{
     c.style.transition=`transform 0s, width 0s, border-color ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease`;
+    c.style.position='relative';
+    c.style.zIndex='2';
   });
 
   // Pin exited cards out of flow at their original position and size, then
-  // fade opacity only — no shrink, scale, or border-color motion.
+  // fade opacity + background + border in place — no shrink, no scale, no
+  // translate. zIndex:1 keeps them behind the FLIPing survivors.
   exiting.forEach((c,i)=>{
     const r=exitRects[i];
     c.style.position='absolute';
     c.style.left=(r.left-gridRect.left)+'px';
     c.style.top=(r.top-gridRect.top)+'px';
     c.style.width=r.width+'px';
-    c.style.transition=`opacity ${MORPH_MS}ms ease`;
+    c.style.zIndex='1';
+    c.style.transition=`opacity ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
     c.classList.add('exiting');
   });
 
@@ -3720,6 +3736,37 @@ function triggerPhaseBrief(){
   grid.classList.add('phase-brief');
   survivors.forEach(c=>c.classList.add('phase-brief'));
   const lastRects=survivors.map(c=>c.getBoundingClientRect());
+  // Measure each survivor's FINAL natural height via an off-DOM clone — the
+  // real card stays at its start state so the actual inner-content transitions
+  // can still play. Clone gets the final width and phase-brief class with all
+  // transitions suspended, so its descendants snap to phase-brief target
+  // values for an accurate read.
+  const finalCardHeights=survivors.map((c,i)=>{
+    const clone=c.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    const baseStyle=clone.getAttribute('style')||'';
+    clone.setAttribute('style',baseStyle+`;position:absolute;left:-99999px;top:0;width:${lastRects[i].width}px;visibility:hidden;transition:none;transform:none;max-height:none;min-height:0;height:auto;z-index:0;justify-self:auto`);
+    clone.querySelectorAll('*').forEach(el=>{el.style.transition='none';});
+    document.body.appendChild(clone);
+    const h=Math.min(clone.scrollHeight,SEG_CARD_CAP);
+    clone.remove();
+    return h;
+  });
+  // Lock each survivor's max-height to its initial natural height. PLAY adds
+  // max-height to the transition list and shifts it to the final value, so
+  // the card's visible height follows a clean monotonic curve while the
+  // inner content's overlap-and-settle happens harmlessly under the cap.
+  survivors.forEach((c,i)=>{c.style.maxHeight=initialCardHeights[i]+'px';});
+  // After the layout change, the grid's natural height drops to one row
+  // (exit cards are absolute and contribute nothing). Set min-height (not
+  // height) to the pre-morph height and transition it down to 0 over
+  // MORPH_MS — natural height takes over as soon as it dips below the
+  // min-height curve, so content below settles smoothly without a snap at
+  // the end and without forcing the row to a measured target that becomes
+  // stale once the cards' inner content finishes collapsing.
+  grid.style.minHeight=oldGridH+'px';
+  grid.style.transition=`min-height ${MORPH_MS}ms ease`;
 
   // INVERT — transform & width snap (0s transition), color/bg keep animating.
   survivors.forEach((c,i)=>{
@@ -3729,20 +3776,25 @@ function triggerPhaseBrief(){
     c.style.transform=`translate(${dx}px,${dy}px)`;
     c.style.width=firstRects[i].width+'px';
   });
-  // Force reflow so INVERT commits before PLAY — otherwise the browser
-  // coalesces both writes and the animation never plays.
+  // Force reflow so INVERT + locked height commit before PLAY — otherwise
+  // the browser coalesces writes and animations never play.
   void grid.offsetHeight;
   survivors.forEach((c,i)=>{
-    c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
+    c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease, max-height ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
     c.style.transform='';
     c.style.width=lastRects[i].width+'px';
+    c.style.maxHeight=finalCardHeights[i]+'px';
   });
+  grid.style.minHeight='0px';
   grid._phaseTimer=setTimeout(()=>{
     grid._phaseTimer=0;
     survivors.forEach(c=>{
       c.style.transition='';
       c.style.justifySelf='';
       c.style.width='';
+      c.style.maxHeight='';
+      c.style.position='';
+      c.style.zIndex='';
     });
     exiting.forEach(c=>{
       c.style.transition='';
@@ -3751,8 +3803,12 @@ function triggerPhaseBrief(){
       c.style.left='';
       c.style.top='';
       c.style.width='';
+      c.style.zIndex='';
     });
     grid.style.position='';
+    grid.style.minHeight='';
+    grid.style.alignContent='';
+    grid.style.transition='';
   },MORPH_MS+30);
   reorderCtCards();
   syncSegActive();
@@ -3770,6 +3826,12 @@ function triggerPhaseSelect(){
 
   // FIRST — snapshot survivors' current (phase-brief) visual positions.
   const firstRects=survivors.map(c=>c.getBoundingClientRect());
+  const oldGridH=grid.getBoundingClientRect().height;
+  // Snapshot each survivor's natural height in its current phase-brief state.
+  // scrollHeight bypasses the static 560px cap; clamp back to that cap when
+  // applying so the cap is never overridden upward.
+  const SEG_CARD_CAP=560;
+  const initialCardHeights=survivors.map(c=>Math.min(c.scrollHeight,SEG_CARD_CAP));
 
   // Re-seat exited cards into the grid at full size but invisible. They need
   // to occupy their grid cells during measurement so survivors land in their
@@ -3803,6 +3865,39 @@ function triggerPhaseSelect(){
   // LAST — measure the 2-col destination with all cards in flow.
   void grid.offsetHeight;
   const lastRects=survivors.map(c=>c.getBoundingClientRect());
+  const newGridH=grid.getBoundingClientRect().height;
+  // Measure each survivor's FINAL natural height (post-reverse, phase-select
+  // state) via an off-DOM clone. Clone strips the phase-brief class, gets the
+  // final 2-col width, and suspends all transitions so descendants snap to
+  // phase-select target values for an accurate read.
+  const finalCardHeights=survivors.map((c,i)=>{
+    const clone=c.cloneNode(true);
+    clone.classList.remove('phase-brief','active');
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    const baseStyle=clone.getAttribute('style')||'';
+    clone.setAttribute('style',baseStyle+`;position:absolute;left:-99999px;top:0;width:${lastRects[i].width}px;visibility:hidden;transition:none;transform:none;max-height:none;min-height:0;height:auto;z-index:0;justify-self:auto`);
+    clone.querySelectorAll('*').forEach(el=>{el.style.transition='none';});
+    document.body.appendChild(clone);
+    const h=Math.min(clone.scrollHeight,SEG_CARD_CAP);
+    clone.remove();
+    return h;
+  });
+  // Lock each survivor's max-height to its initial (phase-brief) height; PLAY
+  // adds max-height to the transition list and shifts it to the final value,
+  // keeping card height on a clean monotonic curve while the inner-content
+  // expand-and-settle (rec-extension collapsing, desc/note re-expanding)
+  // happens harmlessly inside the cap.
+  survivors.forEach((c,i)=>{c.style.maxHeight=initialCardHeights[i]+'px';});
+  // Lock grid to the 1-row height it had a moment ago, then animate it up
+  // to the 2-row height over MORPH_MS so content below settles smoothly
+  // instead of snapping down when phase-brief is removed. align-content:start
+  // keeps cards at content height (no stretching to the locked container);
+  // overflow:hidden clips row-2 cards inside the lock while it expands.
+  grid.style.alignContent='start';
+  grid.style.overflow='hidden';
+  grid.style.height=oldGridH+'px';
+  grid.style.transition=`height ${MORPH_MS}ms ease`;
 
   // INVERT survivors back to their phase-brief positions.
   survivors.forEach((c,i)=>{
@@ -3815,19 +3910,23 @@ function triggerPhaseSelect(){
 
   void grid.offsetHeight;
 
-  // PLAY — animate position/width/color over MORPH_MS and drop the per-card
-  // phase-brief class so CSS inner-content transitions fire on the same tick.
+  // PLAY — animate position/width/max-height/color over MORPH_MS and drop the
+  // per-card phase-brief class so CSS inner-content transitions fire on the
+  // same tick.
   survivors.forEach((c,i)=>{
-    c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
+    c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease, max-height ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
     c.style.transform='';
     c.style.width=lastRects[i].width+'px';
+    c.style.maxHeight=finalCardHeights[i]+'px';
     c.classList.remove('phase-brief','active');
   });
+  grid.style.height=newGridH+'px';
 
   // Fade exited cards back in alongside the FLIP — they're already in flow at
-  // full size, so we only need to transition opacity.
+  // full size, so we only need to transition opacity + background + border
+  // back from the .exiting "transparent" state.
   exited.forEach(c=>{
-    c.style.transition=`opacity ${MORPH_MS}ms ease`;
+    c.style.transition=`opacity ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
     c.style.opacity='';
     c.style.pointerEvents='';
   });
@@ -3838,12 +3937,17 @@ function triggerPhaseSelect(){
       c.style.transition='';
       c.style.justifySelf='';
       c.style.width='';
+      c.style.maxHeight='';
     });
     exited.forEach(c=>{
       c.style.transition='';
       c.style.opacity='';
       c.style.transform='';
     });
+    grid.style.height='';
+    grid.style.alignContent='';
+    grid.style.overflow='';
+    grid.style.transition='';
   },MORPH_MS+30);
 }
 
