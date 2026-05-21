@@ -361,14 +361,14 @@ body.light-mode .ae-skel{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg
    AND when selected. Border + background + an outlined icon all share --brc-accent. */
 .ct-card[data-rec-seg]:hover{border-color:var(--brc-accent,var(--border3));}
 .ct-card[data-rec-seg].selected{border-color:var(--brc-accent,var(--brand-primary));background:color-mix(in srgb,var(--brc-accent,var(--brand-primary)) 9%,var(--bg3));box-shadow:0 0 0 1px color-mix(in srgb,var(--brc-accent,var(--brand-primary)) 35%,transparent);}
-.ct-card[data-rec-seg].selected .ct-link-tag{color:var(--brc-accent,var(--brand-primary-hover));border-top-color:color-mix(in srgb,var(--brc-accent,var(--brand-primary)) 30%,transparent);}
+.ct-card[data-rec-seg].selected .ct-link-tag{color:var(--brc-accent,var(--brand-primary-hover));}
 .ct-icon{width:32px;height:32px;border-radius:8px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;}
 .ct-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px;}
 .ct-desc{font-size:10.5px;color:var(--text3);line-height:1.4;}
 /* Surfaces only when a segment is paired to this card (via data-rec-seg).
    Stays hidden in step 1 / on unmatched cards so step-2-only UI doesn't leak. */
-.ct-link-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;margin-top:9px;padding-top:7px;border-top:1px dashed transparent;opacity:0;max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .25s ease,margin-top .25s ease,padding-top .25s ease,border-top-color .25s ease,color .15s ease;}
-.ct-card[data-rec-seg] .ct-link-tag{opacity:1;max-height:32px;border-top-color:var(--border);}
+.ct-link-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;margin-top:9px;padding-top:7px;opacity:0;max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .25s ease,margin-top .25s ease,padding-top .25s ease,color .15s ease;}
+.ct-card[data-rec-seg] .ct-link-tag{opacity:1;max-height:32px;}
 
 /* Conditional panels */
 .brief-section{margin-bottom:18px;}
