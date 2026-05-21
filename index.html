@@ -125,8 +125,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .gc-live{display:flex;align-items:center;gap:4px;font-family:'Montserrat',sans-serif;font-size:9px;color:var(--green);}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.ae-skel{background:linear-gradient(90deg,var(--bg5) 0%,var(--bg4) 50%,var(--bg5) 100%);background-size:200% 100%;animation:ae-shimmer 1.4s ease-in-out infinite;border-radius:4px;display:block;}
-body.light-mode .ae-skel{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg2) 50%,var(--bg3) 100%);background-size:200% 100%;}
+.ae-skel{background:linear-gradient(90deg,var(--bg5) 0%,color-mix(in srgb,#fff 18%,var(--bg5)) 50%,var(--bg5) 100%);background-size:200% 100%;animation:ae-shimmer 2.4s ease-in-out infinite;border-radius:4px;display:block;}
+body.light-mode .ae-skel{background:linear-gradient(90deg,var(--bg3) 0%,color-mix(in srgb,#000 8%,var(--bg3)) 50%,var(--bg3) 100%);background-size:200% 100%;}
 @keyframes ae-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .gc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .gc-m-val{font-size:15px;font-weight:600;color:var(--text);line-height:1;}
@@ -3701,6 +3701,36 @@ function renderBriefIntro(){
 }
 
 const MORPH_MS=700;
+// Exits finish fading by the time the grid starts resizing — see the staggered
+// transitions in triggerPhaseBrief/triggerPhaseSelect.
+const EXIT_FADE_MS=MORPH_MS/2;
+// Mirrors the max-height:560px cap on .seg-card. scrollHeight measured off-DOM
+// bypasses that cap, so heights are re-clamped to it.
+const SEG_CARD_CAP=560;
+// Padding on morph-duration timers so cleanup fires just after the CSS
+// transition settles, never mid-animation.
+const CLEANUP_PAD=30;
+
+// Measure each card's natural (uncapped) height in its FINAL transition state
+// via off-DOM clones. All clones are appended together and measured in one pass
+// so N cards cost ~1 reflow instead of N. stripClasses lets the reverse path
+// drop phase-brief/active so the clone reads the phase-select target instead.
+function measureFinalHeights(cards,widths,stripClasses){
+  const clones=cards.map((c,i)=>{
+    const clone=c.cloneNode(true);
+    if(stripClasses)clone.classList.remove(...stripClasses);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    const baseStyle=clone.getAttribute('style')||'';
+    clone.setAttribute('style',baseStyle+`;position:absolute;left:-99999px;top:0;width:${widths[i]}px;visibility:hidden;transition:none;transform:none;max-height:none;min-height:0;height:auto;z-index:0;justify-self:auto`);
+    clone.querySelectorAll('*').forEach(el=>{el.style.transition='none';});
+    document.body.appendChild(clone);
+    return clone;
+  });
+  const heights=clones.map(clone=>Math.min(clone.scrollHeight,SEG_CARD_CAP));
+  clones.forEach(clone=>clone.remove());
+  return heights;
+}
 
 // Step 1 → step 2: surviving cards FLIP to a single row of N (position + width),
 // exiting cards are pinned out of grid flow so they fade in place without
@@ -3715,9 +3745,8 @@ function triggerPhaseBrief(){
   const oldGridH=gridRect.height;
   const exitRects=exiting.map(c=>c.getBoundingClientRect());
   // Snapshot each survivor's natural height NOW (pre-morph). scrollHeight
-  // bypasses the static 560px cap on .seg-card; clamp back to that cap when
-  // applying so we never override the cap downward.
-  const SEG_CARD_CAP=560;
+  // bypasses the static cap on .seg-card; clamp back to SEG_CARD_CAP so we
+  // never override the cap downward.
   const initialCardHeights=survivors.map(c=>Math.min(c.scrollHeight,SEG_CARD_CAP));
   grid.style.position='relative';
   // align-content:start keeps the grid's single row sized to card content
@@ -3751,7 +3780,6 @@ function triggerPhaseBrief(){
   // them to display:none right after the fade completes so they stop
   // contributing to ws1's scroll-overflow before the grid container's
   // bottom edge passes their pinned Y positions.
-  const EXIT_FADE_MS=MORPH_MS/2;
   exiting.forEach((c,i)=>{
     const r=exitRects[i];
     c.style.position='absolute';
@@ -3766,29 +3794,17 @@ function triggerPhaseBrief(){
     exiting.forEach(c=>{
       if(c.classList.contains('exiting'))c.style.display='none';
     });
-  },EXIT_FADE_MS+30);
+  },EXIT_FADE_MS+CLEANUP_PAD);
 
   grid.style.setProperty('--seg-n',survivors.length);
   grid.classList.add('phase-brief');
   survivors.forEach(c=>c.classList.add('phase-brief'));
   const lastRects=survivors.map(c=>c.getBoundingClientRect());
-  // Measure each survivor's FINAL natural height via an off-DOM clone — the
-  // real card stays at its start state so the actual inner-content transitions
-  // can still play. Clone gets the final width and phase-brief class with all
-  // transitions suspended, so its descendants snap to phase-brief target
-  // values for an accurate read.
-  const finalCardHeights=survivors.map((c,i)=>{
-    const clone=c.cloneNode(true);
-    clone.removeAttribute('id');
-    clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-    const baseStyle=clone.getAttribute('style')||'';
-    clone.setAttribute('style',baseStyle+`;position:absolute;left:-99999px;top:0;width:${lastRects[i].width}px;visibility:hidden;transition:none;transform:none;max-height:none;min-height:0;height:auto;z-index:0;justify-self:auto`);
-    clone.querySelectorAll('*').forEach(el=>{el.style.transition='none';});
-    document.body.appendChild(clone);
-    const h=Math.min(clone.scrollHeight,SEG_CARD_CAP);
-    clone.remove();
-    return h;
-  });
+  // Measure each survivor's FINAL natural height via off-DOM clones — the real
+  // cards stay at their start state so the actual inner-content transitions can
+  // still play. Clones keep the phase-brief class so descendants snap to
+  // phase-brief target values for an accurate read.
+  const finalCardHeights=measureFinalHeights(survivors,lastRects.map(r=>r.width));
   // Lock every survivor's max-height to a SHARED value — the max across all
   // cards' natural heights. The live grid's default align-items:stretch will
   // equalize cards to the row's tallest content at cleanup; using a uniform
@@ -3852,7 +3868,7 @@ function triggerPhaseBrief(){
     grid.style.minHeight='';
     grid.style.alignContent='';
     grid.style.transition='';
-  },MORPH_MS+30);
+  },MORPH_MS+CLEANUP_PAD);
   reorderCtCards();
   syncSegActive();
 }
@@ -3880,9 +3896,8 @@ function triggerPhaseSelect(){
   const firstRects=survivors.map(c=>c.getBoundingClientRect());
   const oldGridH=grid.getBoundingClientRect().height;
   // Snapshot each survivor's natural height in its current phase-brief state.
-  // scrollHeight bypasses the static 560px cap; clamp back to that cap when
-  // applying so the cap is never overridden upward.
-  const SEG_CARD_CAP=560;
+  // scrollHeight bypasses the static cap; clamp back to SEG_CARD_CAP so the
+  // cap is never overridden upward.
   const initialCardHeights=survivors.map(c=>Math.min(c.scrollHeight,SEG_CARD_CAP));
 
   // Re-seat exited cards into the grid at full size but invisible. They need
@@ -3919,22 +3934,9 @@ function triggerPhaseSelect(){
   const lastRects=survivors.map(c=>c.getBoundingClientRect());
   const newGridH=grid.getBoundingClientRect().height;
   // Measure each survivor's FINAL natural height (post-reverse, phase-select
-  // state) via an off-DOM clone. Clone strips the phase-brief class, gets the
-  // final 2-col width, and suspends all transitions so descendants snap to
-  // phase-select target values for an accurate read.
-  const finalCardHeights=survivors.map((c,i)=>{
-    const clone=c.cloneNode(true);
-    clone.classList.remove('phase-brief','active');
-    clone.removeAttribute('id');
-    clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
-    const baseStyle=clone.getAttribute('style')||'';
-    clone.setAttribute('style',baseStyle+`;position:absolute;left:-99999px;top:0;width:${lastRects[i].width}px;visibility:hidden;transition:none;transform:none;max-height:none;min-height:0;height:auto;z-index:0;justify-self:auto`);
-    clone.querySelectorAll('*').forEach(el=>{el.style.transition='none';});
-    document.body.appendChild(clone);
-    const h=Math.min(clone.scrollHeight,SEG_CARD_CAP);
-    clone.remove();
-    return h;
-  });
+  // state) via off-DOM clones. Clones strip the phase-brief class so descendants
+  // snap to phase-select target values for an accurate read.
+  const finalCardHeights=measureFinalHeights(survivors,lastRects.map(r=>r.width),['phase-brief','active']);
   // Lock every survivor's max-height to a SHARED value — the max across all
   // cards' heights — for the same reason as the forward path: the live grid's
   // default align-items:stretch will equalize cards to the row's tallest at
@@ -3952,7 +3954,6 @@ function triggerPhaseSelect(){
   // No overflow clip needed — exits sit at opacity 0 throughout phase A, so
   // their row-2 flow positions are invisible regardless of where the grid's
   // bottom edge currently is.
-  const EXIT_FADE_MS=MORPH_MS/2;
   grid.style.alignContent='start';
   grid.style.height=oldGridH+'px';
   grid.style.transition=`height ${MORPH_MS-EXIT_FADE_MS}ms ease`;
@@ -4011,7 +4012,7 @@ function triggerPhaseSelect(){
     grid.style.height='';
     grid.style.alignContent='';
     grid.style.transition='';
-  },MORPH_MS+30);
+  },MORPH_MS+CLEANUP_PAD);
 }
 
 // Click a rationale card → set the matching ct-card.
