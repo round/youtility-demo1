@@ -128,8 +128,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .ae-skel{background:linear-gradient(90deg,var(--bg5) 0%,var(--bg4) 50%,var(--bg5) 100%);background-size:200% 100%;animation:ae-shimmer 1.4s ease-in-out infinite;border-radius:4px;display:block;}
 body.light-mode .ae-skel{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg2) 50%,var(--bg3) 100%);background-size:200% 100%;}
 @keyframes ae-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.ae-fade-in{animation:ae-fade .22s ease-out;}
-@keyframes ae-fade{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
 .gc-metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .gc-m-val{font-size:15px;font-weight:600;color:var(--text);line-height:1;}
 .gc-m-val.pos{color:var(--green);}
@@ -367,8 +365,10 @@ body.light-mode .ae-skel{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg
 .ct-desc{font-size:10.5px;color:var(--text3);line-height:1.4;}
 /* Surfaces only when a segment is paired to this card (via data-rec-seg).
    Stays hidden in step 1 / on unmatched cards so step-2-only UI doesn't leak. */
-.ct-link-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;margin-top:0;opacity:0;max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .25s ease,margin-bottom .25s ease,color .15s ease;}
+.ct-link-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;opacity:0;max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .25s ease,margin-bottom .25s ease,color .15s ease;}
 .ct-card[data-rec-seg] .ct-link-tag{opacity:1;max-height:32px;margin-bottom:10px;}
+/* Unmatched cards reserve the same (invisible) tag space so all icons align. */
+.ct-grid.has-recs .ct-card:not([data-rec-seg]) .ct-link-tag{max-height:32px;margin-bottom:10px;}
 
 /* Conditional panels */
 .brief-section{margin-bottom:18px;}
@@ -3233,6 +3233,7 @@ function autoResizeEl(el){el.style.height='auto';el.style.height=Math.min(el.scr
 window._aeReg = window._aeReg || {};
 
 const AE_WIDGET_H = 600;
+const AE_REVEAL_MS = 320;
 const AE_SKELETON_HTML = `<div class="ae-skel" style="height:${AE_WIDGET_H}px;border-radius:14px;"></div>`;
 
 function buildAudienceExplorerHTML(msgId){
@@ -3332,13 +3333,11 @@ function injectAudienceExplorer(kind){
     const wc=document.getElementById('widget-'+id);
     if(wc){
       wc.style.position='relative';
-      const ov=document.createElement('div');
-      ov.innerHTML=AE_SKELETON_HTML;
-      const skel=ov.firstElementChild;
-      skel.style.cssText+=';position:absolute;left:0;top:0;width:100%;z-index:2;transition:opacity .32s ease;';
-      wc.appendChild(skel);
-      requestAnimationFrame(()=>{skel.style.opacity='0';});
-      setTimeout(()=>{skel.remove();wc.style.position='';},380);
+      wc.insertAdjacentHTML('beforeend',AE_SKELETON_HTML);
+      const skel=wc.lastElementChild;
+      skel.style.cssText+=`;position:absolute;left:0;top:0;width:100%;z-index:2;transition:opacity ${AE_REVEAL_MS}ms ease;`;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{skel.style.opacity='0';}));
+      setTimeout(()=>{skel.remove();wc.style.position='';},AE_REVEAL_MS+60);
     }
   },1200);
 }
@@ -4046,6 +4045,7 @@ function reorderCtCards(){
   const original=cards.map(c=>c.dataset.type);
   const ordered=[...recTypes.filter(t=>original.includes(t)),...original.filter(t=>!recTypes.includes(t))];
   ordered.forEach(t=>{const c=cards.find(x=>x.dataset.type===t);if(c)grid.appendChild(c);});
+  grid.classList.toggle('has-recs',recTypes.length>0);
   // Stamp each ct-card with its matched seg id + accent vars so CSS paints
   // matched cards in the seg's color and surfaces a "paired with" tag.
   cards.forEach(c=>{
@@ -4061,7 +4061,7 @@ function reorderCtCards(){
       delete c.dataset.recSeg;
       c.style.removeProperty('--brc-accent');
       c.style.removeProperty('--brc-tint');
-      if(tag)tag.textContent='';
+      if(tag)tag.innerHTML='&nbsp;<br>&nbsp;';
     }
   });
 }
