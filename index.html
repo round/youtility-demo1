@@ -3876,9 +3876,10 @@ function triggerPhaseBrief(){
 }
 
 // Reverse of triggerPhaseBrief: a mirrored FLIP — survivors translate from
-// their phase-brief positions back to the original 2-col cells, exited cards
-// fade back in place (opacity only). Inner content un-collapses via the same
-// .35s CSS transitions used in the forward path, so motion stays in lockstep.
+// their phase-brief positions back to the original 2-col cells while the grid
+// grows back to its 2-col height, and exited cards fade back in place (opacity
+// only). Inner content un-collapses via the same MORPH_MS CSS transitions as
+// the forward path, so the whole reverse plays as one motion in lockstep.
 function triggerPhaseSelect(){
   const grid=document.getElementById('segGrid');if(!grid)return;
   if(grid._phaseTimer){clearTimeout(grid._phaseTimer);grid._phaseTimer=0;}
@@ -3931,10 +3932,20 @@ function triggerPhaseSelect(){
     c.style.justifySelf='';
   });
 
-  // LAST — measure the 2-col destination with all cards in flow.
+  // LAST — survivors are un-FLIPped to their 2-col cells. lastRects is taken
+  // with survivors STILL phase-brief (collapsed): the INVERT must start each
+  // card from the layout position it occupies at PLAY t=0, before its content
+  // un-collapses.
   void grid.offsetHeight;
   const lastRects=survivors.map(c=>c.getBoundingClientRect());
-  const newGridH=grid.getBoundingClientRect().height;
+  // finalGridH — the 2-col grid height once survivors have un-collapsed —
+  // measured by briefly stripping phase-brief (transition:none is already set,
+  // so this is flicker-free and reverts within the same tick). The grid box is
+  // animated to THIS, so it lands on its true final intrinsic and cleanup has
+  // nothing to snap.
+  survivors.forEach(c=>c.classList.remove('phase-brief'));
+  const finalGridH=grid.getBoundingClientRect().height;
+  survivors.forEach(c=>c.classList.add('phase-brief'));
   // Measure each survivor's FINAL natural height (post-reverse, phase-select
   // state) via off-DOM clones. Clones strip the phase-brief class so descendants
   // snap to phase-select target values for an accurate read.
@@ -3948,17 +3959,18 @@ function triggerPhaseSelect(){
   const initialUniformH=Math.max(...initialCardHeights);
   const finalUniformH=Math.max(...finalCardHeights);
   survivors.forEach(c=>{c.style.maxHeight=initialUniformH+'px';});
-  // Lock grid to the 1-row height it had a moment ago, then animate it up
-  // to the 2-row height. Mirror of the forward stagger: in forward, exits
-  // fade out (first half) then grid shrinks (second half). In reverse, grid
-  // grows (first half) then exits fade in (second half). align-content:start
-  // keeps cards at content height (no stretching to the locked container).
-  // No overflow clip needed — exits sit at opacity 0 throughout phase A, so
-  // their row-2 flow positions are invisible regardless of where the grid's
-  // bottom edge currently is.
+  // Lock the grid to its 1-row phase-brief height, then grow it to the final
+  // 2-col height over the full MORPH_MS with the same ease as the card FLIP —
+  // one motion, the mirror of the forward shrink (no stagger). Explicit height
+  // (not min-height) because dropping phase-brief off the grid makes its
+  // intrinsic jump straight to the 2-col height, which a min-height floor
+  // could not hold down. align-content:start packs rows from the top so card
+  // positions stay content-driven; exits sit at opacity 0 with their row-2
+  // slots invisible and survivors are lifted out of row 2 by the INVERT
+  // transform, so nothing visible spills past the growing box.
   grid.style.alignContent='start';
   grid.style.height=oldGridH+'px';
-  grid.style.transition=`height ${MORPH_MS-EXIT_FADE_MS}ms ease`;
+  grid.style.transition=`height ${MORPH_MS}ms ease`;
 
   // INVERT survivors back to their phase-brief positions.
   // min-width:0 keeps the 1fr grid tracks from inflating to fit the explicit
@@ -3986,11 +3998,12 @@ function triggerPhaseSelect(){
     c.style.maxHeight=finalUniformH+'px';
     c.classList.remove('phase-brief','active');
   });
-  grid.style.height=newGridH+'px';
+  grid.style.height=finalGridH+'px';
 
-  // Fade exited cards back in DURING phase B (after the grid has finished
-  // growing). Delay = duration of phase A so opacity stays at 0 while the
-  // grid expands, then fades from 0 → 1 over EXIT_FADE_MS.
+  // Exited cards fade back in over EXIT_FADE_MS, ending exactly at MORPH_MS —
+  // the time-reverse of the forward, where they fade OUT over the first
+  // EXIT_FADE_MS. They are already laid out (opacity 0), so this is a pure
+  // cross-fade that never shifts anything.
   exited.forEach(c=>{
     c.style.transition=`opacity ${EXIT_FADE_MS}ms ease ${MORPH_MS-EXIT_FADE_MS}ms, background ${EXIT_FADE_MS}ms ease ${MORPH_MS-EXIT_FADE_MS}ms, border-color ${EXIT_FADE_MS}ms ease ${MORPH_MS-EXIT_FADE_MS}ms`;
     c.style.opacity='';
