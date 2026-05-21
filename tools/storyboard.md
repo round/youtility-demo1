@@ -59,7 +59,9 @@ Each flow runs the same loop — **2a → 2b → 2c → 2d**. Do churn first, th
 A fresh full document load before **every** flow — including the first — guarantees a
 pristine SPA state.
 
-1. `resize_page` to `1440 × 900`.
+1. `resize_page` to `1440 × 900` — **do this first, while the page is still `about:blank`.**
+   `resize_page` can reset the active page to `about:blank`, so it is only safe *before* the
+   navigate. Resize once here; never `resize_page` a page that has a flow loaded (see step 3).
 2. `navigate_page` (type `url`) to `http://localhost:8787`. This is a complete fresh document
    load; never reuse a page left over from a previous flow.
 3. Sanity + auth — `evaluate_script`:
@@ -74,7 +76,11 @@ pristine SPA state.
    - `hasStartScreen` true → continue.
    - `hasLogin` true → `take_snapshot`, `fill` the password field with `flow`, `click`
      **Continue**, wait for navigation, re-run this check.
-   - `iw/ih` not `1440/900` → `resize_page` again.
+   - `iw/ih` not `1440/900` → **do not `resize_page` here** — it blanks a loaded page.
+     `navigate_page` to the URL again instead (a re-navigate keeps the window size and does
+     **not** blank the page), then re-run this check. If `iw` is still short (e.g. ~1189), a
+     docked DevTools panel is eating ~251px: `resize_page` to `1691 × 900`, then
+     `navigate_page` again and re-check. Proceed only once `iw/ih` reads `1440/900`.
 
 ### 2b. Inject the capture driver
 
@@ -455,10 +461,16 @@ visible in interaction frames. Then report the `file_url` to the user.
   the SPA is stateful.
 - **`evaluate_script` says `window.__cap_step is not a function`** or the page is `about:blank`
   — the page reloaded/crashed. Re-do 2a + 2b, restart that flow.
+- **`__cap_init` returns `initial gate never resolved: #startScreen`** — the page is almost
+  always sitting on `about:blank` (a stray `resize_page` blanked it). Confirm with
+  `evaluate_script` `() => location.href`; if `about:blank`, re-do 2a (navigate only — **no**
+  `resize_page`) + 2b, and restart the flow.
 - **A flow fails twice at the same step** — stop retrying. Keep the frames captured so far,
   note which `1.x.y` screens are missing in the final report, and continue. Do not loop.
 - **Login page appears** — fill password `flow`, click Continue (2a step 3).
-- **`take_screenshot` blank / wrong size** — re-`resize_page` to `1440 × 900` and re-shoot.
+- **`take_screenshot` blank / wrong size** — `resize_page` blanks a loaded page, so this is
+  not an in-place fix: re-do 2a (resize on `about:blank`, then navigate) + 2b and restart the
+  flow.
 - **Chrome DevTools "browser already running"** — `pkill -f "chrome-devtools-mcp/chrome-profile"`, retry.
 - **A `curl` upload lacks `"success":true`** — get a fresh URL via `upload_assets`, retry that image.
 - **`use_figma` error** — it is atomic (no partial writes). Read the error, fix the script, retry.
