@@ -3776,19 +3776,18 @@ function triggerPhaseBrief(){
 
   // Pin exited cards out of flow at their original position and size, then
   // fade opacity + background + border in place — no shrink, no scale, no
-  // translate. zIndex:1 keeps them behind the FLIPing survivors.
-  // EXIT_FADE_MS = MORPH_MS/2 so exits are fully transparent by the time the
-  // grid starts shrinking (see min-height transition below). A timer flips
-  // them to display:none right after the fade completes so they stop
-  // contributing to ws1's scroll-overflow before the grid container's
-  // bottom edge passes their pinned Y positions.
+  // translate. zIndex:0 holds them below the survivors (zIndex:2) AND below
+  // ws2, the panel that rises into this space as the grid shrinks — so a card
+  // still mid-fade slips behind the rising panel instead of poking over it.
+  // That is what lets the grid shrink immediately (see min-height below).
+  // They fade over EXIT_FADE_MS; a timer then display:none's them.
   exiting.forEach((c,i)=>{
     const r=exitRects[i];
     c.style.position='absolute';
     c.style.left=(r.left-gridRect.left)+'px';
     c.style.top=(r.top-gridRect.top)+'px';
     c.style.width=r.width+'px';
-    c.style.zIndex='1';
+    c.style.zIndex='0';
     c.style.transition=`opacity ${EXIT_FADE_MS}ms ease, background ${EXIT_FADE_MS}ms ease, border-color ${EXIT_FADE_MS}ms ease`;
     c.classList.add('exiting');
   });
@@ -3817,16 +3816,17 @@ function triggerPhaseBrief(){
   const initialUniformH=Math.max(...initialCardHeights);
   const finalUniformH=Math.max(...finalCardHeights);
   survivors.forEach(c=>{c.style.maxHeight=initialUniformH+'px';});
-  // After the layout change, the grid's natural height drops to one row
-  // (exit cards are absolute and contribute nothing). Set min-height (not
-  // height) to the pre-morph height and transition it down to 0 — natural
-  // height takes over as soon as it dips below the curve.
-  // Delay the shrink by EXIT_FADE_MS so the exit cards finish fading (and
-  // are display:none'd) BEFORE the grid container's bottom edge moves past
-  // their pinned Y positions. No need to clip overflow — by the time the
-  // grid is shrinking past row-2, nothing's living there.
+  // The grid box shrinks from its 2-col height to the final 1-row height over
+  // the full MORPH_MS with the same ease as the card FLIP and NO delay — so ws2
+  // below rises in lockstep with the cards as one motion. (A delayed shrink
+  // makes the panel pull up AFTER the cards land — a two-stage jiggle.)
+  // min-height (not height) carries the shrink; transitioning it to
+  // finalUniformH — the grid's final intrinsic height — rather than 0 keeps the
+  // box on a single min-height curve start to finish (min-height stays >=
+  // intrinsic, so no mid-morph crossover kink) and lands exactly on intrinsic,
+  // so cleanup releases it with nothing to snap.
   grid.style.minHeight=oldGridH+'px';
-  grid.style.transition=`min-height ${MORPH_MS-EXIT_FADE_MS}ms ease ${EXIT_FADE_MS}ms`;
+  grid.style.transition=`min-height ${MORPH_MS}ms ease`;
 
   // INVERT — transform & width snap (0s transition), color/bg keep animating.
   survivors.forEach((c,i)=>{
@@ -3845,7 +3845,7 @@ function triggerPhaseBrief(){
     c.style.width=lastRects[i].width+'px';
     c.style.maxHeight=finalUniformH+'px';
   });
-  grid.style.minHeight='0px';
+  grid.style.minHeight=finalUniformH+'px';
   grid._phaseTimer=setTimeout(()=>{
     grid._phaseTimer=0;
     survivors.forEach(c=>{
