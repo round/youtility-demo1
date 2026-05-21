@@ -16,7 +16,7 @@ export default {
         status: 303,
         headers: {
           "Location": url.pathname + url.search,
-          "Set-Cookie": `${COOKIE_NAME}=${expected}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${COOKIE_MAX_AGE}`,
+          "Set-Cookie": `${COOKIE_NAME}=${expected}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${COOKIE_MAX_AGE}`,
           "Cache-Control": "no-store",
         },
       });
@@ -32,7 +32,7 @@ export default {
           status: 303,
           headers: {
             "Location": next,
-            "Set-Cookie": `${COOKIE_NAME}=${expected}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=${COOKIE_MAX_AGE}`,
+            "Set-Cookie": `${COOKIE_NAME}=${expected}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${COOKIE_MAX_AGE}`,
             "Cache-Control": "no-store",
           },
         });
