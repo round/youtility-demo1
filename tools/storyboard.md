@@ -330,8 +330,19 @@ and the `mcp__claude_ai_Figma__*` tools. Captions below are the storyboard label
 
 ### 3b. Upload the 22 screenshots
 
-`upload_assets` returns ≤5 single-use URLs per call — make **5 calls** (5+5+5+5+2) covering
-churn `01…12` then connect `01…10` **in strict order**. For each URL, `curl` the PNG:
+`upload_assets` returns ≤5 single-use URLs per call. Upload **one flow at a time** — never let
+a single batch straddle the churn/connect boundary (a mixed batch is how a frame gets silently
+dropped). Make **5 calls** in this fixed composition:
+
+| Call | `upload_assets` count | Files           | Labels            |
+|------|-----------------------|-----------------|-------------------|
+| 1    | 5                     | churn `01…05`   | `1.1.1 … 1.1.5`   |
+| 2    | 5                     | churn `06…10`   | `1.1.6 … 1.1.10`  |
+| 3    | 2                     | churn `11…12`   | `1.1.11 … 1.1.12` |
+| 4    | 5                     | connect `01…05` | `1.2.1 … 1.2.5`   |
+| 5    | 5                     | connect `06…10` | `1.2.6 … 1.2.10`  |
+
+For each URL, `curl` the PNG:
 
 ```bash
 curl -s -X POST -F "file=@<path.png>;filename=<label>" "<submitUrl>"
@@ -342,6 +353,9 @@ and expire after 10 min), call `upload_assets` for a fresh URL and retry that im
 
 Keep an ordered list of 22 `{label, caption, imageHash}` — 12 churn (`1.1.1…1.1.12`) then 10
 connect (`1.2.1…1.2.10`). A mis-ordered list mislabels every screen, so map carefully.
+**Before Phase 3c, count the list: exactly 22 hashes — 12 churn + 10 connect.** If any label
+is missing, `upload_assets` for just those files and append them — a short list silently drops
+screens from the storyboard.
 
 ### 3c. Build the skeleton
 
