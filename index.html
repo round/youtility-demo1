@@ -419,12 +419,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .urg-pill:hover{border-color:var(--border3);}
 .urg-pill.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);color:var(--brand-primary-hover);}
 /* ── STEP 1 SEGMENTS ── */
-.seg-intro{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;max-height:120px;overflow:hidden;transition:opacity .35s ease,max-height .35s ease,margin .35s ease;}
+.seg-intro{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;max-height:120px;overflow:hidden;transition:opacity 0.7s ease,max-height 0.7s ease,margin 0.7s ease;}
 #briefIntro{text-align:center;color:var(--brand-primary-hover);font-weight:600;padding:18px 16px;margin-bottom:18px;max-height:none;}
 #segContent:has(.seg-grid.phase-brief) .seg-intro{opacity:0;max-height:0;margin-bottom:0;pointer-events:none;}
 .seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
 .seg-grid.phase-brief{grid-template-columns:repeat(var(--seg-n,1),1fr);gap:9px;}
-.seg-card{border:1px solid var(--border2);border-radius:11px;background:var(--bg3);padding:13px;cursor:pointer;position:relative;overflow:hidden;max-height:560px;transition:border-color .15s ease,background .35s ease,opacity .35s ease,max-height .35s ease,padding .35s ease,margin .35s ease,transform .35s ease;}
+.seg-card{border:1px solid var(--border2);border-radius:11px;background:var(--bg3);padding:13px;cursor:pointer;position:relative;overflow:hidden;max-height:560px;transition:border-color .15s ease,background 0.7s ease,opacity 0.7s ease,max-height 0.7s ease,padding 0.7s ease,margin 0.7s ease,transform 0.7s ease;}
 .seg-card:hover{border-color:var(--border3);}
 .seg-card.sel{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .06);}
 .seg-card.desel{opacity:.4;}
@@ -433,13 +433,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .seg-card.sel .seg-chk{background:var(--brand-primary);border-color:var(--brand-primary);}
 .seg-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;padding-right:24px;min-height:2.4em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .seg-sz{font-family:'Montserrat',sans-serif;font-size:9px;color:var(--text3);margin-bottom:7px;}
-.seg-desc{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:9px;max-height:120px;opacity:1;overflow:hidden;transition:opacity .35s ease,max-height .35s ease,margin .35s ease;}
+.seg-desc{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:9px;max-height:120px;opacity:1;overflow:hidden;transition:opacity 0.7s ease,max-height 0.7s ease,margin 0.7s ease;}
 .seg-tags{display:flex;flex-wrap:wrap;gap:4px;}
 .sig-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;padding:2px 6px;border-radius:3px;}
 .sig-tag.high{background:rgba(46,168,106,.12);color:var(--green);border:1px solid rgba(46,168,106,.2);}
 .sig-tag.mid{background:rgba(232,160,32,.1);color:var(--accent2);border:1px solid rgba(232,160,32,.2);}
 .sig-tag.low{background:rgba(208,85,58,.1);color:var(--accent);border:1px solid rgba(208,85,58,.2);}
-.seg-note{font-size:10px;color:var(--text3);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5;max-height:120px;opacity:1;overflow:hidden;transition:opacity .35s ease,max-height .35s ease,margin .35s ease,padding .35s ease,border-color .35s ease;}
+.seg-note{font-size:10px;color:var(--text3);font-style:italic;margin-top:8px;padding-top:8px;border-top:1px solid var(--border);line-height:1.5;max-height:120px;opacity:1;overflow:hidden;transition:opacity 0.7s ease,max-height 0.7s ease,margin 0.7s ease,padding 0.7s ease,border-color 0.7s ease;}
 /* phase-brief: cards drop toggle vocabulary — no checkmark, accent-based active state replaces the old brand-primary toggle */
 .seg-card.phase-brief.sel{cursor:pointer;border-color:var(--border2);background:var(--bg3);}
 .seg-card.phase-brief.sel:hover{border-color:var(--brc-accent,var(--border3));}
@@ -448,7 +448,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .seg-card.phase-brief .seg-name{padding-right:0;}
 .seg-card.phase-brief .seg-desc,.seg-card.phase-brief .seg-note{opacity:0;max-height:0;margin-top:0;margin-bottom:0;padding-top:0;border-top-color:transparent;}
 /* in-card rec extension (rendered hidden in phase 1, revealed in phase 2) */
-.seg-rec-extension{opacity:0;max-height:0;overflow:hidden;margin-top:0;padding-top:0;border-top:1px dashed transparent;transition:opacity .35s ease,max-height .35s ease,margin-top .35s ease,padding-top .35s ease,border-top-color .35s ease;}
+.seg-rec-extension{opacity:0;max-height:0;overflow:hidden;margin-top:0;padding-top:0;border-top:1px dashed transparent;transition:opacity 0.7s ease,max-height 0.7s ease,margin-top 0.7s ease,padding-top 0.7s ease,border-top-color 0.7s ease;}
 .seg-card.phase-brief .seg-rec-extension{opacity:1;max-height:240px;margin-top:10px;padding-top:10px;border-top-color:var(--border);}
 .seg-rec-head{display:flex;align-items:center;gap:9px;}
 .seg-rec-ct-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--brc-tint,rgb(var(--brand-primary-rgb) / .12));color:var(--brc-accent,var(--brand-primary));}
@@ -464,8 +464,8 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 /* form panel fade-in / fade-out below morphed cards */
 @keyframes wsFadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
 @keyframes wsFadeDown{from{opacity:1;transform:none;}to{opacity:0;transform:translateY(6px);}}
-.wiz-step.fading-in{animation:wsFadeUp .35s ease both;}
-.wiz-step.fading-out{animation:wsFadeDown .35s ease both;}
+.wiz-step.fading-in{animation:wsFadeUp 0.7s ease both;}
+.wiz-step.fading-out{animation:wsFadeDown 0.7s ease both;}
 /* ── STEP 3 OUTPUT — SPLIT LAYOUT ── */
 .output-split{display:grid;grid-template-columns:1fr 1fr;gap:18px;height:100%;min-height:0;}
 .output-left{display:flex;flex-direction:column;min-width:0;}
@@ -3571,7 +3571,11 @@ function wBack(){
       ws2.classList.remove('fading-out');
       wizStep=1;
       renderWizUI();
-    },350);
+      // Unlock ws1's flex now that ws2 is display:none — ws1 expands to
+      // flex:1 to fill the panel. Happens at the same tick as ws2 vanishing,
+      // so the area below ws1 is empty either way; no visible content moves.
+      document.getElementById('ws1').style.flex='';
+    },MORPH_MS);
     return;
   }
   wizStep--;renderWizUI();
@@ -3681,7 +3685,7 @@ function renderBriefIntro(){
   triggerPhaseBrief();
 }
 
-const MORPH_MS=350;
+const MORPH_MS=700;
 
 // Step 1 → step 2: surviving cards FLIP to a single row of N (position + width),
 // exiting cards are pinned out of grid flow so they fade in place without
@@ -3721,6 +3725,12 @@ function triggerPhaseBrief(){
   // Pin exited cards out of flow at their original position and size, then
   // fade opacity + background + border in place — no shrink, no scale, no
   // translate. zIndex:1 keeps them behind the FLIPing survivors.
+  // EXIT_FADE_MS = MORPH_MS/2 so exits are fully transparent by the time the
+  // grid starts shrinking (see min-height transition below). A timer flips
+  // them to display:none right after the fade completes so they stop
+  // contributing to ws1's scroll-overflow before the grid container's
+  // bottom edge passes their pinned Y positions.
+  const EXIT_FADE_MS=MORPH_MS/2;
   exiting.forEach((c,i)=>{
     const r=exitRects[i];
     c.style.position='absolute';
@@ -3728,9 +3738,14 @@ function triggerPhaseBrief(){
     c.style.top=(r.top-gridRect.top)+'px';
     c.style.width=r.width+'px';
     c.style.zIndex='1';
-    c.style.transition=`opacity ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
+    c.style.transition=`opacity ${EXIT_FADE_MS}ms ease, background ${EXIT_FADE_MS}ms ease, border-color ${EXIT_FADE_MS}ms ease`;
     c.classList.add('exiting');
   });
+  setTimeout(()=>{
+    exiting.forEach(c=>{
+      if(c.classList.contains('exiting'))c.style.display='none';
+    });
+  },EXIT_FADE_MS+30);
 
   grid.style.setProperty('--seg-n',survivors.length);
   grid.classList.add('phase-brief');
@@ -3753,20 +3768,26 @@ function triggerPhaseBrief(){
     clone.remove();
     return h;
   });
-  // Lock each survivor's max-height to its initial natural height. PLAY adds
-  // max-height to the transition list and shifts it to the final value, so
-  // the card's visible height follows a clean monotonic curve while the
-  // inner content's overlap-and-settle happens harmlessly under the cap.
-  survivors.forEach((c,i)=>{c.style.maxHeight=initialCardHeights[i]+'px';});
+  // Lock every survivor's max-height to a SHARED value — the max across all
+  // cards' natural heights. The live grid's default align-items:stretch will
+  // equalize cards to the row's tallest content at cleanup; using a uniform
+  // lock here matches that landing exactly, so nothing grows at the end of
+  // the morph. PLAY shifts the shared lock to the final value, keeping the
+  // card height on a clean monotonic curve while inner content settles
+  // harmlessly under the cap.
+  const initialUniformH=Math.max(...initialCardHeights);
+  const finalUniformH=Math.max(...finalCardHeights);
+  survivors.forEach(c=>{c.style.maxHeight=initialUniformH+'px';});
   // After the layout change, the grid's natural height drops to one row
   // (exit cards are absolute and contribute nothing). Set min-height (not
-  // height) to the pre-morph height and transition it down to 0 over
-  // MORPH_MS — natural height takes over as soon as it dips below the
-  // min-height curve, so content below settles smoothly without a snap at
-  // the end and without forcing the row to a measured target that becomes
-  // stale once the cards' inner content finishes collapsing.
+  // height) to the pre-morph height and transition it down to 0 — natural
+  // height takes over as soon as it dips below the curve.
+  // Delay the shrink by EXIT_FADE_MS so the exit cards finish fading (and
+  // are display:none'd) BEFORE the grid container's bottom edge moves past
+  // their pinned Y positions. No need to clip overflow — by the time the
+  // grid is shrinking past row-2, nothing's living there.
   grid.style.minHeight=oldGridH+'px';
-  grid.style.transition=`min-height ${MORPH_MS}ms ease`;
+  grid.style.transition=`min-height ${MORPH_MS-EXIT_FADE_MS}ms ease ${EXIT_FADE_MS}ms`;
 
   // INVERT — transform & width snap (0s transition), color/bg keep animating.
   survivors.forEach((c,i)=>{
@@ -3783,7 +3804,7 @@ function triggerPhaseBrief(){
     c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease, max-height ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
     c.style.transform='';
     c.style.width=lastRects[i].width+'px';
-    c.style.maxHeight=finalCardHeights[i]+'px';
+    c.style.maxHeight=finalUniformH+'px';
   });
   grid.style.minHeight='0px';
   grid._phaseTimer=setTimeout(()=>{
@@ -3823,6 +3844,15 @@ function triggerPhaseSelect(){
   if(grid._phaseTimer){clearTimeout(grid._phaseTimer);grid._phaseTimer=0;}
   const survivors=Array.from(grid.querySelectorAll('.seg-card.sel'));
   const exited=Array.from(grid.querySelectorAll('.seg-card.exiting'));
+  // Lock ws1 to flex:0 0 auto for the duration of the morph. Without this,
+  // removing phase-brief from the grid (next step) instantly unmatches the
+  // :has() selector and snaps ws1 from flex:0 0 auto to flex:1 — a visible
+  // expansion at t=0. The literal reverse of forward, which collapses ws1
+  // at t=0 of forward, is to expand ws1 at t=MORPH_MS of reverse. wBack's
+  // setTimeout clears this inline flex at MORPH_MS so the snap lands when
+  // ws2 also disappears — invisible, since the space was already empty.
+  const ws1=document.getElementById('ws1');
+  if(ws1)ws1.style.flex='0 0 auto';
 
   // FIRST — snapshot survivors' current (phase-brief) visual positions.
   const firstRects=survivors.map(c=>c.getBoundingClientRect());
@@ -3883,21 +3913,27 @@ function triggerPhaseSelect(){
     clone.remove();
     return h;
   });
-  // Lock each survivor's max-height to its initial (phase-brief) height; PLAY
-  // adds max-height to the transition list and shifts it to the final value,
-  // keeping card height on a clean monotonic curve while the inner-content
-  // expand-and-settle (rec-extension collapsing, desc/note re-expanding)
-  // happens harmlessly inside the cap.
-  survivors.forEach((c,i)=>{c.style.maxHeight=initialCardHeights[i]+'px';});
+  // Lock every survivor's max-height to a SHARED value — the max across all
+  // cards' heights — for the same reason as the forward path: the live grid's
+  // default align-items:stretch will equalize cards to the row's tallest at
+  // cleanup, so a uniform lock here makes the landing seamless. PLAY shifts
+  // the shared lock to the final value, keeping card height on a clean curve
+  // while inner-content expand-and-settle happens under the cap.
+  const initialUniformH=Math.max(...initialCardHeights);
+  const finalUniformH=Math.max(...finalCardHeights);
+  survivors.forEach(c=>{c.style.maxHeight=initialUniformH+'px';});
   // Lock grid to the 1-row height it had a moment ago, then animate it up
-  // to the 2-row height over MORPH_MS so content below settles smoothly
-  // instead of snapping down when phase-brief is removed. align-content:start
-  // keeps cards at content height (no stretching to the locked container);
-  // overflow:hidden clips row-2 cards inside the lock while it expands.
+  // to the 2-row height. Mirror of the forward stagger: in forward, exits
+  // fade out (first half) then grid shrinks (second half). In reverse, grid
+  // grows (first half) then exits fade in (second half). align-content:start
+  // keeps cards at content height (no stretching to the locked container).
+  // No overflow clip needed — exits sit at opacity 0 throughout phase A, so
+  // their row-2 flow positions are invisible regardless of where the grid's
+  // bottom edge currently is.
+  const EXIT_FADE_MS=MORPH_MS/2;
   grid.style.alignContent='start';
-  grid.style.overflow='hidden';
   grid.style.height=oldGridH+'px';
-  grid.style.transition=`height ${MORPH_MS}ms ease`;
+  grid.style.transition=`height ${MORPH_MS-EXIT_FADE_MS}ms ease`;
 
   // INVERT survivors back to their phase-brief positions.
   survivors.forEach((c,i)=>{
@@ -3917,16 +3953,16 @@ function triggerPhaseSelect(){
     c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease, max-height ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
     c.style.transform='';
     c.style.width=lastRects[i].width+'px';
-    c.style.maxHeight=finalCardHeights[i]+'px';
+    c.style.maxHeight=finalUniformH+'px';
     c.classList.remove('phase-brief','active');
   });
   grid.style.height=newGridH+'px';
 
-  // Fade exited cards back in alongside the FLIP — they're already in flow at
-  // full size, so we only need to transition opacity + background + border
-  // back from the .exiting "transparent" state.
+  // Fade exited cards back in DURING phase B (after the grid has finished
+  // growing). Delay = duration of phase A so opacity stays at 0 while the
+  // grid expands, then fades from 0 → 1 over EXIT_FADE_MS.
   exited.forEach(c=>{
-    c.style.transition=`opacity ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
+    c.style.transition=`opacity ${EXIT_FADE_MS}ms ease ${MORPH_MS-EXIT_FADE_MS}ms, background ${EXIT_FADE_MS}ms ease ${MORPH_MS-EXIT_FADE_MS}ms, border-color ${EXIT_FADE_MS}ms ease ${MORPH_MS-EXIT_FADE_MS}ms`;
     c.style.opacity='';
     c.style.pointerEvents='';
   });
@@ -3946,7 +3982,6 @@ function triggerPhaseSelect(){
     });
     grid.style.height='';
     grid.style.alignContent='';
-    grid.style.overflow='';
     grid.style.transition='';
   },MORPH_MS+30);
 }
