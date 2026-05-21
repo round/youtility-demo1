@@ -411,6 +411,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .urg-pill.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);color:var(--brand-primary-hover);}
 /* ── STEP 1 SEGMENTS ── */
 .seg-intro{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.6;max-height:120px;overflow:hidden;transition:opacity .35s ease,max-height .35s ease,margin .35s ease;}
+#briefIntro{text-align:center;color:var(--brand-primary-hover);font-weight:600;padding:18px 16px;margin-bottom:18px;max-height:none;}
 #segContent:has(.seg-grid.phase-brief) .seg-intro{opacity:0;max-height:0;margin-bottom:0;pointer-events:none;}
 .seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
 .seg-grid.phase-brief{grid-template-columns:repeat(var(--seg-n,1),1fr);gap:9px;}
@@ -3677,23 +3678,38 @@ function triggerPhaseBrief(){
   const gridRect=grid.getBoundingClientRect();
   const exitRects=exiting.map(c=>c.getBoundingClientRect());
   grid.style.position='relative';
+
+  // Pre-install inline transitions BEFORE the class change. border-color &
+  // background get MORPH_MS so the .sel → .phase-brief.sel color shift
+  // animates instead of snapping on frame 1 (was the visible "flicker").
+  // transform & width stay at 0s so the upcoming INVERT still snaps.
+  survivors.forEach(c=>{
+    c.style.transition=`transform 0s, width 0s, border-color ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease`;
+  });
+
+  // Pin exited cards out of flow. Override CSS so every .exiting property
+  // (opacity, max-height, padding, transform, border-color) shares the same
+  // MORPH_MS curve — otherwise border-color races ahead at .15s.
   exiting.forEach((c,i)=>{
     const r=exitRects[i];
     c.style.position='absolute';
     c.style.left=(r.left-gridRect.left)+'px';
     c.style.top=(r.top-gridRect.top)+'px';
     c.style.width=r.width+'px';
+    c.style.transition=`opacity ${MORPH_MS}ms ease, max-height ${MORPH_MS}ms ease, padding ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease, transform ${MORPH_MS}ms ease`;
     c.classList.add('exiting');
   });
+
   grid.style.setProperty('--seg-n',survivors.length);
   grid.classList.add('phase-brief');
   survivors.forEach(c=>c.classList.add('phase-brief'));
   const lastRects=survivors.map(c=>c.getBoundingClientRect());
+
+  // INVERT — transform & width snap (0s transition), color/bg keep animating.
   survivors.forEach((c,i)=>{
     const dx=firstRects[i].left-lastRects[i].left;
     const dy=firstRects[i].top-lastRects[i].top;
     c.style.justifySelf='start';
-    c.style.transition='none';
     c.style.transform=`translate(${dx}px,${dy}px)`;
     c.style.width=firstRects[i].width+'px';
   });
@@ -3701,7 +3717,7 @@ function triggerPhaseBrief(){
   // coalesces both writes and the animation never plays.
   void grid.offsetHeight;
   survivors.forEach((c,i)=>{
-    c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease`;
+    c.style.transition=`transform ${MORPH_MS}ms ease, width ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease`;
     c.style.transform='';
     c.style.width=lastRects[i].width+'px';
   });
@@ -3713,6 +3729,7 @@ function triggerPhaseBrief(){
       c.style.width='';
     });
     exiting.forEach(c=>{
+      c.style.transition='';
       c.style.display='none';
       c.style.position='';
       c.style.left='';
