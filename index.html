@@ -349,12 +349,21 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 /* ── BRIEF FORM ── */
 /* Campaign type selector */
 .ct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
-.ct-card{border:1px solid var(--border2);border-radius:10px;padding:13px 12px;cursor:pointer;transition:all .15s;text-align:center;}
+.ct-card{border:1px solid var(--border2);border-radius:10px;padding:13px 12px;cursor:pointer;transition:border-color .15s ease, background .15s ease, box-shadow .15s ease;text-align:center;position:relative;}
 .ct-card:hover{border-color:var(--border3);background:var(--bg4);}
 .ct-card.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);}
+/* Paired with a step-1 segment: adopt its accent so the link is visible on hover
+   AND when selected. Border + background + an outlined icon all share --brc-accent. */
+.ct-card[data-rec-seg]:hover{border-color:var(--brc-accent,var(--border3));}
+.ct-card[data-rec-seg].selected{border-color:var(--brc-accent,var(--brand-primary));background:color-mix(in srgb,var(--brc-accent,var(--brand-primary)) 9%,var(--bg3));box-shadow:0 0 0 1px color-mix(in srgb,var(--brc-accent,var(--brand-primary)) 35%,transparent);}
+.ct-card[data-rec-seg].selected .ct-link-tag{color:var(--brc-accent,var(--brand-primary-hover));border-top-color:color-mix(in srgb,var(--brc-accent,var(--brand-primary)) 30%,transparent);}
 .ct-icon{width:32px;height:32px;border-radius:8px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;}
 .ct-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px;}
 .ct-desc{font-size:10.5px;color:var(--text3);line-height:1.4;}
+/* Surfaces only when a segment is paired to this card (via data-rec-seg).
+   Stays hidden in step 1 / on unmatched cards so step-2-only UI doesn't leak. */
+.ct-link-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;margin-top:9px;padding-top:7px;border-top:1px dashed transparent;opacity:0;max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .25s ease,margin-top .25s ease,padding-top .25s ease,border-top-color .25s ease,color .15s ease;}
+.ct-card[data-rec-seg] .ct-link-tag{opacity:1;max-height:32px;border-top-color:var(--border);}
 
 /* Conditional panels */
 .brief-section{margin-bottom:18px;}
@@ -419,7 +428,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .seg-card:hover{border-color:var(--border3);}
 .seg-card.sel{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .06);}
 .seg-card.desel{opacity:.4;}
-.seg-card.exiting{opacity:0;max-height:0;padding-top:0;padding-bottom:0;margin:0;border-color:transparent;transform:scale(.96);pointer-events:none;}
+.seg-card.exiting{opacity:0;pointer-events:none;}
 .seg-chk{position:absolute;top:10px;right:10px;width:18px;height:18px;border-radius:5px;border:1px solid var(--border2);background:var(--bg4);display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .seg-card.sel .seg-chk{background:var(--brand-primary);border-color:var(--brand-primary);}
 .seg-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;padding-right:24px;}
@@ -1176,21 +1185,25 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-prima
         <div class="brief-section-lbl">CAMPAIGN TYPE</div>
         <div class="ct-grid" id="ctGrid">
           <div class="ct-card selected" data-type="promo" onclick="selectType(this)">
+            <div class="ct-link-tag"></div>
             <div class="ct-icon" style="background:rgb(var(--brand-primary-rgb) / .15);color:var(--brand-primary-hover)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
             <div class="ct-name" data-cb="promoTypeName">Promotional offer</div>
             <div class="ct-desc" data-cb="promoTypeDesc">Reward, cashback or fee waiver with conditions</div>
           </div>
           <div class="ct-card" data-type="product" onclick="selectType(this)">
+            <div class="ct-link-tag"></div>
             <div class="ct-icon" style="background:rgba(74,127,212,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
             <div class="ct-name" data-cb="productTypeName">Feature spotlight</div>
             <div class="ct-desc" data-cb="productTypeDesc">Spotlight a specific <span class="client-name">Monese</span> feature</div>
           </div>
           <div class="ct-card" data-type="arrival" onclick="selectType(this)">
+            <div class="ct-link-tag"></div>
             <div class="ct-icon" style="background:rgba(46,168,106,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2ea86a" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
             <div class="ct-name" data-cb="arrivalTypeName">New feature</div>
             <div class="ct-desc" data-cb="arrivalTypeDesc">Launch announcement for new <span class="client-name">Monese</span> features</div>
           </div>
           <div class="ct-card" data-type="series" onclick="selectType(this)">
+            <div class="ct-link-tag"></div>
             <div class="ct-icon" style="background:rgba(232,160,32,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
             <div class="ct-name" data-cb="seriesTypeName">Series / event</div>
             <div class="ct-desc" data-cb="seriesTypeDesc">Recurring editorial like Money Mondays</div>
@@ -3629,11 +3642,15 @@ const CT_IDENTITY = {
 // Per-segment recommendation: which CAMPAIGN TYPE card matches each segment
 // + a one-line rationale grounded in that segment's behavioural note.
 // Keys match SEGS ids; values stay tenant-agnostic (loyal/lapsed/browse/new).
+// One segment → one campaign type. The four wizard segments (loyal, lapsed,
+// browse, new) each pair 1:1 with the four CAMPAIGN TYPE cards. This pairing
+// drives both the rationale shown inside each segment card AND the visual
+// "linked" treatment on the ct-card below (see reorderCtCards).
 const SEG_CAMPAIGN_REC = {
   loyal:  {type:'product', label:'Feature spotlight', rationale:'Lead with newness and previews — promo erodes premium signal.'},
   lapsed: {type:'promo',   label:'Promotional offer', rationale:'Reactivation ROI peaks with a value-led, time-bound hook.'},
   browse: {type:'arrival', label:'New feature',       rationale:'Trust signals and friction-removal outperform discounting here.'},
-  new:    {type:'product', label:'Feature spotlight', rationale:'Introduce the product first — protect long-term value perception.'},
+  new:    {type:'series',  label:'Series / event',    rationale:'Welcome series builds rapport before any promo — protect long-term value perception.'},
 };
 
 // Resolve mindset profile names for a segment by inverting the active tenant's
@@ -3659,7 +3676,7 @@ function renderBriefIntro(){
   const el=document.getElementById('briefIntro');
   if(el){
     const n=SEGS.filter(s=>s.selected).length;
-    el.innerHTML=n?`Set the campaign angle below. Each card above ties to one of your ${n} selected segment${n!==1?'s':''} and is informed by its mindset profiles.`:'';
+    el.innerHTML=n?`Each segment above is paired with one campaign type below — click either side to preview the match, or pick a different type to override.`:'';
   }
   triggerPhaseBrief();
 }
@@ -3687,16 +3704,15 @@ function triggerPhaseBrief(){
     c.style.transition=`transform 0s, width 0s, border-color ${MORPH_MS}ms ease, background ${MORPH_MS}ms ease`;
   });
 
-  // Pin exited cards out of flow. Override CSS so every .exiting property
-  // (opacity, max-height, padding, transform, border-color) shares the same
-  // MORPH_MS curve — otherwise border-color races ahead at .15s.
+  // Pin exited cards out of flow at their original position and size, then
+  // fade opacity only — no shrink, scale, or border-color motion.
   exiting.forEach((c,i)=>{
     const r=exitRects[i];
     c.style.position='absolute';
     c.style.left=(r.left-gridRect.left)+'px';
     c.style.top=(r.top-gridRect.top)+'px';
     c.style.width=r.width+'px';
-    c.style.transition=`opacity ${MORPH_MS}ms ease, max-height ${MORPH_MS}ms ease, padding ${MORPH_MS}ms ease, border-color ${MORPH_MS}ms ease, transform ${MORPH_MS}ms ease`;
+    c.style.transition=`opacity ${MORPH_MS}ms ease`;
     c.classList.add('exiting');
   });
 
@@ -3744,8 +3760,8 @@ function triggerPhaseBrief(){
 
 // Reverse of triggerPhaseBrief: a mirrored FLIP — survivors translate from
 // their phase-brief positions back to the original 2-col cells, exited cards
-// fade + un-scale in place. Inner content un-collapses via the same .35s CSS
-// transitions used in the forward path, so motion stays in lockstep.
+// fade back in place (opacity only). Inner content un-collapses via the same
+// .35s CSS transitions used in the forward path, so motion stays in lockstep.
 function triggerPhaseSelect(){
   const grid=document.getElementById('segGrid');if(!grid)return;
   if(grid._phaseTimer){clearTimeout(grid._phaseTimer);grid._phaseTimer=0;}
@@ -3767,7 +3783,6 @@ function triggerPhaseSelect(){
     c.style.display='';
     c.classList.remove('exiting');
     c.style.opacity='0';
-    c.style.transform='scale(.96)';
     c.style.pointerEvents='none';
   });
 
@@ -3810,11 +3825,10 @@ function triggerPhaseSelect(){
   });
 
   // Fade exited cards back in alongside the FLIP — they're already in flow at
-  // full size, so we only need to transition opacity + scale.
+  // full size, so we only need to transition opacity.
   exited.forEach(c=>{
-    c.style.transition=`opacity ${MORPH_MS}ms ease, transform ${MORPH_MS}ms ease`;
+    c.style.transition=`opacity ${MORPH_MS}ms ease`;
     c.style.opacity='';
-    c.style.transform='';
     c.style.pointerEvents='';
   });
 
@@ -3848,18 +3862,40 @@ function syncSegActive(){
 }
 
 // Reorder CAMPAIGN TYPE cards so the ones recommended by the selected segments
-// surface first, in the order those segments appear. Non-recommended types fall
-// in behind, keeping their original relative order.
+// surface first, in the order those segments appear, AND stamp each matched
+// card with its partner segment so CSS can paint it in the segment's accent
+// (visible 1:1 link when the user clicks either side). ct-grid is also given a
+// `--ct-cols` matching the selection count so matched ct-cards sit directly
+// below their segment in the same column; any unmatched ct-cards wrap below.
 function reorderCtCards(){
   const grid=document.getElementById('ctGrid');if(!grid)return;
   const cards=Array.from(grid.querySelectorAll('.ct-card'));
   if(!cards.length)return;
   const sel=SEGS.filter(s=>s.selected);
+  const segByType={};
   const recTypes=[];
-  sel.forEach(s=>{const r=SEG_CAMPAIGN_REC[s.id];if(r&&r.type&&!recTypes.includes(r.type))recTypes.push(r.type);});
+  sel.forEach(s=>{const r=SEG_CAMPAIGN_REC[s.id];if(r&&r.type&&!segByType[r.type]){segByType[r.type]=s;recTypes.push(r.type);}});
   const original=cards.map(c=>c.dataset.type);
   const ordered=[...recTypes.filter(t=>original.includes(t)),...original.filter(t=>!recTypes.includes(t))];
   ordered.forEach(t=>{const c=cards.find(x=>x.dataset.type===t);if(c)grid.appendChild(c);});
+  // Stamp each ct-card with its matched seg id + accent vars so CSS paints
+  // matched cards in the seg's color and surfaces a "paired with" tag.
+  cards.forEach(c=>{
+    const seg=segByType[c.dataset.type];
+    const tag=c.querySelector('.ct-link-tag');
+    if(seg){
+      const ct=CT_IDENTITY[c.dataset.type]||CT_IDENTITY.promo;
+      c.dataset.recSeg=seg.id;
+      c.style.setProperty('--brc-accent',ct.accent);
+      c.style.setProperty('--brc-tint',ct.tint);
+      if(tag)tag.textContent=`Paired with ${seg.name}`;
+    } else {
+      delete c.dataset.recSeg;
+      c.style.removeProperty('--brc-accent');
+      c.style.removeProperty('--brc-tint');
+      if(tag)tag.textContent='';
+    }
+  });
 }
 
 function renderGenOverlay(){
