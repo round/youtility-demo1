@@ -367,8 +367,8 @@ body.light-mode .ae-skel{background:linear-gradient(90deg,var(--bg3) 0%,var(--bg
 .ct-desc{font-size:10.5px;color:var(--text3);line-height:1.4;}
 /* Surfaces only when a segment is paired to this card (via data-rec-seg).
    Stays hidden in step 1 / on unmatched cards so step-2-only UI doesn't leak. */
-.ct-link-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;margin-top:9px;padding-top:7px;opacity:0;max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .25s ease,margin-top .25s ease,padding-top .25s ease,color .15s ease;}
-.ct-card[data-rec-seg] .ct-link-tag{opacity:1;max-height:32px;}
+.ct-link-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.09em;color:var(--text3);text-transform:uppercase;margin-top:0;opacity:0;max-height:0;overflow:hidden;transition:opacity .25s ease,max-height .25s ease,margin-bottom .25s ease,color .15s ease;}
+.ct-card[data-rec-seg] .ct-link-tag{opacity:1;max-height:32px;margin-bottom:10px;}
 
 /* Conditional panels */
 .brief-section{margin-bottom:18px;}
@@ -3323,11 +3323,22 @@ function injectAudienceExplorer(kind){
   renderMsgs();
   setTimeout(()=>{
     const idx=msgs.findIndex(m=>m.id===id);
-    if(idx!==-1){
-      msgs[idx]={id,role:'ai',widget:true,feedback:null,widgetHTML:buildAudienceExplorerHTML(id),widgetIntro:introText,widgetKind:kind};
-      renderMsgs();
-      document.getElementById('widget-'+id).classList.add('ae-fade-in');
-      bootAudienceExplorer(kind,id);
+    if(idx===-1)return;
+    msgs[idx]={id,role:'ai',widget:true,feedback:null,widgetHTML:buildAudienceExplorerHTML(id),widgetIntro:introText,widgetKind:kind};
+    renderMsgs();
+    bootAudienceExplorer(kind,id);
+    // Reveal by fading a fresh skeleton overlay out over the fully-rendered
+    // widget — avoids the blank frame of fading the widget up from opacity 0.
+    const wc=document.getElementById('widget-'+id);
+    if(wc){
+      wc.style.position='relative';
+      const ov=document.createElement('div');
+      ov.innerHTML=AE_SKELETON_HTML;
+      const skel=ov.firstElementChild;
+      skel.style.cssText+=';position:absolute;left:0;top:0;width:100%;z-index:2;transition:opacity .32s ease;';
+      wc.appendChild(skel);
+      requestAnimationFrame(()=>{skel.style.opacity='0';});
+      setTimeout(()=>{skel.remove();wc.style.position='';},380);
     }
   },1200);
 }
@@ -4045,7 +4056,7 @@ function reorderCtCards(){
       c.dataset.recSeg=seg.id;
       c.style.setProperty('--brc-accent',ct.accent);
       c.style.setProperty('--brc-tint',ct.tint);
-      if(tag)tag.textContent=`Paired with ${seg.name}`;
+      if(tag)tag.innerHTML=`Based on<br>${seg.name}`;
     } else {
       delete c.dataset.recSeg;
       c.style.removeProperty('--brc-accent');
