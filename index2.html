@@ -4671,5 +4671,41 @@ function toggleRecCard(){
     </div>
   </div>
 </div>
+
+<script src="nav-history.js"></script>
+<script src="user-flow.js"></script>
+<script>
+  window.addEventListener('load', () => {
+    UserFlow.play([
+      {
+        id: 'connect',
+        name: 'Connect data source',
+        steps: [
+          { say: "Start at home", waitFor: "#startScreen" },
+          { say: "Open the account menu",
+            sel: ".sb-home .user-avatar-btn" },
+          { say: "Open data sources",
+            sel: "#accountModal .acct-menu-item", text: "Data sources" },
+          { say: "Choose HubSpot CRM",
+            waitFor: "#dataSourcesView.visible",
+            sel: ".ds-card", text: "HubSpot" },
+          { say: "Endpoint configuration",
+            waitFor: ".ds-conn-tabs",
+            do: "hover", sel: ".ds-conn-body .ds-field input", ms: 1400 },
+          { say: "Configure authentication",
+            sel: ".ds-conn-tab", text: "Authentication" },
+          { say: "Map fields to behavioural attributes",
+            sel: ".ds-conn-tab", text: "Field mapping" },
+          { say: "Set the sync schedule",
+            sel: ".ds-conn-tab", text: "Sync schedule" },
+          { say: "Test the connection",
+            sel: ".ds-test-btn" },
+          { say: "Connected · first sync starting",
+            waitFor: ".ds-pill.ok", ms: 1600 },
+        ],
+      },
+    ]);
+  });
+</script>
 </body>
 </html>
