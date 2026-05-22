@@ -1404,7 +1404,7 @@ function getDetailClient(){ return getActiveClient(); }
 // doesn't accumulate duplicate <link> tags on repeat calls.
 const __LOADED_FONT_HREFS = new Set();
 
-// Default typography (Monese-canonical). Spread into every non-Ledbury tenant
+// Default typography (Monese-canonical). Spread into active tenant palette
 // so applyBrandPalette() resets the typography vars on cross-tenant switches.
 const __DEFAULT_TYPOGRAPHY = {
   '--brand-wordmark-font': "'Inter','Montserrat',sans-serif",
