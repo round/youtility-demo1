@@ -13,7 +13,7 @@
   --text:#e8eaf2;--text2:#8b90a8;--text3:#555a72;
   --accent:#d0553a;--accent2:#e8a020;--accent3:#4a7fd4;
   --green:#2ea86a;--purple:#7c5cbf;
-  --monese:#0b72fd;--monese2:#3892ff;--brand-primary:#0b72fd;--brand-primary-hover:#3892ff;--brand-primary-rgb:11 114 253;
+  --brand-primary:#0b72fd;--brand-primary-hover:#3892ff;--brand-primary-rgb:11 114 253;
   --sw:268px;
 }
 body.light-mode{
@@ -188,7 +188,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .search-modal-overlay{position:fixed;inset:0;background:rgba(8,11,28,0.55);display:none;align-items:flex-start;justify-content:center;z-index:9999;padding-top:88px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
 .search-modal-overlay.open{display:flex;}
 .search-modal{background:var(--bg);border:1px solid var(--border2);border-radius:14px;width:min(540px,calc(100vw - 40px));max-height:70vh;display:flex;flex-direction:column;box-shadow:0 24px 60px -10px rgba(0,0,0,0.35),0 8px 20px -6px rgba(0,0,0,0.15);overflow:hidden;font-family:'Montserrat',sans-serif;}
-body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12),0 8px 20px -6px rgba(0,0,0,0.08);}
+body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-primary-rgb) / .12),0 8px 20px -6px rgba(0,0,0,0.08);}
 .search-modal-input-row{display:flex;align-items:center;gap:9px;padding:13px 14px;border-bottom:1px solid var(--border);}
 .search-modal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Montserrat',sans-serif;font-size:14px;font-weight:500;}
 .search-modal-input::placeholder{color:var(--text3);}
@@ -237,7 +237,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .sb-campaign.visible{display:flex;}
 .gc-pin{padding:10px 10px 6px;}
 .gc-card{background:var(--bg4);border:1px solid var(--border2);border-radius:10px;padding:12px 13px;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden;}
-.gc-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(11,114,253,.1) 0%,transparent 60%);pointer-events:none;}
+.gc-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgb(var(--brand-primary-rgb) / .1) 0%,transparent 60%);pointer-events:none;}
 .gc-card:hover{border-color:var(--border3);}
 .gc-card.active{border-color:var(--brand-primary);}
 .gc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -405,7 +405,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .ct-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
 .ct-card{border:1px solid var(--border2);border-radius:10px;padding:13px 12px;cursor:pointer;transition:all .15s;text-align:center;}
 .ct-card:hover{border-color:var(--border3);background:var(--bg4);}
-.ct-card.selected{border-color:var(--brand-primary);background:rgba(11,114,253,.1);}
+.ct-card.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);}
 .ct-icon{width:32px;height:32px;border-radius:8px;margin:0 auto 9px;display:flex;align-items:center;justify-content:center;}
 .ct-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px;}
 .ct-desc{font-size:10.5px;color:var(--text3);line-height:1.4;}
@@ -421,9 +421,9 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .offer-pill-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
 .offer-pill{padding:5px 13px;border-radius:20px;border:1px solid var(--border2);background:var(--bg4);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;}
 .offer-pill:hover{border-color:var(--border3);color:var(--text);}
-.offer-pill.selected{border-color:var(--brand-primary);background:rgba(11,114,253,.12);color:#1a8fff;}
+.offer-pill.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .12);color:#1a8fff;}
 .offer-pill.add-new{border-style:dashed;color:var(--text3);background:transparent;}
-.offer-pill.add-new:hover{border-color:var(--brand-primary);color:var(--brand-primary);background:rgba(11,114,253,.05);}
+.offer-pill.add-new:hover{border-color:var(--brand-primary);color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .05);}
 .add-attr-input-wrap{display:inline-flex;align-items:center;gap:5px;padding:2px 4px 2px 11px;border-radius:20px;border:1px solid var(--brand-primary);background:var(--bg);transition:all .15s;}
 .add-attr-input{border:none;outline:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:12px;color:var(--text);min-width:180px;}
 .add-attr-input::placeholder{color:var(--text3);}
@@ -473,7 +473,7 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .chan-row{display:flex;gap:7px;flex-wrap:wrap;}
 .chan-chk{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:7px;border:1px solid var(--border2);background:var(--bg4);cursor:pointer;font-size:12px;color:var(--text2);transition:all .15s;user-select:none;}
 .chan-chk input{display:none;}
-.chan-chk.checked{border-color:var(--brand-primary);background:rgba(11,114,253,.1);color:#1a8fff;}
+.chan-chk.checked{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);color:#1a8fff;}
 .chan-dot-chk{width:5px;height:5px;border-radius:50%;background:var(--text3);}
 .chan-chk.checked .chan-dot-chk{background:var(--brand-primary-hover);}
 
@@ -481,17 +481,17 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .urgency-row{display:flex;gap:7px;}
 .urg-pill{padding:6px 13px;border-radius:7px;border:1px solid var(--border2);background:var(--bg4);font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;}
 .urg-pill:hover{border-color:var(--border3);}
-.urg-pill.selected{border-color:var(--brand-primary);background:rgba(11,114,253,.1);color:#1a8fff;}
+.urg-pill.selected{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .1);color:#1a8fff;}
 
 
 /* ── STEP 2 CONTEXTUAL HEADER ── */
 
 .landing-url-row{display:flex;align-items:stretch;gap:7px;margin:5px 0 5px;}
-.landing-url-input{flex:1;min-width:0;padding:6px 9px;border:1px solid var(--border2);border-radius:7px;background:var(--bg2);font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;color:#0b72fd;outline:none;transition:border-color .15s,background .15s;}
-.landing-url-input:focus{border-color:#0b72fd;background:var(--bg);}
+.landing-url-input{flex:1;min-width:0;padding:6px 9px;border:1px solid var(--border2);border-radius:7px;background:var(--bg2);font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;color:var(--brand-primary);outline:none;transition:border-color .15s,background .15s;}
+.landing-url-input:focus{border-color:var(--brand-primary);background:var(--bg);}
 .landing-reanalyse{flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:transparent;border:1px solid var(--border2);border-radius:7px;color:var(--text2);font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s,border-color .15s,color .15s;}
 .landing-reanalyse:hover{background:var(--bg3);border-color:var(--border3);color:var(--text);}
-.landing-reanalyse.analysing{color:#0b72fd;border-color:rgba(11,114,253,0.4);background:rgba(11,114,253,0.06);pointer-events:none;}
+.landing-reanalyse.analysing{color:var(--brand-primary);border-color:rgb(var(--brand-primary-rgb) / .4);background:rgb(var(--brand-primary-rgb) / .06);pointer-events:none;}
 .landing-reanalyse.analysing svg{animation:spin 1s linear infinite;}
 .landing-reanalyse.done{color:#2ea86a;border-color:rgba(46,168,106,0.4);background:rgba(46,168,106,0.06);}
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -500,21 +500,21 @@ body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgba(11,114,253,0.12)
 .landing-thumb{flex-shrink:0;width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#7c5cbf 0%,#4a3a9a 100%);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.95);}
 .landing-body{flex:1;min-width:0;}
 .landing-title{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:600;color:var(--text);line-height:1.2;margin-bottom:7px;letter-spacing:-.005em;}
-.landing-url{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;color:#0b72fd;margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.landing-url{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;color:var(--brand-primary);margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .landing-desc{font-family:'Montserrat',sans-serif;font-size:13px;color:var(--text2);line-height:1.5;}
 
 .targeting-chips{display:flex;flex-wrap:wrap;gap:10px;}
-.targ-chip{display:inline-flex;align-items:center;gap:9px;padding:6px 14px 6px 6px;background:rgba(11,114,253,0.07);border:1px solid rgba(11,114,253,0.3);border-radius:22px;font-family:'Montserrat',sans-serif;font-size:12.5px;font-weight:600;color:var(--text);letter-spacing:-.005em;}
-.targ-chip-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.11em;color:#fff;background:#0b72fd;padding:3px 8px;border-radius:12px;text-transform:uppercase;}
+.targ-chip{display:inline-flex;align-items:center;gap:9px;padding:6px 14px 6px 6px;background:rgb(var(--brand-primary-rgb) / .07);border:1px solid rgb(var(--brand-primary-rgb) / .3);border-radius:22px;font-family:'Montserrat',sans-serif;font-size:12.5px;font-weight:600;color:var(--text);letter-spacing:-.005em;}
+.targ-chip-tag{font-family:'Montserrat',sans-serif;font-size:8.5px;font-weight:700;letter-spacing:.11em;color:#fff;background:var(--brand-primary);padding:3px 8px;border-radius:12px;text-transform:uppercase;}
 .targ-chip-tag.secondary{background:#5fa8ff;}
 .targ-chip-empty{font-family:'Montserrat',sans-serif;font-size:11.5px;color:var(--text3);font-style:italic;}
 
 .recommend-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;overflow:hidden;padding:0;}
-.rec-toggle{width:100%;display:flex;align-items:center;gap:10px;padding:13px 18px;background:transparent;border:none;cursor:pointer;color:#0b72fd;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:700;text-align:left;letter-spacing:.1em;text-transform:uppercase;transition:background .15s;}
+.rec-toggle{width:100%;display:flex;align-items:center;gap:10px;padding:13px 18px;background:transparent;border:none;cursor:pointer;color:var(--brand-primary);font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:700;text-align:left;letter-spacing:.1em;text-transform:uppercase;transition:background .15s;}
 .rec-toggle:hover{background:var(--bg3);}
-.rec-toggle-chev{color:#0b72fd;flex-shrink:0;transition:transform .2s;}
+.rec-toggle-chev{color:var(--brand-primary);flex-shrink:0;transition:transform .2s;}
 .rec-toggle.open .rec-toggle-chev{transform:rotate(90deg);}
-.rec-toggle-lbl{flex:1;min-width:0;color:#0b72fd;}
+.rec-toggle-lbl{flex:1;min-width:0;color:var(--brand-primary);}
 .rec-toggle-more{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0;text-transform:none;flex-shrink:0;}
 .rec-toggle.open .rec-toggle-more{color:var(--text2);}
 .rec-content{display:none;padding:0 18px 16px;font-family:'Montserrat',sans-serif;font-size:13px;color:var(--text2);line-height:1.6;border-top:1px solid var(--border);margin-top:0;padding-top:14px;}
@@ -554,7 +554,7 @@ body.dark-mode .vertical-welcome-card{background:var(--bg2);}
   height:10px;
   border-radius:50%;
   margin-top:9px;
-  box-shadow:0 0 0 5px rgba(11,114,253,0.12);
+  box-shadow:0 0 0 5px rgb(var(--brand-primary-rgb) / .12);
 }
 .vw-body{flex:1;min-width:0;}
 .vw-eyebrow{
@@ -602,17 +602,17 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .dim-reach-sub{font-family:'Montserrat',sans-serif;font-size:12px;color:var(--text2);}
 .dim-reach-sub b{color:var(--text);font-weight:600;}
 .dim-reach-right{flex:0 0 200px;display:flex;flex-direction:column;align-items:flex-end;text-align:right;}
-.dim-reach-pct{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:600;color:#0b72fd;line-height:1;letter-spacing:-.01em;}
+.dim-reach-pct{font-family:'Montserrat',sans-serif;font-size:22px;font-weight:600;color:var(--brand-primary);line-height:1;letter-spacing:-.01em;}
 .dim-reach-pct-lbl{font-family:'Montserrat',sans-serif;font-size:10.5px;color:var(--text3);margin-top:4px;margin-bottom:10px;}
 .dim-reach-bar{width:100%;height:6px;background:var(--bg4);border-radius:3px;overflow:hidden;}
-.dim-reach-bar-fill{height:100%;background:linear-gradient(90deg,#0b72fd 0%,#3892ff 100%);border-radius:3px;transition:width .4s ease-out;}
+.dim-reach-bar-fill{height:100%;background:linear-gradient(90deg,var(--brand-primary) 0%,var(--brand-primary-hover) 100%);border-radius:3px;transition:width .4s ease-out;}
 
 /* Dimension picker grid + cards */
 .seg-intro{font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:12px;}
 .seg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .seg-card{position:relative;border:1px solid var(--border2);border-radius:11px;background:var(--bg3);padding:13px;cursor:pointer;transition:all .15s;}
 .seg-card:hover{border-color:var(--border3);background:var(--bg4);}
-.seg-card.sel{border-color:var(--brand-primary);background:rgba(11,114,253,.05);}
+.seg-card.sel{border-color:var(--brand-primary);background:rgb(var(--brand-primary-rgb) / .05);}
 .seg-card.desel{opacity:.55;}
 .seg-card.desel:hover{opacity:1;}
 
@@ -653,8 +653,8 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .cb-lbl{font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.08em;color:var(--text3);}
 .cb-acts{display:flex;gap:5px;}
 .cact{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;background:var(--bg4);border:1px solid var(--border2);color:var(--text3);font-family:'Montserrat',sans-serif;font-size:10px;cursor:pointer;transition:all .12s;}
-.cact-update{background:#0b72fd;color:#fff;border-color:#0b72fd;font-weight:600;}
-.cact-update:hover{background:#3892ff;border-color:#3892ff;color:#fff;}
+.cact-update{background:var(--brand-primary);color:#fff;border-color:var(--brand-primary);font-weight:600;}
+.cact-update:hover{background:var(--brand-primary-hover);border-color:var(--brand-primary-hover);color:#fff;}
 .cact:hover{border-color:var(--border3);color:var(--text2);}
 .c-text{font-size:12.5px;line-height:1.7;color:var(--text2);white-space:pre-wrap;}
 .c-text-rich{font-size:12.5px;line-height:1.7;color:var(--text2);white-space:pre-wrap;}
@@ -669,12 +669,12 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 
 /* TOP-OF-PAGE CAMPAIGN SCORE CARD (Step 3) — compact single-row */
 .campaign-score-card{background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:10px 18px;margin-bottom:22px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;transition:background .2s;}
-.campaign-score-card.updated{background:rgba(11,114,253,.04);}
+.campaign-score-card.updated{background:rgb(var(--brand-primary-rgb) / .04);}
 .csc-title{font-family:'Montserrat',sans-serif;font-size:9.5px;font-weight:700;letter-spacing:.13em;color:var(--text3);text-transform:uppercase;flex-shrink:0;}
 .csc-dims{display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
 .csc-dim{display:inline-flex;align-items:center;gap:7px;}
 .csc-dim-tag{font-family:'Montserrat',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em;color:#fff;padding:2px 6px;border-radius:8px;text-transform:uppercase;}
-.csc-dim-tag.pri{background:#0b72fd;}
+.csc-dim-tag.pri{background:var(--brand-primary);}
 .csc-dim-tag.sec{background:#5fa8ff;}
 .csc-dim-name{font-family:'Montserrat',sans-serif;font-size:11.5px;color:var(--text2);font-weight:600;letter-spacing:-.005em;}
 .csc-dim-score{font-family:'Montserrat',sans-serif;font-size:15px;font-weight:600;color:var(--green);letter-spacing:-.005em;}
@@ -688,7 +688,7 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .csc-high{color:var(--green);}
 .csc-mid{color:var(--accent2);}
 .csc-cta{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-@keyframes scoreFlash{0%{transform:scale(1);color:var(--green);}30%{transform:scale(1.18);color:#0b72fd;}100%{transform:scale(1);color:var(--green);}}
+@keyframes scoreFlash{0%{transform:scale(1);color:var(--green);}30%{transform:scale(1.18);color:var(--brand-primary);}100%{transform:scale(1);color:var(--green);}}
 .csc-dim-score.flash{animation:scoreFlash .6s cubic-bezier(.4,0,.2,1);display:inline-block;}
 
 /* CONTENT STALENESS BANNER */
@@ -717,23 +717,23 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .lb-nav{background:#fff;display:flex;justify-content:center;gap:18px;padding:10px 0 8px;border-bottom:1px solid #eef3fa;}
 .lb-nav a{font-family:'Montserrat',sans-serif;font-size:9px;color:#555;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;}
 .lb-wordmark{text-align:center;padding:14px 0 10px;background:#fff;}
-.lb-wordmark-text{font-family:'Inter','Montserrat',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;color:#0b72fd;text-transform:lowercase;}
-.lb-banner{background:#0b72fd;padding:8px 20px;text-align:center;}
+.lb-wordmark-text{font-family:'Inter','Montserrat',sans-serif;font-size:28px;font-weight:800;letter-spacing:-.02em;color:var(--brand-primary);text-transform:lowercase;}
+.lb-banner{background:var(--brand-primary);padding:8px 20px;text-align:center;}
 .lb-banner-text{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.14em;color:#fff;text-transform:uppercase;}
 .lb-hero{background:linear-gradient(180deg,#f4f8ff 0%,#e8efff 100%);padding:24px 22px 22px;text-align:center;}
-.lb-hero-product{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0b72fd;margin-bottom:4px;font-family:'Montserrat',sans-serif;}
+.lb-hero-product{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-primary);margin-bottom:4px;font-family:'Montserrat',sans-serif;}
 .lb-hero-head{font-size:26px;font-weight:400;color:#1a1a18;line-height:1.2;margin-bottom:6px;}
 .lb-hero-sub{font-size:11px;color:#666;font-family:'Montserrat',sans-serif;margin-bottom:14px;line-height:1.5;}
 /* Hero illustration: phone mockup + Monese card composition (SVG, no external assets) */
 .lb-hero-scene{position:relative;width:100%;height:240px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;}
 .lb-hero-scene svg{display:block;width:100%;height:100%;}
-.lb-cta-btn{display:inline-block;background:#0b72fd;color:#fff;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;text-decoration:none;cursor:pointer;border:none;border-radius:2px;}
+.lb-cta-btn{display:inline-block;background:var(--brand-primary);color:#fff;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:10px 24px;text-decoration:none;cursor:pointer;border:none;border-radius:2px;}
 .lb-cta-wrap{text-align:center;padding:14px 0 18px;}
 .lb-body-section{padding:18px 22px;}
 .lb-body-text{font-size:12px;line-height:1.75;color:#333;font-family:'Montserrat',sans-serif;margin-bottom:12px;}
 .lb-body-list{list-style:none;padding:0;margin:0 0 14px;}
 .lb-body-list li{font-size:11.5px;font-family:'Montserrat',sans-serif;color:#444;padding:3px 0;padding-left:12px;position:relative;}
-.lb-body-list li::before{content:'•';position:absolute;left:0;color:#0b72fd;}
+.lb-body-list li::before{content:'•';position:absolute;left:0;color:var(--brand-primary);}
 .lb-divider{height:1px;background:#eef3fa;margin:0;}
 .lb-footer{padding:14px 22px 16px;text-align:center;}
 .lb-footer-text{font-family:'Montserrat',sans-serif;font-size:9px;color:#aaa;line-height:1.6;}
@@ -763,7 +763,7 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .ad-mock-img span{font-family:'Montserrat',sans-serif;font-size:11px;color:#6a7990;font-style:italic;}
 .ad-mock-headline{font-family:'Montserrat',sans-serif;font-size:16px;color:#1a1a18;text-align:center;line-height:1.3;}
 .ad-mock-sub{font-family:'Montserrat',sans-serif;font-size:10px;color:#666;text-align:center;}
-.ad-mock-cta{background:#0b72fd;color:#fff;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 18px;border-radius:2px;}
+.ad-mock-cta{background:var(--brand-primary);color:#fff;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:7px 18px;border-radius:2px;}
 .ad-brief-specs{padding:14px 16px;}
 .ad-spec-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start;}
 .ad-spec-key{font-family:'Montserrat',sans-serif;font-size:8.5px;letter-spacing:.07em;color:var(--text3);min-width:64px;flex-shrink:0;padding-top:1px;}
@@ -839,7 +839,7 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .client-logo-img{height:24px;width:auto;display:block;flex-shrink:0;}
 body.dark-mode .client-logo-img{filter:brightness(1.08);}
 .client-wordmark{display:flex;flex-direction:column;gap:1px;}
-.client-wordmark-name{font-family:'Inter','Montserrat',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;color:#0b72fd;text-transform:lowercase;line-height:1;}
+.client-wordmark-name{font-family:'Inter','Montserrat',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.01em;color:var(--brand-primary);text-transform:lowercase;line-height:1;}
 .client-wordmark-tag{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.14em;color:var(--text3);text-transform:uppercase;line-height:1;}
 /* Light mode: client logo adapts */
 body.light-mode .client-logo-mark{background:var(--brand-primary);}
@@ -877,7 +877,7 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
   <!-- PRODUCT VERTICALS SELECTOR -->
   <div class="proj-switcher" id="projSwitcher">
     <div class="proj-btn" id="projBtn" onclick="toggleProjDrop()">
-      <div class="proj-indicator" id="projIndicator" style="background:#0b72fd"></div>
+      <div class="proj-indicator" id="projIndicator" style="background:var(--brand-primary)"></div>
       <div class="proj-text">
         <div class="proj-label">PRODUCT VERTICALS</div>
         <div class="proj-name" id="projNameEl">All customers</div>
@@ -885,8 +885,8 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
       <svg class="proj-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
     <div class="proj-dropdown" id="projDrop">
-      <div class="proj-option active" id="proj-all" onclick="switchProj('all','All customers','#0b72fd','Every Monese user, all products')">
-        <div class="proj-opt-dot" style="background:#0b72fd"></div>
+      <div class="proj-option active" id="proj-all" onclick="switchProj('all','All customers','var(--brand-primary)','Every Monese user, all products')">
+        <div class="proj-opt-dot" style="background:var(--brand-primary)"></div>
         <div class="proj-opt-body">
           <div class="proj-opt-name">All customers</div>
           <div class="proj-opt-desc">Every Monese user, all products</div>
@@ -899,8 +899,8 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
           <div class="proj-opt-desc">Sign-up and first-funding drop-offs</div>
         </div>
       </div>
-      <div class="proj-option" id="proj-accounts" onclick="switchProj('accounts','Personal Accounts','#3892ff','Instant and Joint accounts')">
-        <div class="proj-opt-dot" style="background:#3892ff"></div>
+      <div class="proj-option" id="proj-accounts" onclick="switchProj('accounts','Personal Accounts','var(--brand-primary-hover)','Instant and Joint accounts')">
+        <div class="proj-opt-dot" style="background:var(--brand-primary-hover)"></div>
         <div class="proj-opt-body">
           <div class="proj-opt-name">Personal Accounts</div>
           <div class="proj-opt-desc">Instant and Joint accounts</div>
@@ -1048,8 +1048,8 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
       <button class="send-btn" onclick="sendMsg()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
     </div>
     <div class="chat-toolbar">
-      <div class="ctool" onclick="sendFromToolbar('Who is my best customer?')" style="border-color:rgba(11,114,253,.35);color:#0b72fd;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0b72fd" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <div class="ctool" onclick="sendFromToolbar('Who is my best customer?')" style="border-color:rgb(var(--brand-primary-rgb) / .35);color:var(--brand-primary);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Best customer
       </div>
       <div class="ctool" onclick="switchWs('campaign')">
@@ -1204,7 +1204,7 @@ const IC={bot:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" strok
 
 // ══ WORKSPACE ══
 let currentWs='home',wsDrop=false;
-const WS_META={home:{name:'Home',color:'#8b90a8',bg:'rgba(139,144,168,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b90a8" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`},campaign:{name:'Marketing Spend',color:'#3892ff',bg:'rgba(11,114,253,.12)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3892ff" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`},churn:{name:'Churn Prevention',color:'#d0553a',bg:'rgba(208,85,58,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},engage:{name:'Engagement',color:'#e8a020',bg:'rgba(232,160,32,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`},ltv:{name:'Lifetime Value',color:'#4a7fd4',bg:'rgba(74,127,212,.08)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`}};
+const WS_META={home:{name:'Home',color:'#8b90a8',bg:'rgba(139,144,168,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b90a8" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`},campaign:{name:'Marketing Spend',color:'var(--brand-primary-hover)',bg:'rgb(var(--brand-primary-rgb) / .12)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`},churn:{name:'Churn Prevention',color:'#d0553a',bg:'rgba(208,85,58,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="1.8"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>`},engage:{name:'Engagement',color:'#e8a020',bg:'rgba(232,160,32,.1)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e8a020" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`},ltv:{name:'Lifetime Value',color:'#4a7fd4',bg:'rgba(74,127,212,.08)',icon:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a7fd4" stroke-width="1.8"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`}};
 function toggleWsDrop(){} // removed
 function switchWs(ws){
   currentWs=ws;
@@ -1220,7 +1220,7 @@ function switchWs(ws){
 // (workspace dropdown removed)
 
 // ══ CAMPAIGN SIDEBAR ══
-const STATUS_COL={active:'#0b72fd',draft:'#555a72',completed:'#4a7fd4',scheduled:'#e8a020'};
+const STATUS_COL={active:'var(--brand-primary)',draft:'#555a72',completed:'#4a7fd4',scheduled:'#e8a020'};
 const CAMPS=[
   {id:101,title:'Cash Advance Reactivation Push',time:'Mar 28',status:'active',   type:'Promo',  open:'+44%',rev:'+28%',roi:'4.2x'},
   {id:102,title:'Credit Builder Beta Spotlight', time:'Mar 28',status:'active',   type:'Product',open:'+38%',rev:'+19%',roi:'3.1x'},
@@ -1272,7 +1272,7 @@ function renderProds(){const grid=document.getElementById('prodGrid');const coun
 function toggleProd(id){const p=PRODUCTS.find(x=>x.id===id);if(!p)return;p.sel=!p.sel;renderProds();}
 
 // ══ OVERVIEW ══
-function renderOverview(){if(!document.getElementById('sparkBars')||!document.getElementById('donutWrap')||!document.getElementById('campTable'))return;const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const ucs=[{l:'Promotional',n:8,c:'#0b72fd'},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
+function renderOverview(){if(!document.getElementById('sparkBars')||!document.getElementById('donutWrap')||!document.getElementById('campTable'))return;const ctr=[27,29,30,31,32,33,36,35,38,39,41,44];const conv=[12,13,13,14,14,15,17,16,18,20,22,24];const max=Math.max(...ctr);document.getElementById('sparkBars').innerHTML=ctr.map((v,i)=>`<div class="spark-bar" style="background:var(--brand-primary);height:${(v/max)*100}%;opacity:.75"></div><div class="spark-bar" style="background:var(--green);height:${(conv[i]/max)*100}%;opacity:.65"></div>`).join('');const ucs=[{l:'Promotional',n:8,c:'var(--brand-primary)'},{l:'Series',n:6,c:'#e8a020'},{l:'Product',n:5,c:'#4a7fd4'},{l:'New arrival',n:5,c:'#2ea86a'}];const tot=ucs.reduce((a,b)=>a+b.n,0);let off=0;const r=34,cx=46,cy=46,circ=2*Math.PI*r;const sl=ucs.map(x=>{const p=x.n/tot;const s=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${x.c}" stroke-width="12" stroke-dasharray="${p*circ} ${circ}" stroke-dashoffset="${-off*circ}" opacity=".8" transform="rotate(-90 ${cx} ${cy})"/>`;off+=p;return s;}).join('');const lbs=ucs.map(x=>`<div class="donut-lrow"><div class="donut-lname"><div style="width:6px;height:6px;border-radius:50%;background:${x.c};flex-shrink:0"></div>${x.l}</div><div class="donut-lval">${x.n}</div></div>`).join('');document.getElementById('donutWrap').innerHTML=`<svg width="92" height="92" viewBox="0 0 92 92"><circle cx="46" cy="46" r="34" fill="none" stroke="var(--bg4)" stroke-width="12"/>${sl}</svg><div class="donut-lbls">${lbs}</div>`;document.getElementById('campTable').innerHTML=CAMPS.slice(0,8).map(c=>{const bcls=c.status==='active'?'badge-active':c.status==='completed'?'badge-done':'badge-draft';return `<div class="table-row"><div class="td name col-n">${c.title}</div><div class="td col-st"><span class="ci-badge ${bcls}">${c.status.toUpperCase()}</span></div><div class="td col-ty" style="font-size:10.5px;color:var(--text3)">${c.type}</div><div class="td mono col-se" style="text-align:right">${Math.floor(Math.random()*12+4)}k</div><div class="td mono col-or" style="text-align:right;color:var(--green)">${c.open}</div><div class="td mono col-rv" style="text-align:right;color:var(--green)">${c.rev}</div><div class="td mono col-ro" style="text-align:right;color:var(--accent2)">${c.roi}</div></div>`;}).join('');}
 
 // ══ CAMPAIGN WORKSPACE TABS ══
 let cwCur='report';
@@ -2339,7 +2339,7 @@ function buildEmailPreview(data,seg){
       </g>
       <!-- Monese debit card on the right, overlapping -->
       <g transform="translate(208,40) rotate(6 60 80)">
-        <rect x="0" y="0" width="120" height="160" rx="10" fill="#0b72fd"/>
+        <rect x="0" y="0" width="120" height="160" rx="10" fill="var(--brand-primary)"/>
         <!-- Chip -->
         <rect x="14" y="22" width="20" height="16" rx="2.5" fill="#cdd9e8"/>
         <rect x="16" y="24" width="16" height="12" rx="1.5" fill="none" stroke="#9eb1c9" stroke-width=".8"/>
@@ -2651,7 +2651,7 @@ function buildAudienceExplorerHTML(){
   return `<div id="ae-widget" style="font-family:'Montserrat',sans-serif;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;overflow:hidden;width:100%;">
   <div style="padding:11px 16px 9px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--text);">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0b72fd" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Customer Explorer
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
@@ -2669,17 +2669,17 @@ function buildAudienceExplorerHTML(){
           </svg>
         </div>
         <div id="ae-leg" style="width:100%;margin-top:8px;display:flex;flex-direction:column;gap:4px;"></div>
-        <div id="ae-vbadge" style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;border:1.5px solid #0b72fd;font-size:9px;font-weight:700;letter-spacing:.07em;color:#0b72fd;margin-top:8px;background:rgba(11,114,253,.09);"></div>
+        <div id="ae-vbadge" style="display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;border:1.5px solid var(--brand-primary);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--brand-primary);margin-top:8px;background:rgb(var(--brand-primary-rgb) / .09);"></div>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;min-width:0;">
       <div style="padding:12px 16px 10px;border-bottom:1px solid var(--border);">
         <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0b72fd" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           <span id="ae-pid"></span>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div id="ae-ppill" style="display:inline-flex;padding:3px 10px;border-radius:20px;border:1.5px solid #0b72fd;font-size:9px;font-weight:700;letter-spacing:.07em;color:#0b72fd;"></div>
+          <div id="ae-ppill" style="display:inline-flex;padding:3px 10px;border-radius:20px;border:1.5px solid var(--brand-primary);font-size:9px;font-weight:700;letter-spacing:.07em;color:var(--brand-primary);"></div>
           <div style="font-size:10.5px;color:var(--text3);">Match Confidence: <b id="ae-pconf" style="color:var(--text2);"></b></div>
         </div>
       </div>
@@ -2697,9 +2697,9 @@ function buildAudienceExplorerHTML(){
 
 function bootAudienceExplorer(){
   const AEC=[
-    {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count:7180, pct:.320,color:'#0b72fd',hi:'#0858c4'},
-    {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:4915, pct:.219,color:'#3892ff',hi:'#0b72fd'},
-    {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:4040, pct:.180,color:'#5fa8ff',hi:'#3892ff'},
+    {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count:7180, pct:.320,color:'var(--brand-primary)',hi:'#0858c4'},
+    {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:4915, pct:.219,color:'var(--brand-primary-hover)',hi:'var(--brand-primary)'},
+    {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:4040, pct:.180,color:'#5fa8ff',hi:'var(--brand-primary-hover)'},
     {name:'Long-Term Cost Conscious',short:'COST\nCONSCIOUS',          count:2915, pct:.130,color:'#a8c8ff',hi:'#7fb0ff'},
     {name:'Disorganized Buyer',      short:'DISORGANIZED\nBUYER',      count:2245, pct:.100,color:'#daa520',hi:'#b8860b'},
     {name:'Reluctant Buyer',         short:'RELUCTANT\nBUYER',         count:1140, pct:.051,color:'#7c5cbf',hi:'#5c40a0'},
@@ -2746,7 +2746,7 @@ function bootAudienceExplorer(){
   }
   function bLeg(){
     const el=document.getElementById('ae-leg');if(!el)return;
-    el.innerHTML=AEC.map((c,i)=>`<div onclick="window._aeSelC(${i})" style="display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:5px;cursor:pointer;background:${i===aC?'rgba(11,114,253,.09)':'transparent'};">
+    el.innerHTML=AEC.map((c,i)=>`<div onclick="window._aeSelC(${i})" style="display:flex;align-items:center;gap:6px;padding:3px 5px;border-radius:5px;cursor:pointer;background:${i===aC?'rgb(var(--brand-primary-rgb) / .09)':'transparent'};">
       <div style="width:8px;height:8px;border-radius:50%;background:${c.color};flex-shrink:0;${i===aC?'box-shadow:0 0 0 2px '+c.hi:''}"></div>
       <div style="font-size:9.5px;color:${i===aC?'var(--text)':'var(--text2)'};flex:1;font-weight:${i===aC?'600':'400'}">${c.name}</div>
       <div style="font-size:9px;color:var(--text3);">${c.count.toLocaleString()}</div>
@@ -2832,16 +2832,16 @@ function bootAudienceExplorer(){
     el.innerHTML=`
       <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;letter-spacing:-.005em;">What would you like to do with this profile?</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
-        <button onclick="window._aeLaunchCampaign()" style="padding:7px 12px;background:#0b72fd;border:none;border-radius:7px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s;" onmouseover="this.style.background='#3892ff'" onmouseout="this.style.background='#0b72fd'">
+        <button onclick="window._aeLaunchCampaign()" style="padding:7px 12px;background:var(--brand-primary);border:none;border-radius:7px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
           Create a campaign
         </button>
-        <button onclick="window._aeAction('engagement','${c.name.replace(/'/g,"\\'")}')" style="padding:7px 12px;background:#0b72fd;border:none;border-radius:7px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s;" onmouseover="this.style.background='#3892ff'" onmouseout="this.style.background='#0b72fd'">
+        <button onclick="window._aeAction('engagement','${c.name.replace(/'/g,"\\'")}')" style="padding:7px 12px;background:var(--brand-primary);border:none;border-radius:7px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
           Develop an engagement strategy
         </button>
-        <button onclick="window._aeAction('poll','${c.name.replace(/'/g,"\\'")}')" style="padding:7px 12px;background:#0b72fd;border:none;border-radius:7px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s;" onmouseover="this.style.background='#3892ff'" onmouseout="this.style.background='#0b72fd'">
+        <button onclick="window._aeAction('poll','${c.name.replace(/'/g,"\\'")}')" style="padding:7px 12px;background:var(--brand-primary);border:none;border-radius:7px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
           Draw on poll data to learn more
         </button>
-        <button onclick="window._aeAction('media','${c.name.replace(/'/g,"\\'")}')" style="padding:7px 12px;background:#0b72fd;border:none;border-radius:7px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s;" onmouseover="this.style.background='#3892ff'" onmouseout="this.style.background='#0b72fd'">
+        <button onclick="window._aeAction('media','${c.name.replace(/'/g,"\\'")}')" style="padding:7px 12px;background:var(--brand-primary);border:none;border-radius:7px;color:#fff;font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:500;cursor:pointer;text-align:left;transition:background .15s;" onmouseover="this.style.background='var(--brand-primary-hover)'" onmouseout="this.style.background='var(--brand-primary)'">
           Develop media strategy for similar consumers
         </button>
       </div>`;
@@ -3119,7 +3119,7 @@ document.addEventListener('keydown',e=>{
 // ── PRODUCT VERTICAL REPORTS ──
 const REPORTS={
   'all':{
-    color:'#0b72fd',name:'All customers',
+    color:'var(--brand-primary)',name:'All customers',
     narrative:'Aggregate health across every Monese product and persona. Engagement is up month over month, with travel-driven activity leading the lift.',
     kpis:[
       {label:'Active users (MAU)',value:'147.2k',trend:'+4.8%',dir:'up'},
@@ -3156,7 +3156,7 @@ const REPORTS={
     focus:['Biggest drop-off is post-KYC, before funding','Top-up reminders not firing for 31% of users','Bank-to-bank transfer abandonment at 24%']
   },
   'accounts':{
-    color:'#3892ff',name:'Personal Accounts',
+    color:'var(--brand-primary-hover)',name:'Personal Accounts',
     narrative:'Instant and Joint accounts are the foundation of every Monese relationship. New account opens up 48% half on half, with Joint accounts accelerating after the referral push.',
     kpis:[
       {label:'Active accounts',value:'88.4k',trend:'+3.1%',dir:'up'},
@@ -3204,8 +3204,8 @@ const REPORTS={
     chartType:'donut',
     chartData:{slices:[
       {label:'Holiday',value:34,color:'#daa520'},
-      {label:'Emergency',value:22,color:'#0b72fd'},
-      {label:'House',value:18,color:'#3892ff'},
+      {label:'Emergency',value:22,color:'var(--brand-primary)'},
+      {label:'House',value:18,color:'var(--brand-primary-hover)'},
       {label:'Wedding',value:8,color:'#7c5cbf'},
       {label:'Tax',value:6,color:'#2ea86a'},
       {label:'Other',value:12,color:'#a8c8ff'}
@@ -3304,6 +3304,7 @@ function buildChart(type,data,color){
   return '';
 }
 function buildLineChart(data,color){
+  if(typeof color==='string'&&color.indexOf('var(')===0){color=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim();}
   const W=720,H=200,PL=46,PR=18,PT=14,PB=30;
   const w=W-PL-PR,h=H-PT-PB;
   const max=Math.max(...data.values)*1.1,min=Math.min(...data.values)*0.9;
@@ -3333,6 +3334,7 @@ function buildLineChart(data,color){
   </svg>`;
 }
 function buildBarChart(data,color){
+  if(typeof color==='string'&&color.indexOf('var(')===0){color=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim();}
   const W=720,H=200,PL=46,PR=18,PT=14,PB=30;
   const w=W-PL-PR,h=H-PT-PB;
   const max=Math.max(...data.values)*1.1;
@@ -3354,6 +3356,7 @@ function buildBarChart(data,color){
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:240px;overflow:visible;">${gridLines}${bars}${xLabels}</svg>`;
 }
 function buildHBarChart(data,color){
+  if(typeof color==='string'&&color.indexOf('var(')===0){color=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim();}
   const W=720,LH=34,PT=10,PB=4,LBL_W=140,VAL_W=84;
   const rows=data.rows.length,H=PT+PB+rows*LH;
   const trackX=LBL_W,trackW=W-LBL_W-VAL_W-12;
@@ -3370,7 +3373,8 @@ function buildHBarChart(data,color){
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:${H+10}px;overflow:visible;">${items}</svg>`;
 }
 function buildDonutChart(data,color){
-  const slices=data.slices;
+  if(typeof color==='string'&&color.indexOf('var(')===0){color=getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim();}
+  const slices=data.slices.map(s=>typeof s.color==='string'&&s.color.indexOf('var(')===0?{...s,color:getComputedStyle(document.documentElement).getPropertyValue(s.color.replace(/^var\(([^)]+)\)$/,'$1')).trim()||s.color}:s);
   const total=slices.reduce((a,b)=>a+b.value,0);
   const cx=90,cy=90,r=72,rin=44,W=480,H=200;
   let cumA=-Math.PI/2;
@@ -3802,7 +3806,7 @@ function showVerticalHome(id, color){
   const card = document.getElementById('verticalWelcomeCard');
   if(card && w){
     card.innerHTML = `
-      <div class="vw-dot" style="background:${color||'#0b72fd'};box-shadow:0 0 0 4px ${(color||'#0b72fd')}22;"></div>
+      <div class="vw-dot" style="background:${color||'var(--brand-primary)'};box-shadow:0 0 0 4px color-mix(in srgb,${color||'var(--brand-primary)'} 13%,transparent);"></div>
       <div class="vw-body">
         <div class="vw-eyebrow">${w.eyebrow}</div>
         <div class="vw-headline">${w.headline}</div>
