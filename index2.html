@@ -847,6 +847,37 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
   .client-wordmark{display:none;}
 }
 
+/* ── MODAL BASE (grafted from index.html) ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:560px;max-width:calc(100vw - 32px);max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 14px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:14px;font-weight:600;color:var(--text);}
+.modal-close{width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:6px;transition:color .12s;}
+.modal-close:hover{color:var(--text);}
+.modal-body{flex:1;overflow-y:auto;padding:16px 20px;}
+.modal-body::-webkit-scrollbar{width:4px;}
+.modal-body::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+
+/* ── ACCOUNT MODAL (grafted from index.html) ── */
+.acct-user-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg3);border-radius:10px;margin-bottom:16px;border:1px solid var(--border);}
+.acct-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;}
+.acct-name{font-size:14px;font-weight:600;color:var(--text);}
+.acct-role{font-size:10.5px;color:var(--text3);margin-top:2px;letter-spacing:.04em;}
+.acct-badge{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.07em;margin-top:4px;}
+.badge-admin{background:rgb(var(--brand-primary-rgb) / .15);color:var(--brand-primary-hover);border:1px solid rgb(var(--brand-primary-rgb) / .25);}
+.badge-super{background:rgba(74,127,212,.15);color:var(--accent3);border:1px solid rgba(74,127,212,.25);}
+.acct-section-lbl{font-size:9.5px;font-weight:700;letter-spacing:.1em;color:var(--text3);margin-bottom:8px;margin-top:16px;}
+.acct-menu-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .12s;color:var(--text2);}
+.acct-menu-item:hover{background:var(--bg3);color:var(--text);}
+.acct-menu-item svg{flex-shrink:0;}
+.acct-menu-label{font-size:12.5px;}
+.acct-divider{height:1px;background:var(--border);margin:12px 0;}
+.acct-signout{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:background .12s;color:#c05040;width:100%;background:none;border:none;font-family:'Montserrat',sans-serif;font-size:12.5px;text-align:left;}
+.acct-signout:hover{background:rgba(192,80,64,.08);}
+.badge-client{background:rgb(var(--brand-primary-rgb) / .12);color:var(--brand-primary-hover);border:1px solid rgb(var(--brand-primary-rgb) / .2);}
+.admin-client-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:6px;}
+
 /* ── LOGIN SCREEN (grafted from index.html for forward compatibility — hidden in singleTenant) ── */
 .login-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;}
 .login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:40px 44px;width:420px;max-width:calc(100vw - 32px);}
@@ -1009,13 +1040,12 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <div class="sb-section-lbl">RECENT</div>
     <div class="sb-list" id="homeList"></div>
     <div class="sb-foot">
-      <button class="user-avatar-btn" onclick="showToast('Account settings')">
-        <div class="user-av">DS</div>
+      <button class="user-avatar-btn" id="userAvatarBtn" onclick="openAccountModal()">
+        <div class="user-av" id="userAvatarCircle"></div>
         <div class="user-av-body">
-          <div class="user-av-name">Dan S.</div>
-          <div class="user-av-role">MONESE · ADMIN</div>
+          <div class="user-av-name"></div>
+          <div class="user-av-role"></div>
         </div>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3);flex-shrink:0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
   </div>
@@ -1037,13 +1067,12 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
     <div class="sb-section-lbl">CAMPAIGNS</div>
     <div class="sb-scroll" id="campScroll"></div>
     <div class="sb-foot">
-      <button class="user-avatar-btn" onclick="showToast('Account settings')">
-        <div class="user-av">DS</div>
+      <button class="user-avatar-btn" onclick="openAccountModal()">
+        <div class="user-av"></div>
         <div class="user-av-body">
-          <div class="user-av-name">Dan S.</div>
-          <div class="user-av-role">MONESE · ADMIN</div>
+          <div class="user-av-name"></div>
+          <div class="user-av-role"></div>
         </div>
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:var(--text3);flex-shrink:0"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
     </div>
   </div>
@@ -1592,6 +1621,74 @@ function syncAvatarUI(){
   });
   document.querySelectorAll('.user-av-name').forEach(el => el.textContent = u.name);
   document.querySelectorAll('.user-av-role').forEach(el => el.textContent = roleText);
+}
+
+function getDemoUsers(){
+  return Object.values(USERS);
+}
+
+function pinSwitchOpposite(currentUser, baseTargets){
+  const oppositeId = currentUser.role === 'super' ? 'demo-admin' : 'demo-super';
+  const pinned = USERS[oppositeId];
+  if (!pinned || pinned.id === currentUser.id) return baseTargets;
+  return [pinned, ...baseTargets.filter(t => t.id !== pinned.id)];
+}
+
+function renderClientAcctPanel(u, client){
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = pinSwitchOpposite(u, getDemoUsers().filter(other => other.id !== u.id && isAdminRole(other.role)));
+    const switchSection = switchTargets.length > 0 ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:10px;background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${t.role === 'admin' ? 'Client Admin' : 'Super Admin'})</div></div>`).join('')}
+    ` : '';
+    const signOutSection = `
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">${client.name} · ${u.role.toUpperCase()}</div>
+        <span class="acct-badge badge-client">CLIENT</span>
+      </div>
+    </div>
+    <div class="acct-section-lbl">WORKSPACE</div>
+    <div class="acct-menu-item" onclick="closeAccountModal(); if(typeof openClientDetail==='function') openClientDetail('${client.id}','datasource')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg><div class="acct-menu-label">Data sources</div></div>
+    <div class="acct-section-lbl">ACCOUNT</div>
+    <div class="acct-menu-item" onclick="showToast('Profile settings — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg><div class="acct-menu-label">Profile settings</div></div>
+    <div class="acct-menu-item" onclick="showToast('Change password — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><div class="acct-menu-label">Change password</div></div>
+    <div class="acct-menu-item" onclick="showToast('Notification preferences — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="acct-menu-label">Notification preferences</div></div>
+    ${switchSection}
+    ${signOutSection}`;
+  }
+
+function openAccountModal(){
+    const u = getCurrentUser();
+    if (!u) return;
+    const client = getActiveClient();
+    const titleEl = document.getElementById('acctModalTitle');
+    const bodyEl = document.getElementById('acctModalBody');
+    if (!titleEl || !bodyEl) return;
+    if (u.role === 'super') {
+      titleEl.textContent = 'Admin panel';
+      bodyEl.innerHTML = renderAdminAcctPanel ? renderAdminAcctPanel(u) : renderClientAcctPanel(u, client);
+    } else if (u.role === 'admin') {
+      titleEl.textContent = 'Admin panel';
+      bodyEl.innerHTML = renderClientAdminAcctPanel ? renderClientAdminAcctPanel(u, client) : renderClientAcctPanel(u, client);
+    } else {
+      titleEl.textContent = 'Account';
+      bodyEl.innerHTML = renderClientAcctPanel(u, client);
+    }
+    if (getActiveClient().mode === 'singleTenant') {
+      const so = bodyEl.querySelector('.acct-signout');
+      if (so) so.style.display = 'none';
+    }
+    document.getElementById('accountModal').classList.remove('hidden');
+  }
+
+function closeAccountModal() {
+  document.getElementById('accountModal').classList.add('hidden');
 }
 
 // Accept either a USERS id (e.g. 'demo-admin') or a role string (e.g. 'admin').
@@ -3514,6 +3611,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
     const loginEl = document.getElementById('loginScreen');
     if (loginEl) loginEl.classList.remove('hidden');
   }
+  if (typeof syncAvatarUI === 'function') syncAvatarUI();
 })();
 document.body.classList.add('light-mode');
 document.getElementById('themeIconDark').style.display = 'none';
@@ -4287,6 +4385,18 @@ function toggleRecCard(){
 </script>
 
 <!-- SEARCH CONVERSATIONS MODAL -->
+<div class="modal-overlay hidden" id="accountModal">
+  <div class="modal-box" style="width:480px;">
+    <div class="modal-hdr">
+      <div class="modal-title" id="acctModalTitle">Account</div>
+      <button class="modal-close" onclick="closeAccountModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="acctModalBody"></div>
+  </div>
+</div>
+
 <div class="search-modal-overlay" id="searchModalOverlay" onclick="if(event.target===this)closeSearchModal()">
   <div class="search-modal" role="dialog" aria-label="Search conversations">
     <div class="search-modal-input-row">
