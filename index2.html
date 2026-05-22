@@ -1617,14 +1617,14 @@ function quickLogin(target) {
   // a switch — they keep working in whichever tenant was last active.
   const _next = USERS[matchedId];
   if (_next && _next.clientId && _next.clientId !== ACTIVE_CLIENT_ID) {
-    setActiveTenant(_next.clientId);
+    if (typeof setActiveTenant === 'function') setActiveTenant(_next.clientId);
   }
   const loginEl = document.getElementById('loginScreen');
   if (loginEl) loginEl.classList.add('hidden');
   const u = getCurrentUser();
   syncAvatarUI();
   if (u) showToast('Welcome back, ' + u.name.split(' ')[0]);
-  updateAdminNavVisibility();
+  if (typeof updateAdminNavVisibility === 'function') updateAdminNavVisibility();
   // Super-admin auto-route: dropping a Youtility super into the chat shell of
   // whatever tenant was last active is disorienting — their canonical home is
   // the admin client list. Defer to next tick so any in-flight setActiveTenant
