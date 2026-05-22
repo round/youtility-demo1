@@ -1453,7 +1453,7 @@ const DS_SOURCES = [
   {id:'ivr',  name:'Inbound IVR system',type:'Database / JDBC',icon:'📲',  status:'idle'},
 ];
 const DS_STATUS_COLORS = {connected:'#2ea86a', error:'#d0553a', idle:'#555a72'};
-let dsSelected = 'sf';
+let dsSelected = null;
 let dsConnTab  = 'connection';
 
 function normalizeHex(hex){
@@ -1754,10 +1754,10 @@ function openAccountModal(){
     if (!titleEl || !bodyEl) return;
     if (u.role === 'super') {
       titleEl.textContent = 'Admin panel';
-      bodyEl.innerHTML = renderAdminAcctPanel ? renderAdminAcctPanel(u) : renderClientAcctPanel(u, client);
+      bodyEl.innerHTML = (typeof renderAdminAcctPanel === 'function') ? renderAdminAcctPanel(u) : renderClientAcctPanel(u, client);
     } else if (u.role === 'admin') {
       titleEl.textContent = 'Admin panel';
-      bodyEl.innerHTML = renderClientAdminAcctPanel ? renderClientAdminAcctPanel(u, client) : renderClientAcctPanel(u, client);
+      bodyEl.innerHTML = (typeof renderClientAdminAcctPanel === 'function') ? renderClientAdminAcctPanel(u, client) : renderClientAcctPanel(u, client);
     } else {
       titleEl.textContent = 'Account';
       bodyEl.innerHTML = renderClientAcctPanel(u, client);
@@ -3334,6 +3334,11 @@ const hr = new Date().getHours();
 document.getElementById('timeOfDay').textContent = hr < 12 ? 'morning' : hr < 17 ? 'afternoon' : 'evening';
 
 function showStartScreen(){
+  // Ensure datasource view doesn't trap navigation; also restore homeView if hidden.
+  const dsv = document.getElementById('dataSourcesView');
+  if (dsv) { dsv.classList.add('hidden'); dsv.style.display = 'none'; dsv.classList.remove('visible'); }
+  const hV  = document.getElementById('homeView');
+  if (hV)  hV.style.display = '';
   document.getElementById('startScreen').classList.remove('hidden');
   document.getElementById('messages').classList.add('hidden');
   document.getElementById('chatInputBar').classList.add('hidden');
@@ -4611,6 +4616,7 @@ function showVerticalHome(id, color){
   const cW=document.getElementById('campWs');if(cW) cW.classList.remove('visible');
   const rV=document.getElementById('reportView');if(rV) rV.style.display='none';
   const cS=document.getElementById('csView');if(cS) cS.style.display='none';
+  const dsv2=document.getElementById('dataSourcesView');if(dsv2){dsv2.classList.add('hidden');dsv2.style.display='none';dsv2.classList.remove('visible');}
   // Reset to start screen so the prompt + pills are visible
   showStartScreen();
   // Populate the welcome card
