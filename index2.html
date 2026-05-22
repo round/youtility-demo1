@@ -905,6 +905,64 @@ body.light-mode .client-logo-mark{background:var(--brand-primary);}
 .login-user-name{font-size:12px;font-weight:500;color:var(--text);}
 .login-user-role{font-size:10px;color:var(--text3);}
 .login-footer{margin-top:20px;text-align:center;font-size:10px;color:var(--text3);}
+
+/* ── DATASOURCE PANEL (grafted from index.html; standalone, no client-detail wrapper) ── */
+.ds-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.ds-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 13px;cursor:pointer;transition:border-color .15s;position:relative;}
+.ds-card:hover{border-color:var(--border3);}
+.ds-card.selected{border-color:var(--accent3);background:rgba(74,127,212,.06);}
+.ds-card.add-card{border:1.5px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:80px;}
+.ds-card.add-card:hover{border-color:var(--border3);}
+.ds-status-dot{position:absolute;top:10px;right:10px;width:7px;height:7px;border-radius:50%;}
+.ds-check{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;background:var(--accent3);display:flex;align-items:center;justify-content:center;}
+.ds-icon{width:28px;height:28px;border-radius:7px;background:var(--bg4);display:flex;align-items:center;justify-content:center;margin-bottom:7px;}
+.ds-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.ds-type{font-size:10px;color:var(--text3);}
+.ds-add-label{font-size:11.5px;color:var(--text2);}
+.ds-settings{background:var(--bg3);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.ds-settings-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.ds-settings-title{display:flex;align-items:center;gap:10px;}
+.ds-settings-name{font-size:13px;font-weight:600;color:var(--text);}
+.ds-settings-sub{font-size:10px;color:var(--text3);}
+.ds-connected-badge{padding:3px 9px;border-radius:5px;font-size:9.5px;font-weight:700;background:rgba(46,168,106,.12);color:var(--green);border:1px solid rgba(46,168,106,.2);}
+.ds-remove-btn{padding:4px 11px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);font-family:'Montserrat',sans-serif;font-size:11px;color:var(--text2);cursor:pointer;transition:all .12s;}
+.ds-remove-btn:hover{border-color:var(--accent);color:var(--accent);}
+.ds-conn-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 14px;}
+.ds-conn-tab{padding:8px 12px;font-size:11px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;}
+.ds-conn-tab:hover{color:var(--text2);}
+.ds-conn-tab.active{color:var(--accent3);border-bottom-color:var(--accent3);}
+.ds-conn-body{padding:14px;}
+.ds-field{margin-bottom:13px;}
+.ds-field label{display:block;font-size:10.5px;font-weight:600;color:var(--text3);margin-bottom:5px;letter-spacing:.04em;}
+.ds-field input,.ds-field select{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-family:'Montserrat',sans-serif;font-size:12.5px;color:var(--text);outline:none;transition:border-color .15s;}
+.ds-field input:focus{border-color:var(--accent3);}
+.ds-toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.ds-toggle-label{font-size:12px;font-weight:500;color:var(--text);}
+.ds-toggle-sub{font-size:10px;color:var(--text3);margin-top:2px;}
+.ds-toggle{width:36px;height:20px;border-radius:10px;background:var(--bg4);border:1px solid var(--border2);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;}
+.ds-toggle.on{background:var(--brand-primary);border-color:var(--brand-primary);}
+.ds-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s;}
+.ds-toggle.on::after{left:18px;}
+.ds-actions{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border);}
+.ds-test-btn{padding:7px 16px;border-radius:7px;background:var(--bg4);border:1px solid var(--border2);font-family:'Montserrat',sans-serif;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;}
+.ds-test-btn:hover{border-color:var(--border3);color:var(--text);}
+.ds-save-btn{padding:7px 16px;border-radius:7px;background:var(--brand-primary);border:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s;}
+.ds-save-btn:hover{background:var(--brand-primary-hover);}
+.ds-confirm{padding:22px 18px 18px;display:flex;flex-direction:column;align-items:flex-start;}
+.ds-confirm-icon{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin-bottom:12px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);}
+.ds-confirm-icon.ok{background:rgba(46,168,106,.14);border-color:rgba(46,168,106,.35);color:#2ea86a;}
+.ds-confirm-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.ds-confirm-sub{font-size:11.5px;color:var(--text3);margin-bottom:16px;line-height:1.5;}
+.ds-confirm-meta{display:flex;flex-direction:column;gap:9px;width:100%;padding:12px 13px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;margin-bottom:14px;}
+.ds-confirm-row{display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:11.5px;}
+.ds-confirm-row label{font-size:9.5px;font-weight:700;letter-spacing:.09em;color:var(--text3);flex-shrink:0;}
+.ds-confirm-row span{color:var(--text2);text-align:right;}
+.ds-pill{display:inline-block;padding:3px 9px;border-radius:5px;font-size:9.5px;font-weight:700;letter-spacing:.05em;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);}
+.ds-pill.ok{background:rgba(46,168,106,.12);color:#2ea86a;border-color:rgba(46,168,106,.25);}
+.ds-pill.err{background:rgba(208,85,58,.12);color:#d0553a;border-color:rgba(208,85,58,.25);}
+.ds-pill.idle{background:rgba(85,90,114,.16);color:var(--text3);border-color:var(--border2);}
+.ds-confirm-cta{padding:8px 18px;border-radius:7px;background:var(--brand-primary);border:none;font-family:'Montserrat',sans-serif;font-size:12px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s;}
+.ds-confirm-cta:hover{background:var(--brand-primary-hover);}
 </style>
 </head>
 <body>
@@ -1373,6 +1431,19 @@ const WL_BRAND_PALETTES = {
   monese: {primary:'#00c389', secondary:'#00a374', background:'#f7faf9', accent:'#1a1a2e'},
   default: {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
 };
+
+const DS_SOURCES = [
+  {id:'sf',   name:'Salesforce CRM',    type:'REST API',       icon:'☁️',  status:'connected', selected:true},
+  {id:'hs',   name:'HubSpot CRM',       type:'REST API',       icon:'◆',   status:'idle'},
+  {id:'em',   name:'Email platform',    type:'SMTP / API',     icon:'✉',   status:'connected'},
+  {id:'sms',  name:'SMS gateway',       type:'REST API',       icon:'💬',  status:'error'},
+  {id:'web',  name:'Web visit logs',    type:'Event stream',   icon:'🌐',  status:'connected'},
+  {id:'call', name:'Outbound call mgmt',type:'Database / JDBC',icon:'📞',  status:'idle'},
+  {id:'ivr',  name:'Inbound IVR system',type:'Database / JDBC',icon:'📲',  status:'idle'},
+];
+const DS_STATUS_COLORS = {connected:'#2ea86a', error:'#d0553a', idle:'#555a72'};
+let dsSelected = 'sf';
+let dsConnTab  = 'connection';
 
 function normalizeHex(hex){
   if(typeof hex !== 'string') return null;
