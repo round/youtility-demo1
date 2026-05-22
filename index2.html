@@ -1822,7 +1822,7 @@ function signOut() {
 
 // ══ DATASOURCE FUNCTIONS ══
 function renderCdDataSources(client){
-  // DS_SOURCES is global across tenants (Stokes parity). The same source list
+  // DS_SOURCES is global across all tenants. The same source list
   // renders for every client; differentiation belongs in CLIENTS, not here.
   const sources  = DS_SOURCES;
   const grid = sources.map(s => {
