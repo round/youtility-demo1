@@ -1732,12 +1732,6 @@ function applyTheme(id) {
   });
 }
 
-window.addEventListener('storage', function (e) {
-  if (e.key === 'theme' && e.newValue && THEMES[e.newValue]) {
-    applyTheme(e.newValue);
-  }
-});
-
 // Datasource panel re-uses the prior merge's getDetailClient() pattern; in
 // single-tenant Monese, the "detail" client is always the active client.
 function getDetailClient(){ return getActiveClient(); }
