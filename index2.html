@@ -7,7 +7,8 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
+:root,
+html[data-theme="default-dark"] {
   /* ─── PRIMITIVES — raw values, never referenced directly by component rules ─── */
   /* Neutrals */
   --color-neutral-0: #ffffff;
@@ -238,7 +239,7 @@
   --accent3: var(--control-active);
   --purple: var(--decoration-accent);
 }
-body.light-mode{
+html[data-theme="default-light"] {
   --bg: var(--color-neutral-0);
   --bg2: var(--color-neutral-50);
   --bg3: var(--color-neutral-100);
@@ -426,7 +427,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .search-modal-overlay{position:fixed;inset:0;background:rgba(8,11,28,0.55);display:none;align-items:flex-start;justify-content:center;z-index:9999;padding-top:88px;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);}
 .search-modal-overlay.open{display:flex;}
 .search-modal{background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-card);width:min(540px,calc(100vw - 40px));max-height:70vh;display:flex;flex-direction:column;box-shadow:0 24px 60px -10px var(--color-alpha-black-35),0 8px 20px -6px rgba(0,0,0,0.15);overflow:hidden;font-family:'Montserrat',sans-serif;}
-body.light-mode .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-primary-rgb) / .12),0 8px 20px -6px rgba(0,0,0,0.08);}
+html[data-theme="default-light"] .search-modal{box-shadow:0 24px 60px -10px rgb(var(--brand-primary-rgb) / .12),0 8px 20px -6px rgba(0,0,0,0.08);}
 .search-modal-input-row{display:flex;align-items:center;gap:9px;padding:13px 14px;border-bottom:1px solid var(--border);}
 .search-modal-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Montserrat',sans-serif;font-size:var(--font-size-subhead);font-weight:500;}
 .search-modal-input::placeholder{color:var(--text3);}
@@ -829,7 +830,7 @@ body.dark-mode .vertical-welcome-card{background:var(--bg2);}
 .dim-info-banner.shake{animation:dimBannerFadeIn .2s ease-out, dimBannerShake .42s ease-in-out .2s;}
 @keyframes dimBannerFadeIn{from{opacity:0;transform:translateY(-3px);}to{opacity:1;transform:translateY(0);}}
 @keyframes dimBannerShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-5px);}40%{transform:translateX(5px);}60%{transform:translateX(-3px);}80%{transform:translateX(3px);}}
-body.light-mode .dim-info-banner{color:#7a4a05;}
+html[data-theme="default-light"] .dim-info-banner{color:#7a4a05;}
 .dim-info-banner svg{color:var(--color-amber-700);flex-shrink:0;}
 
 .dim-reach-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-card);padding:16px 18px;margin-bottom:16px;}
@@ -1087,7 +1088,7 @@ body.dark-mode .client-logo-img{filter:brightness(1.08);}
 .client-wordmark-name{font-family:'Inter','Montserrat',sans-serif;font-size:var(--font-size-heading-sm);font-weight:700;letter-spacing:-.01em;color:var(--brand-primary);text-transform:lowercase;line-height:1;}
 .client-wordmark-tag{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.14em;color:var(--text3);text-transform:uppercase;line-height:1;}
 /* Light mode: client logo adapts */
-body.light-mode .client-logo-mark{background:var(--brand-primary);}
+html[data-theme="default-light"] .client-logo-mark{background:var(--brand-primary);}
 @media(max-width:480px){
   .client-wordmark{display:none;}
 }
@@ -3926,10 +3927,11 @@ function newChat(){homeChats.forEach(x=>x.active=false);homeChats.unshift({id:ne
 // Also update selectChat to restore start screen if chat has no messages
 function selectChatAndShow(id){homeChats.forEach(x=>x.active=x.id===id);renderHomeList();msgs=[];nMsgId=1;showStartScreen();}
 // ══ THEME TOGGLE ══
-let isLight = true;
+let isLight = false;
 function toggleTheme(){
   isLight = !isLight;
-  document.body.classList.toggle('light-mode', isLight);
+  const id = isLight ? 'default-light' : 'default-dark';
+  document.documentElement.setAttribute('data-theme', id);
   document.getElementById('themeIconDark').style.display = isLight ? 'none' : '';
   document.getElementById('themeIconLight').style.display = isLight ? '' : 'none';
 }
@@ -4129,9 +4131,6 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
   }
   if (typeof syncAvatarUI === 'function') syncAvatarUI();
 })();
-document.body.classList.add('light-mode');
-document.getElementById('themeIconDark').style.display = 'none';
-document.getElementById('themeIconLight').style.display = '';
 renderProds();
 switchWs('home');
 renderHomeList();
