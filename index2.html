@@ -198,11 +198,44 @@
   --green:#2ea86a;--purple:#7c5cbf;
   --brand-primary:#0b72fd;--brand-primary-hover:#3892ff;--brand-primary-rgb:11 114 253;
   --sw:268px;
+
+  /* ─── PROMOTED SEMANTIC TOKENS ─── */
+  /* Status colors */
+  --status-success: var(--color-emerald-500);
+  --status-success-rgb: 46 168 106;
+  --status-warning: var(--color-amber-600);
+  --status-warning-rgb: 232 160 32;
+  --status-danger: var(--color-red-500);
+  --status-danger-rgb: 208 85 58;
+
+  /* Control state + focus */
+  --control-active: var(--color-blue-450);
+  --focus-ring: var(--color-blue-450);
+
+  /* Non-semantic decoration */
+  --decoration-accent: var(--color-violet-500);
+
+  /* Surface overlay */
+  --surface-overlay-scrim: var(--color-alpha-black-50);
+
+  /* ─── LOW-CHURN ALIASES — old names continue resolving ─── */
+  --green: var(--status-success);
+  --accent: var(--status-danger);
+  --accent2: var(--status-warning);
+  --accent3: var(--control-active);
+  --purple: var(--decoration-accent);
 }
 body.light-mode{
   --bg:#ffffff;--bg2:#f7f9fc;--bg3:#f1f4f9;--bg4:#e9eef5;--bg5:#dde4ee;
   --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.12);--border3:rgba(0,0,0,0.2);
   --text:#1a1c28;--text2:#4a4e66;--text3:#8a8da8;
+  --status-success: var(--color-emerald-500);
+  --status-warning: var(--color-amber-600);
+  --status-danger: var(--color-red-500);
+  --control-active: var(--color-blue-450);
+  --focus-ring: var(--color-blue-450);
+  --decoration-accent: var(--color-violet-500);
+  --surface-overlay-scrim: var(--color-alpha-black-50);
 }
 body{background:var(--bg);color:var(--text);font-family:'Montserrat',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;z-index:20;}
