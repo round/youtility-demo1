@@ -1764,6 +1764,8 @@ function applyTheme(id) {
   document.documentElement.classList.add('theme-switching');
   document.documentElement.setAttribute('data-theme', id);
 
+  syncThemeButtonIcon();
+
   // Re-apply tenant brand overrides on top of the new theme.
   if (typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
 
@@ -4130,15 +4132,17 @@ function themeMenuOutsideClick(e) {
   if (sw && !sw.contains(e.target)) closeThemeMenu();
 }
 
-// Initialize button-icon state on boot (icon visibility tracks the active theme's mode).
-(function initThemeButton() {
+// Sync the switcher button's icon visibility to the active theme's mode.
+// Called from applyTheme() so the icon tracks runtime theme changes, plus once on boot.
+function syncThemeButtonIcon() {
   const active = THEMES[getActiveThemeId()] || THEMES[DEFAULT_THEME_ID];
   const isLightMode = (active.mode === 'light');
   const dark  = document.getElementById('themeIconDark');
   const light = document.getElementById('themeIconLight');
   if (dark)  dark.style.display  = isLightMode ? 'none' : '';
   if (light) light.style.display = isLightMode ? ''     : 'none';
-})();
+}
+syncThemeButtonIcon();
 
 // ══ DIVISION SELECTOR ══
 let projDrop = false;
