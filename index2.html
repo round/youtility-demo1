@@ -9,7 +9,15 @@
      <script> block. Both must stay in sync (search: `const THEMES =`). -->
 <script>
 (function () {
-  var THEMES = { 'default-dark': 1, 'default-light': 1 };
+  var THEMES = {
+    'default-dark': 1,
+    'default-light': 1,
+    'graphite-dark': 1,
+    'obsidian-dark': 1,
+    'atlas-dark': 1,
+    'bourbon-dark': 1,
+    'verdant-dark': 1,
+  };
   var stored = null;
   try { stored = localStorage.getItem('theme'); } catch (e) {}
   var id = (stored && THEMES[stored]) ? stored : 'default-dark';
@@ -268,6 +276,111 @@ html[data-theme="default-light"] {
   --decoration-accent: var(--color-violet-500);
   --surface-overlay-scrim: var(--color-alpha-black-50);
 }
+/* Graphite — pure neutral charcoal, no chromatic tint. Architect/instrument mood. */
+html[data-theme="graphite-dark"] {
+  --bg: #0a0a0a;
+  --bg2: #131313;
+  --bg3: #1a1a1a;
+  --bg4: #212121;
+  --bg5: #292929;
+  --border: rgba(255, 255, 255, 0.08);
+  --border2: rgba(255, 255, 255, 0.14);
+  --border3: rgba(255, 255, 255, 0.22);
+  --text: #f4f4f4;
+  --text2: #a8a8a8;
+  --text3: #6e6e6e;
+  --status-success: #4aa888;
+  --status-warning: #c9a227;
+  --status-danger: #c85a4a;
+  --control-active: #c0c0c0;
+  --focus-ring: #d4d4d4;
+  --decoration-accent: #8a8a8a;
+  --surface-overlay-scrim: rgba(0, 0, 0, 0.6);
+}
+/* Obsidian — near-pure-black OLED with a tight, almost-flat depth ramp. */
+html[data-theme="obsidian-dark"] {
+  --bg: #030305;
+  --bg2: #08090c;
+  --bg3: #0c0d11;
+  --bg4: #101116;
+  --bg5: #15161c;
+  --border: rgba(255, 255, 255, 0.05);
+  --border2: rgba(255, 255, 255, 0.09);
+  --border3: rgba(255, 255, 255, 0.16);
+  --text: #fafafa;
+  --text2: #a4a6ad;
+  --text3: #6b6d76;
+  --status-success: #4a9d72;
+  --status-warning: #c79532;
+  --status-danger: #c4634f;
+  --control-active: #4a7fd4;
+  --focus-ring: #4a7fd4;
+  --decoration-accent: #7e6cb0;
+  --surface-overlay-scrim: rgba(0, 0, 0, 0.72);
+}
+/* Atlas — desaturated steel-blue-gray. Nordic restraint, softer contrast. */
+html[data-theme="atlas-dark"] {
+  --bg: #0f1217;
+  --bg2: #13171c;
+  --bg3: #181c23;
+  --bg4: #1d2229;
+  --bg5: #232932;
+  --border: rgba(220, 230, 245, 0.09);
+  --border2: rgba(220, 230, 245, 0.14);
+  --border3: rgba(220, 230, 245, 0.22);
+  --text: #d4dbe6;
+  --text2: #93a0b3;
+  --text3: #5e6a7c;
+  --status-success: #4a9678;
+  --status-warning: #c89a4a;
+  --status-danger: #c0685a;
+  --control-active: #6b8cb8;
+  --focus-ring: #6b8cb8;
+  --decoration-accent: #8a7ab0;
+  --surface-overlay-scrim: rgba(8, 11, 16, 0.55);
+}
+/* Bourbon — warm brown-black with copper/amber accents. Editorial luxe. */
+html[data-theme="bourbon-dark"] {
+  --bg: #110d0b;
+  --bg2: #171210;
+  --bg3: #1d1714;
+  --bg4: #241c18;
+  --bg5: #2c221d;
+  --border: rgba(236, 214, 188, 0.07);
+  --border2: rgba(236, 214, 188, 0.12);
+  --border3: rgba(236, 214, 188, 0.20);
+  --text: #ece6df;
+  --text2: #a89a8b;
+  --text3: #6e6357;
+  --status-success: #6f9e6a;
+  --status-warning: #d4a24a;
+  --status-danger: #c8553a;
+  --control-active: #b97132;
+  --focus-ring: #c08a45;
+  --decoration-accent: #8c6f9a;
+  --surface-overlay-scrim: rgba(12, 8, 6, 0.62);
+}
+/* Verdant — cool green-gray, terminal/scientific mood with sage-teal accent. */
+html[data-theme="verdant-dark"] {
+  --bg: #08100c;
+  --bg2: #0c1612;
+  --bg3: #101a16;
+  --bg4: #141f1a;
+  --bg5: #18241f;
+  --border: rgba(180, 220, 200, 0.06);
+  --border2: rgba(180, 220, 200, 0.11);
+  --border3: rgba(180, 220, 200, 0.20);
+  --text: #dde6e1;
+  --text2: #8a9994;
+  --text3: #56635e;
+  --status-success: #3fb87a;
+  --status-warning: #d4a64a;
+  --status-danger: #c76a55;
+  --control-active: #5fa191;
+  --focus-ring: #5fa191;
+  --decoration-accent: #7a8fb0;
+  --surface-overlay-scrim: rgba(4, 10, 8, 0.6);
+}
 body{background:var(--bg);color:var(--text);font-family:'Montserrat',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:56px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;z-index:20;}
 .hdr-left{display:flex;align-items:center;gap:14px;}
@@ -338,9 +451,24 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
   .client-badge{display:none;}
 }
 
-/* Theme toggle */
+/* Theme picker */
+.theme-picker{position:relative;}
 .theme-btn{width:32px;height:32px;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius-control);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:color .15s,background .15s;}
 .theme-btn:hover{color:var(--text);background:var(--bg3);}
+.theme-btn.open{color:var(--text);background:var(--bg3);border-color:var(--border3);}
+.theme-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-card);padding:5px;z-index:var(--z-popover);box-shadow:0 12px 32px var(--color-alpha-black-60);display:none;min-width:200px;}
+.theme-dropdown.open{display:block;}
+.theme-drop-label{font-family:'Montserrat',sans-serif;font-size:var(--font-size-caption);letter-spacing:.1em;color:var(--text3);padding:6px 9px 4px;text-transform:uppercase;font-weight:600;}
+.theme-option{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:var(--radius-control);cursor:pointer;transition:background .12s;position:relative;}
+.theme-option:hover{background:var(--bg4);}
+.theme-option.active{background:var(--bg5);}
+.theme-option.active::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:2.5px;background:var(--accent3);border-radius:var(--radius-tiny);}
+.theme-opt-swatch{width:18px;height:18px;border-radius:var(--radius-input);flex-shrink:0;border:1px solid var(--border2);position:relative;overflow:hidden;}
+.theme-opt-swatch::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40%;background:var(--swatch-accent,transparent);}
+.theme-opt-name{flex:1;font-size:var(--font-size-body);font-weight:500;color:var(--text);}
+.theme-opt-check{color:var(--accent3);opacity:0;flex-shrink:0;}
+.theme-option.active .theme-opt-check{opacity:1;}
+.theme-divider{height:1px;background:var(--border);margin:5px 4px;}
 /* Division selector */
 .proj-switcher{padding:8px 10px 6px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
 .proj-btn{width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg5);border:1px solid var(--border2);border-radius:var(--radius-control);cursor:pointer;transition:border-color .15s;text-align:left;}
@@ -1291,10 +1419,51 @@ html.theme-switching *::after {
     </a>
   </div>
   <div class="hdr-right">
-    <button class="theme-btn" id="themeBtn" type="button" onclick="toggleTheme()" aria-label="Toggle theme">
-      <svg id="themeIconDark" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-      <svg id="themeIconLight" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
+    <div class="theme-picker">
+      <button class="theme-btn" id="themeBtn" type="button" onclick="toggleThemePicker(event)" aria-label="Switch theme" aria-haspopup="listbox" aria-expanded="false">
+        <svg id="themeIconDark" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg id="themeIconLight" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="theme-dropdown" id="themeDrop" role="listbox" aria-label="Theme">
+        <div class="theme-drop-label">Theme</div>
+        <div class="theme-option" role="option" data-theme-id="default-dark" onclick="pickTheme('default-dark')">
+          <span class="theme-opt-swatch" style="background:#08091a;--swatch-accent:#0b72fd;"></span>
+          <span class="theme-opt-name">Default Dark</span>
+          <svg class="theme-opt-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="theme-option" role="option" data-theme-id="graphite-dark" onclick="pickTheme('graphite-dark')">
+          <span class="theme-opt-swatch" style="background:#131313;--swatch-accent:#c0c0c0;"></span>
+          <span class="theme-opt-name">Graphite</span>
+          <svg class="theme-opt-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="theme-option" role="option" data-theme-id="obsidian-dark" onclick="pickTheme('obsidian-dark')">
+          <span class="theme-opt-swatch" style="background:#030305;--swatch-accent:#4a7fd4;"></span>
+          <span class="theme-opt-name">Obsidian</span>
+          <svg class="theme-opt-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="theme-option" role="option" data-theme-id="atlas-dark" onclick="pickTheme('atlas-dark')">
+          <span class="theme-opt-swatch" style="background:#13171c;--swatch-accent:#6b8cb8;"></span>
+          <span class="theme-opt-name">Atlas</span>
+          <svg class="theme-opt-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="theme-option" role="option" data-theme-id="bourbon-dark" onclick="pickTheme('bourbon-dark')">
+          <span class="theme-opt-swatch" style="background:#171210;--swatch-accent:#b97132;"></span>
+          <span class="theme-opt-name">Bourbon</span>
+          <svg class="theme-opt-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="theme-option" role="option" data-theme-id="verdant-dark" onclick="pickTheme('verdant-dark')">
+          <span class="theme-opt-swatch" style="background:#0c1612;--swatch-accent:#5fa191;"></span>
+          <span class="theme-opt-name">Verdant</span>
+          <svg class="theme-opt-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="theme-divider"></div>
+        <div class="theme-option" role="option" data-theme-id="default-light" onclick="pickTheme('default-light')">
+          <span class="theme-opt-swatch" style="background:#ffffff;--swatch-accent:#0b72fd;border-color:rgba(0,0,0,0.18);"></span>
+          <span class="theme-opt-name">Default Light</span>
+          <svg class="theme-opt-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+    </div>
   </div>
 </header>
 <div class="sb-overlay" id="sbOverlay" onclick="closeSbOverlay()"></div>
@@ -1672,6 +1841,11 @@ function isAdminRole(role){ return role === 'admin' || role === 'super'; }
 const THEMES = {
   'default-dark':  { name: 'Default Dark',  mode: 'dark'  },
   'default-light': { name: 'Default Light', mode: 'light' },
+  'graphite-dark': { name: 'Graphite',      mode: 'dark'  },
+  'obsidian-dark': { name: 'Obsidian',      mode: 'dark'  },
+  'atlas-dark':    { name: 'Atlas',         mode: 'dark'  },
+  'bourbon-dark':  { name: 'Bourbon',       mode: 'dark'  },
+  'verdant-dark':  { name: 'Verdant',       mode: 'dark'  },
 };
 const DEFAULT_THEME_ID = 'default-dark';
 
@@ -3966,20 +4140,52 @@ function newChat(){homeChats.forEach(x=>x.active=false);homeChats.unshift({id:ne
 
 // Also update selectChat to restore start screen if chat has no messages
 function selectChatAndShow(id){homeChats.forEach(x=>x.active=x.id===id);renderHomeList();msgs=[];nMsgId=1;showStartScreen();}
-function toggleTheme() {
-  const next = getActiveThemeId() === 'default-light' ? 'default-dark' : 'default-light';
-  applyTheme(next);
+// ─── THEME PICKER ───
+let themeDropOpen = false;
+function toggleThemePicker(e) {
+  if (e) e.stopPropagation();
+  themeDropOpen = !themeDropOpen;
+  const btn = document.getElementById('themeBtn');
+  const drop = document.getElementById('themeDrop');
+  if (btn)  btn.classList.toggle('open', themeDropOpen);
+  if (btn)  btn.setAttribute('aria-expanded', themeDropOpen ? 'true' : 'false');
+  if (drop) drop.classList.toggle('open', themeDropOpen);
 }
+function closeThemePicker() {
+  if (!themeDropOpen) return;
+  themeDropOpen = false;
+  const btn = document.getElementById('themeBtn');
+  const drop = document.getElementById('themeDrop');
+  if (btn)  btn.classList.remove('open');
+  if (btn)  btn.setAttribute('aria-expanded', 'false');
+  if (drop) drop.classList.remove('open');
+}
+function pickTheme(id) {
+  applyTheme(id);
+  closeThemePicker();
+}
+document.addEventListener('click', (e) => {
+  if (!themeDropOpen) return;
+  if (e.target.closest('.theme-picker')) return;
+  closeThemePicker();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && themeDropOpen) closeThemePicker();
+});
 
-// Sync the switcher button's icon visibility to the active theme's mode.
-// Called from applyTheme() so the icon tracks runtime theme changes, plus once on boot.
+// Sync the switcher button's icon visibility to the active theme's mode,
+// and mark the active row in the dropdown. Called from applyTheme() plus once on boot.
 function syncThemeButtonIcon() {
-  const active = THEMES[getActiveThemeId()] || THEMES[DEFAULT_THEME_ID];
+  const activeId = getActiveThemeId();
+  const active = THEMES[activeId] || THEMES[DEFAULT_THEME_ID];
   const isLightMode = (active.mode === 'light');
   const dark  = document.getElementById('themeIconDark');
   const light = document.getElementById('themeIconLight');
   if (dark)  dark.style.display  = isLightMode ? 'none' : '';
   if (light) light.style.display = isLightMode ? ''     : 'none';
+  document.querySelectorAll('.theme-option').forEach(el => {
+    el.classList.toggle('active', el.dataset.themeId === activeId);
+  });
 }
 syncThemeButtonIcon();
 
