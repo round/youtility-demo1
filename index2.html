@@ -126,6 +126,44 @@
   --font-size-body-lg-half: 13.5px;
   --font-size-caption-xs-half: 8.5px;
 
+  /* Spacing — 4px base scale */
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0_5: 2px;
+  --space-1: 4px;
+  --space-1_5: 6px;
+  --space-2: 8px;
+  --space-2_5: 10px;
+  --space-3: 12px;
+  --space-3_5: 14px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+
+  /* Radius role tokens — pick the most-common representative when adjacent values collapse */
+  --radius-tiny: 2px;                /* 2, 3 → 2 */
+  --radius-input: 5px;               /* 4, 5, 6 → 5 */
+  --radius-control: 8px;             /* 7, 8, 9 → 8 */
+  --radius-card: 12px;               /* 10, 11, 12, 14 → 12 */
+  --radius-modal: 16px;
+  --radius-pill: 22px;               /* 20, 22 → 22 */
+  --radius-full: 50%;
+
+  /* Escape-hatch radii for callsites where the rounded shape is load-bearing */
+  --radius-3: 3px;
+  --radius-4: 4px;
+  --radius-7: 7px;
+  --radius-9: 9px;
+  --radius-10: 10px;
+  --radius-11: 11px;
+  --radius-14: 14px;
+  --radius-20: 20px;
+
   /* ─── SEMANTIC (unchanged in this task — kept verbatim below) ─── */
   --bg:#08091a;--bg2:#0d1124;--bg3:#111828;--bg4:#161e30;--bg5:#1c2438;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--border3:rgba(255,255,255,0.2);
