@@ -10,11 +10,12 @@
      The full visual language lives in the matching `html[data-theme="<id>"]` CSS block. -->
 <script>
 window.THEMES = {
-  'default':   { name: 'Default',   accent: '#0b72fd', swatch: '#08091a' },
-  'terminal':  { name: 'Terminal',  accent: '#5fff7a', swatch: '#0a0e0a' },
-  'editorial': { name: 'Editorial', accent: '#d4a574', swatch: '#1a0d12' },
-  'brutalist': { name: 'Brutalist', accent: '#ff2d4f', swatch: '#000000' },
-  'synthwave': { name: 'Synthwave', accent: '#ff36ab', swatch: '#0f0419' },
+  'default':         { name: 'Default',         accent: '#0b72fd', swatch: '#08091a' },
+  'youtility-strong':{ name: 'Youtility Strong',accent: '#4060d4', swatch: '#050506' },
+  'terminal':        { name: 'Terminal',        accent: '#5fff7a', swatch: '#0a0e0a' },
+  'editorial':       { name: 'Editorial',       accent: '#d4a574', swatch: '#1a0d12' },
+  'brutalist':       { name: 'Brutalist',       accent: '#ff2d4f', swatch: '#000000' },
+  'synthwave':       { name: 'Synthwave',       accent: '#ff36ab', swatch: '#0f0419' },
 };
 window.DEFAULT_THEME_ID = 'default';
 (function () {
@@ -250,6 +251,7 @@ html[data-theme="default"] {
 
   /* Non-semantic decoration */
   --decoration-accent: var(--color-violet-500);
+  --decoration-accent-rgb: 124 92 191;
 
   /* Surface overlay */
   --surface-overlay-scrim: var(--color-alpha-black-50);
@@ -281,6 +283,90 @@ html[data-theme="default"] {
   --accent3: var(--control-active);
   --purple: var(--decoration-accent);
 }
+/* ─── YOUTILITY STRONG — confident indigo→violet on midnight, with signature cyan focus. ─── */
+html[data-theme="youtility-strong"] {
+  /* Type — Youtility's actual stack: Open Sans body, Montserrat display */
+  --font-ui: 'Open Sans', 'Inter Tight', system-ui, sans-serif;
+  --font-display: 'Montserrat', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --tracking-ui: 0;
+  --tracking-display: -0.022em;
+  --tracking-caps: 0.12em;
+  --weight-display: var(--font-weight-extrabold);
+  /* Motion — confident, decisive */
+  --motion-instant: 0.09s;
+  --motion-fast: 0.16s;
+  --motion-base: 0.24s;
+  --motion-slow: 0.38s;
+  --motion-ease: cubic-bezier(.2, .8, .2, 1);
+  /* Shape — tighter, more architectural radii for the "Strong" read */
+  --radius-tiny: 1px;
+  --radius-input: 2px;
+  --radius-control: 4px;
+  --radius-card: 6px;
+  --radius-modal: 9px;
+  --radius-pill: 999px;
+  /* Surface — luxury near-black ramp; the navy reads as a quiet kiss on the highest layers,
+     not as a blue surface. Most of the page is neutral graphite. */
+  --bg: #050506;
+  --bg2: #08080b;
+  --bg3: #0c0c12;
+  --bg4: #11121c;
+  --bg5: #17182a;
+  /* Borders — near-neutral light alpha so chrome never reads as blue */
+  --border: rgba(225, 225, 235, 0.06);
+  --border2: rgba(225, 225, 235, 0.11);
+  --border3: rgba(225, 225, 235, 0.20);
+  /* Text — pale cool white, secondaries from Youtility's own slate ramp */
+  --text: #ecedf5;
+  --text2: #a5b2cf;
+  --text3: #5f719d;
+  /* Brand — clearly-blue cobalt (no purple cast); hover lightens within the same hue */
+  --brand-primary: #4060d4;
+  --brand-primary-hover: #5a78dc;
+  --brand-primary-rgb: 64 96 212;
+  /* Status — kept punchy but recolored to sit on violet midnight */
+  --status-success: #2bd49b;
+  --status-success-rgb: 43 212 155;
+  --status-warning: #f7b955;
+  --status-warning-rgb: 247 185 85;
+  --status-danger: #f06678;
+  --status-danger-rgb: 240 102 120;
+  /* Controls land on the brand cobalt */
+  --control-active: #4060d4;
+  /* Focus uses Youtility's signature cyan — a deliberate accent shift vs default's blue */
+  --focus-ring: #58c7fb;
+  --decoration-accent: #58c7fb;
+  --decoration-accent-rgb: 88 199 251;
+  --surface-overlay-scrim: rgba(8, 4, 24, 0.72);
+  /* White-alpha primitives — near-neutral so hover/overlay states stay luxe and quiet */
+  --color-alpha-white-07: rgba(225, 225, 235, 0.06);
+  --color-alpha-white-08: rgba(225, 225, 235, 0.08);
+  --color-alpha-white-12: rgba(225, 225, 235, 0.12);
+  --color-alpha-white-20: rgba(225, 225, 235, 0.22);
+}
+
+/* Main headings stay on Montserrat — UI/buttons/body inherit Open Sans from --font-ui.
+   Scoped tightly to large heading sizes (display* and heading-lg); smaller header chrome
+   like .logo-text and .cw-title (heading-sm/md) keeps the Open Sans treatment. */
+html[data-theme="youtility-strong"] .start-hello,
+html[data-theme="youtility-strong"] .report-title,
+html[data-theme="youtility-strong"] .report-kpi-value,
+html[data-theme="youtility-strong"] .kpi-val,
+html[data-theme="youtility-strong"] .landing-title,
+html[data-theme="youtility-strong"] .dim-reach-number,
+html[data-theme="youtility-strong"] .dim-reach-pct {
+  font-family: var(--font-display);
+}
+
+/* Sidebar items sit flush against the rail — flat left edge, rounded right only.
+   Lets the active-state accent stripe read as a clean vertical line. */
+html[data-theme="youtility-strong"] .sb-item,
+html[data-theme="youtility-strong"] .camp-item {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 /* ─── TERMINAL — phosphor-on-CRT. Mono everywhere, sharp corners, instant motion. ─── */
 html[data-theme="terminal"] {
   /* Type */
@@ -1675,8 +1761,8 @@ html.theme-switching *::after {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             Insights
           </div>
-          <div class="start-pill" onclick="startPrompt('Customers most likely to churn')" style="border-color:rgba(124,92,191,.4);color:var(--decoration-accent);background:rgba(124,92,191,.07);">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7c5cbf" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/><path d="M16 6h5v5"/></svg>
+          <div class="start-pill" onclick="startPrompt('Customers most likely to churn')" style="border-color:rgb(var(--decoration-accent-rgb) / .4);color:var(--decoration-accent);background:rgb(var(--decoration-accent-rgb) / .07);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="stroke:var(--decoration-accent)" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/><path d="M16 6h5v5"/></svg>
             Customers most likely to churn
           </div>
           <div class="start-pill" onclick="startPrompt('Create a campaign')">
@@ -1724,15 +1810,15 @@ html.theme-switching *::after {
         New campaign
       </div>
       <div class="ctool" onclick="sendFromToolbar('What are the key insights from Monese campaign performance this quarter?')">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c5cbf" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="stroke:var(--decoration-accent)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         Insights
       </div>
       <div class="ctool" onclick="sendFromToolbar('Draft a re-engagement email for lapsed Monese customers')">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d0553a" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
         Write copy
       </div>
-      <div class="ctool" onclick="sendFromToolbar('Customers most likely to churn')" style="border-color:rgba(124,92,191,.35);color:var(--decoration-accent);">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7c5cbf" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/><path d="M16 6h5v5"/></svg>
+      <div class="ctool" onclick="sendFromToolbar('Customers most likely to churn')" style="border-color:rgb(var(--decoration-accent-rgb) / .35);color:var(--decoration-accent);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" style="stroke:var(--decoration-accent)" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-5"/><path d="M16 6h5v5"/></svg>
         Churn risk
       </div>
     </div>
