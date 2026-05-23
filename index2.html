@@ -1702,6 +1702,41 @@ function getCurrentUser(){ return USERS[CURRENT_USER_ID] || null; }
 function hasRole(...roles){ const u = getCurrentUser(); return !!(u && roles.includes(u.role)); }
 function isAdminRole(role){ return role === 'admin' || role === 'super'; }
 
+// ─── THEME REGISTRY ─── (keep IDs in sync with the loader in <head>)
+const THEMES = {
+  'default-dark':  { name: 'Default Dark',  mode: 'dark'  },
+  'default-light': { name: 'Default Light', mode: 'light' },
+};
+const DEFAULT_THEME_ID = 'default-dark';
+
+function getActiveThemeId() {
+  return document.documentElement.getAttribute('data-theme') || DEFAULT_THEME_ID;
+}
+
+function applyTheme(id) {
+  if (!THEMES[id]) id = DEFAULT_THEME_ID;
+  try { localStorage.setItem('theme', id); } catch (e) { /* ignore */ }
+
+  // Suppress transitions during the swap to avoid simultaneous color interpolations.
+  document.documentElement.classList.add('theme-switching');
+  document.documentElement.setAttribute('data-theme', id);
+
+  // Re-apply tenant brand overrides on top of the new theme.
+  if (typeof restoreActiveTenantBranding === 'function') restoreActiveTenantBranding();
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.documentElement.classList.remove('theme-switching');
+    });
+  });
+}
+
+window.addEventListener('storage', function (e) {
+  if (e.key === 'theme' && e.newValue && THEMES[e.newValue]) {
+    applyTheme(e.newValue);
+  }
+});
+
 // Datasource panel re-uses the prior merge's getDetailClient() pattern; in
 // single-tenant Monese, the "detail" client is always the active client.
 function getDetailClient(){ return getActiveClient(); }
@@ -3992,7 +4027,7 @@ let isLight = false;
 function toggleTheme(){
   isLight = !isLight;
   const id = isLight ? 'default-light' : 'default-dark';
-  document.documentElement.setAttribute('data-theme', id);
+  applyTheme(id);
   document.getElementById('themeIconDark').style.display = isLight ? 'none' : '';
   document.getElementById('themeIconLight').style.display = isLight ? '' : 'none';
 }
@@ -4197,6 +4232,10 @@ switchWs('home');
 renderHomeList();
 showStartScreen();
 applyBreakpoint();
+// Sync theme toggle state to the actual active theme (loader may have applied light).
+isLight = (getActiveThemeId() === 'default-light');
+document.getElementById('themeIconDark').style.display = isLight ? 'none' : '';
+document.getElementById('themeIconLight').style.display = isLight ? '' : 'none';
 
 // SEARCH CONVERSATIONS MODAL
 function openSearchModal(){
