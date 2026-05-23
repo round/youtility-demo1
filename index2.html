@@ -351,8 +351,8 @@ html[data-theme="youtility-strong"] {
 }
 
 /* Main headings stay on Montserrat — UI/buttons/body inherit Open Sans from --font-ui.
-   Scoped tightly to large heading sizes (display* and heading-lg); smaller header chrome
-   like .logo-text and .cw-title (heading-sm/md) keeps the Open Sans treatment. */
+   Scoped tightly to large heading sizes (display* and heading-lg). Note: .logo-text
+   hardcodes Montserrat at its definition so the Stokes wordmark is theme-invariant. */
 html[data-theme="youtility-strong"] .start-hello,
 html[data-theme="youtility-strong"] .report-title,
 html[data-theme="youtility-strong"] .report-kpi-value,
@@ -816,15 +816,16 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .theme-btn:hover{background:var(--bg3);border-color:var(--border3);}
 .theme-btn.open{background:var(--bg3);border-color:var(--border3);}
 .theme-btn-dot{display:block;width:12px;height:12px;border-radius:var(--radius-full);background:var(--brand-primary);box-shadow:0 0 0 1px var(--color-alpha-black-35) inset;transition:background var(--motion-fast);}
-.theme-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-card);padding:5px;z-index:var(--z-popover);box-shadow:0 12px 32px var(--color-alpha-black-60);display:none;min-width:200px;}
+/* The theme picker dropdown is intentionally theme-invariant: every value here is
+   hardcoded so the picker chrome stays visually stable while the user previews themes. */
+.theme-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:#1a1b1e;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:5px;z-index:60;box-shadow:0 12px 32px rgba(0,0,0,0.6);display:none;min-width:200px;font-family:'Montserrat',sans-serif;color:#e5e6e9;}
 .theme-dropdown.open,.theme-picker:hover .theme-dropdown{display:block;}
-.theme-drop-label{font-family:var(--font-ui);font-size:var(--font-size-caption);letter-spacing:.1em;color:var(--text3);padding:6px 9px 4px;text-transform:uppercase;font-weight:600;}
-.theme-option{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:var(--radius-control);cursor:pointer;transition:background var(--motion-fast);position:relative;}
-.theme-option:hover{background:var(--bg4);}
-.theme-option.active{background:var(--bg5);}
-.theme-option.active::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:2.5px;background:var(--accent3);border-radius:var(--radius-tiny);}
-.theme-opt-name{flex:1;font-size:var(--font-size-body);font-weight:500;color:var(--text);}
-.theme-opt-check{color:var(--accent3);opacity:0;flex-shrink:0;}
+.theme-drop-label{font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:.1em;color:#7a7d84;padding:6px 9px 4px;text-transform:uppercase;font-weight:600;}
+.theme-option{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:4px;cursor:pointer;transition:background 0.15s ease-out;position:relative;}
+.theme-option:hover{background:rgba(255,255,255,0.05);}
+.theme-option.active{background:rgba(255,255,255,0.08);}
+.theme-opt-name{flex:1;font-size:12px;font-weight:500;color:#e5e6e9;}
+.theme-opt-check{color:#9aa0aa;opacity:0;flex-shrink:0;}
 .theme-option.active .theme-opt-check{opacity:1;}
 /* Division selector */
 .proj-switcher{padding:8px 10px 6px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
@@ -1576,7 +1577,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .client-logo-img{filter:brightness(1.08);}
 .client-wordmark{display:flex;flex-direction:column;gap:1px;}
 .client-wordmark-name{font-family:var(--font-display);font-size:var(--font-size-heading-sm);font-weight:var(--weight-display);letter-spacing:var(--tracking-display);color:var(--brand-primary);text-transform:lowercase;line-height:1;}
-.client-wordmark-tag{font-family:var(--font-ui);font-size:7.5px;letter-spacing:.14em;color:var(--text3);text-transform:uppercase;line-height:1;}
+.client-wordmark-tag{font-family:'Montserrat',sans-serif;font-size:7.5px;letter-spacing:.14em;color:var(--text3);text-transform:uppercase;line-height:1;}
 @media(max-width:480px){
   .client-wordmark{display:none;}
 }
