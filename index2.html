@@ -4,6 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stokes Orchestrator</title>
+<!-- Flash-free theme loader: applies saved theme before <style> parses to prevent FOUC.
+     The THEMES map here is a minimal IDs-only mirror of the full registry in the main
+     <script> block. Both must stay in sync (search: `const THEMES =`). -->
+<script>
+(function () {
+  var THEMES = { 'default-dark': 1, 'default-light': 1 };
+  var stored = null;
+  try { stored = localStorage.getItem('theme'); } catch (e) {}
+  var id = (stored && THEMES[stored]) ? stored : null;
+  if (!id) {
+    try {
+      id = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
+        ? 'default-light' : 'default-dark';
+    } catch (e) { id = 'default-dark'; }
+    if (!THEMES[id]) id = 'default-dark';
+  }
+  document.documentElement.setAttribute('data-theme', id);
+})();
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Montserrat:wght@300;400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
