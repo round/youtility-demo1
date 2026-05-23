@@ -11,11 +11,15 @@
 <script>
 window.THEMES = {
   'default':         { name: 'Default',         accent: '#0b72fd', swatch: '#08091a' },
-  'youtility-strong':{ name: 'Youtility Strong',accent: '#4060d4', swatch: '#050506' },
-  'terminal':        { name: 'Terminal',        accent: '#5fff7a', swatch: '#0a0e0a' },
-  'editorial':       { name: 'Editorial',       accent: '#d4a574', swatch: '#1a0d12' },
-  'brutalist':       { name: 'Brutalist',       accent: '#ff2d4f', swatch: '#000000' },
-  'synthwave':       { name: 'Synthwave',       accent: '#ff36ab', swatch: '#0f0419' },
+  'youtility-strong':{ name: 'Youtility',       accent: '#4060d4', swatch: '#050506' },
+  'youtility-muted': { name: 'Youtility Muted', accent: '#4d6bbf', swatch: '#050506' },
+  'monochrome-cold': { name: 'Mono',            accent: '#6b8eb0', swatch: '#030405' },
+  'monochrome-warm': { name: 'Mono Neutral',    accent: '#a8a8a8', swatch: '#0d0d0d' },
+  // Hidden for now — CSS blocks below remain; restore by uncommenting:
+  // 'terminal':        { name: 'Terminal',        accent: '#5fff7a', swatch: '#0a0e0a' },
+  // 'editorial':       { name: 'Editorial',       accent: '#d4a574', swatch: '#1a0d12' },
+  // 'brutalist':       { name: 'Brutalist',       accent: '#ff2d4f', swatch: '#000000' },
+  // 'synthwave':       { name: 'Synthwave',       accent: '#ff36ab', swatch: '#0f0419' },
 };
 window.DEFAULT_THEME_ID = 'default';
 (function () {
@@ -365,6 +369,168 @@ html[data-theme="youtility-strong"] .sb-item,
 html[data-theme="youtility-strong"] .camp-item {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+}
+
+/* ─── YOUTILITY MUTED — Strong's luxe ramp, softened. Same surfaces, quieter type, recessive chrome. ─── */
+html[data-theme="youtility-muted"] {
+  /* Type — same Youtility stack as Strong */
+  --font-ui: 'Open Sans', 'Inter Tight', system-ui, sans-serif;
+  --font-display: 'Montserrat', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --tracking-ui: 0;
+  --tracking-display: -0.022em;
+  --tracking-caps: 0.12em;
+  --weight-display: var(--font-weight-extrabold);
+  /* Motion — same confident snap as Strong */
+  --motion-instant: 0.09s;
+  --motion-fast: 0.16s;
+  --motion-base: 0.24s;
+  --motion-slow: 0.38s;
+  --motion-ease: cubic-bezier(.2, .8, .2, 1);
+  /* Shape — same architectural radii as Strong */
+  --radius-tiny: 1px;
+  --radius-input: 2px;
+  --radius-control: 4px;
+  --radius-card: 6px;
+  --radius-modal: 9px;
+  --radius-pill: 999px;
+  /* Surface — Strong's ramp, unchanged. Still dark. */
+  --bg: #050506;
+  --bg2: #08080b;
+  --bg3: #0c0c12;
+  --bg4: #11121c;
+  --bg5: #17182a;
+  /* Borders — softer than Strong so chrome recedes further into the surface */
+  --border: rgba(225, 225, 235, 0.05);
+  --border2: rgba(225, 225, 235, 0.09);
+  --border3: rgba(225, 225, 235, 0.16);
+  /* Text — dialed back. The secondary takes the biggest hit on purpose, so labels and
+     metadata read as supporting cast instead of competing with primary content. */
+  --text: #c8cbd4;
+  --text2: #7a8295;
+  --text3: #515770;
+  /* Brand — same cobalt hue as Strong, desaturated so it doesn't pop hard */
+  --brand-primary: #4d6bbf;
+  --brand-primary-hover: #6580cc;
+  --brand-primary-rgb: 77 107 191;
+  /* Status — muted so badges and chips don't shout against the calmer chrome */
+  --status-success: #4eb085;
+  --status-success-rgb: 78 176 133;
+  --status-warning: #d4a062;
+  --status-warning-rgb: 212 160 98;
+  --status-danger: #c66878;
+  --status-danger-rgb: 198 104 120;
+  /* Controls land on the muted brand; focus uses a softened version of Strong's cyan */
+  --control-active: #4d6bbf;
+  --focus-ring: #6db8d4;
+  --decoration-accent: #6db8d4;
+  --decoration-accent-rgb: 109 184 212;
+  --surface-overlay-scrim: rgba(8, 4, 24, 0.72);
+  /* Hover overlays — pulled down a step so tonal states stay quiet */
+  --color-alpha-white-07: rgba(225, 225, 235, 0.05);
+  --color-alpha-white-08: rgba(225, 225, 235, 0.07);
+  --color-alpha-white-12: rgba(225, 225, 235, 0.10);
+  --color-alpha-white-20: rgba(225, 225, 235, 0.18);
+}
+
+/* Same heading + sidebar treatment as Strong — Muted inherits the same font stack and
+   architectural sidebar shape. */
+html[data-theme="youtility-muted"] .start-hello,
+html[data-theme="youtility-muted"] .report-title,
+html[data-theme="youtility-muted"] .report-kpi-value,
+html[data-theme="youtility-muted"] .kpi-val,
+html[data-theme="youtility-muted"] .landing-title,
+html[data-theme="youtility-muted"] .dim-reach-number,
+html[data-theme="youtility-muted"] .dim-reach-pct {
+  font-family: var(--font-display);
+}
+
+html[data-theme="youtility-muted"] .sb-item,
+html[data-theme="youtility-muted"] .camp-item {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* ─── MONOCHROME COLD — true charcoal with a barely-there cool kiss. Color is the accent only. ─── */
+html[data-theme="monochrome-cold"] {
+  /* Surfaces — black with a barely-there cool lean; B > R by 2–6 units, that's the whole cue */
+  --bg: #030405;
+  --bg2: #060709;
+  --bg3: #0a0b0e;
+  --bg4: #101216;
+  --bg5: #16181e;
+  /* Borders — near-neutral alpha with the faintest cool lean */
+  --border: rgba(225, 230, 240, 0.07);
+  --border2: rgba(225, 230, 240, 0.12);
+  --border3: rgba(225, 230, 240, 0.20);
+  /* Text — neutral white with a whisper of cool */
+  --text: #eaecef;
+  --text2: #92959e;
+  --text3: #5e616a;
+  /* Brand — muted steel blue; a hint, not a presence */
+  --brand-primary: #6b8eb0;
+  --brand-primary-hover: #82a4c4;
+  --brand-primary-rgb: 107 142 176;
+  /* Status — desaturated so they don't fight the monochrome read */
+  --status-success: #5e9b7d;
+  --status-success-rgb: 94 155 125;
+  --status-warning: #c4a059;
+  --status-warning-rgb: 196 160 89;
+  --status-danger: #b86b5d;
+  --status-danger-rgb: 184 107 93;
+  /* Controls + focus land on the steel accent */
+  --control-active: #6b8eb0;
+  --focus-ring: #82a4c4;
+  /* Decoration accent — paler steel, distinct from brand */
+  --decoration-accent: #94a9bf;
+  --decoration-accent-rgb: 148 169 191;
+  --surface-overlay-scrim: rgba(3, 4, 5, 0.7);
+  /* Near-neutral hover overlays — same faint cool lean as the borders */
+  --color-alpha-white-07: rgba(225, 230, 240, 0.07);
+  --color-alpha-white-08: rgba(225, 230, 240, 0.09);
+  --color-alpha-white-12: rgba(225, 230, 240, 0.13);
+  --color-alpha-white-20: rgba(225, 230, 240, 0.22);
+}
+
+/* ─── MONOCHROME NEUTRAL — pure gray graphite, lifted and low-contrast. Bronze accent only. ─── */
+html[data-theme="monochrome-warm"] {
+  /* Surfaces — truly neutral gray (R = G = B), lifted a touch off black for softer presence */
+  --bg: #0d0d0d;
+  --bg2: #121212;
+  --bg3: #181818;
+  --bg4: #1f1f1f;
+  --bg5: #272727;
+  /* Borders — very faint neutral alpha. Structure is barely there, just enough to feel divisions */
+  --border: rgba(230, 230, 230, 0.03);
+  --border2: rgba(230, 230, 230, 0.06);
+  --border3: rgba(230, 230, 230, 0.11);
+  /* Text — neutral grays, dimmed so the gap to surface narrows */
+  --text: #c8c8c8;
+  --text2: #888888;
+  --text3: #5a5a5a;
+  /* Brand — neutral mid-gray. No color at all; the accent is presence-by-luminance only */
+  --brand-primary: #a8a8a8;
+  --brand-primary-hover: #c4c4c4;
+  --brand-primary-rgb: 168 168 168;
+  /* Status — desaturated to sit quietly; functional hues stay legible but recessed */
+  --status-success: #7d9c6c;
+  --status-success-rgb: 125 156 108;
+  --status-warning: #c89858;
+  --status-warning-rgb: 200 152 88;
+  --status-danger: #b87056;
+  --status-danger-rgb: 184 112 86;
+  /* Controls + focus land on the gray accent */
+  --control-active: #a8a8a8;
+  --focus-ring: #c4c4c4;
+  /* Decoration accent — slightly lighter gray, distinct from brand */
+  --decoration-accent: #b8b8b8;
+  --decoration-accent-rgb: 184 184 184;
+  --surface-overlay-scrim: rgba(13, 13, 13, 0.7);
+  /* Neutral hover overlays, softened a step to match the lower-contrast read */
+  --color-alpha-white-07: rgba(230, 230, 230, 0.05);
+  --color-alpha-white-08: rgba(230, 230, 230, 0.07);
+  --color-alpha-white-12: rgba(230, 230, 230, 0.10);
+  --color-alpha-white-20: rgba(230, 230, 230, 0.18);
 }
 
 /* ─── TERMINAL — phosphor-on-CRT. Mono everywhere, sharp corners, instant motion. ─── */
