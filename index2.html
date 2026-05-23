@@ -351,6 +351,38 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 /* Theme toggle */
 .theme-btn{width:32px;height:32px;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius-control);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);transition:color .15s,background .15s;}
 .theme-btn:hover{color:var(--text);background:var(--bg3);}
+.theme-switcher { position: relative; }
+.theme-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-card);
+  padding: var(--space-1);
+  min-width: 180px;
+  z-index: var(--z-dropdown);
+  box-shadow: var(--shadow-xl);
+  font-family: var(--font-family-sans);
+}
+.theme-menu[hidden] { display: none; }
+.theme-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2_5);
+  border-radius: var(--radius-input);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+}
+.theme-menu-item:hover,
+.theme-menu-item.kbd-active { background: var(--bg4); }
+.theme-menu-item[aria-checked="true"] .theme-check { opacity: 1; }
+.theme-check { opacity: 0; color: var(--brand-primary); }
 
 /* Division selector */
 .proj-switcher{padding:8px 10px 6px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
@@ -1325,10 +1357,21 @@ html.theme-switching *::after {
     </a>
   </div>
   <div class="hdr-right">
-    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle light / dark mode">
-      <svg id="themeIconDark" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-      <svg id="themeIconLight" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
+    <div class="theme-switcher" id="themeSwitcher">
+      <button
+        class="theme-btn"
+        id="themeBtn"
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded="false"
+        aria-label="Switch theme"
+        onclick="toggleThemeMenu(event)"
+      >
+        <svg id="themeIconDark" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg id="themeIconLight" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <div class="theme-menu" id="themeMenu" role="menu" aria-label="Themes" hidden></div>
+    </div>
   </div>
 </header>
 <div class="sb-overlay" id="sbOverlay" onclick="closeSbOverlay()"></div>
@@ -4022,15 +4065,90 @@ function newChat(){homeChats.forEach(x=>x.active=false);homeChats.unshift({id:ne
 
 // Also update selectChat to restore start screen if chat has no messages
 function selectChatAndShow(id){homeChats.forEach(x=>x.active=x.id===id);renderHomeList();msgs=[];nMsgId=1;showStartScreen();}
-// ══ THEME TOGGLE ══
-let isLight = false;
-function toggleTheme(){
-  isLight = !isLight;
-  const id = isLight ? 'default-light' : 'default-dark';
-  applyTheme(id);
-  document.getElementById('themeIconDark').style.display = isLight ? 'none' : '';
-  document.getElementById('themeIconLight').style.display = isLight ? '' : 'none';
+// ══ THEME SWITCHER POPOVER ══
+function renderThemeMenu() {
+  const menu = document.getElementById('themeMenu');
+  if (!menu) return;
+  const active = getActiveThemeId();
+  menu.innerHTML = Object.entries(THEMES).map(function ([id, t]) {
+    const checked = (id === active) ? 'true' : 'false';
+    return ''
+      + '<div class="theme-menu-item" role="menuitemradio" aria-checked="' + checked + '" '
+      +      'data-theme-id="' + id + '" tabindex="-1">'
+      +   '<span>' + t.name + '</span>'
+      +   '<svg class="theme-check" width="14" height="14" viewBox="0 0 24 24" fill="none" '
+      +        'stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+      + '</div>';
+  }).join('');
+  Array.from(menu.querySelectorAll('.theme-menu-item')).forEach(function (el) {
+    el.addEventListener('click', function () {
+      applyTheme(el.dataset.themeId);
+      renderThemeMenu();
+      closeThemeMenu();
+    });
+  });
 }
+
+function openThemeMenu() {
+  renderThemeMenu();
+  const menu = document.getElementById('themeMenu');
+  const btn  = document.getElementById('themeBtn');
+  menu.hidden = false;
+  btn.setAttribute('aria-expanded', 'true');
+  const first = menu.querySelector('.theme-menu-item[aria-checked="true"]')
+             || menu.querySelector('.theme-menu-item');
+  if (first) first.focus();
+  document.addEventListener('keydown', themeMenuKeydown);
+  document.addEventListener('click', themeMenuOutsideClick, true);
+}
+
+function closeThemeMenu() {
+  const menu = document.getElementById('themeMenu');
+  const btn  = document.getElementById('themeBtn');
+  menu.hidden = true;
+  btn.setAttribute('aria-expanded', 'false');
+  document.removeEventListener('keydown', themeMenuKeydown);
+  document.removeEventListener('click', themeMenuOutsideClick, true);
+  btn.focus();
+}
+
+function toggleThemeMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('themeMenu');
+  if (menu.hidden) openThemeMenu(); else closeThemeMenu();
+}
+
+function themeMenuKeydown(e) {
+  const menu = document.getElementById('themeMenu');
+  if (menu.hidden) return;
+  const items = Array.from(menu.querySelectorAll('.theme-menu-item'));
+  const idx = items.indexOf(document.activeElement);
+  if (e.key === 'Escape') { e.preventDefault(); closeThemeMenu(); return; }
+  if (e.key === 'Tab')    { closeThemeMenu(); return; /* don't prevent default — let Tab proceed */ }
+  if (e.key === 'ArrowDown') { e.preventDefault(); items[(idx + 1 + items.length) % items.length].focus(); return; }
+  if (e.key === 'ArrowUp')   { e.preventDefault(); items[(idx - 1 + items.length) % items.length].focus(); return; }
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    if (document.activeElement && document.activeElement.classList.contains('theme-menu-item')) {
+      document.activeElement.click();
+    }
+  }
+}
+
+function themeMenuOutsideClick(e) {
+  const sw = document.getElementById('themeSwitcher');
+  if (sw && !sw.contains(e.target)) closeThemeMenu();
+}
+
+// Initialize button-icon state on boot (icon visibility tracks the active theme's mode).
+(function initThemeButton() {
+  const active = THEMES[getActiveThemeId()] || THEMES[DEFAULT_THEME_ID];
+  const isLightMode = (active.mode === 'light');
+  const dark  = document.getElementById('themeIconDark');
+  const light = document.getElementById('themeIconLight');
+  if (dark)  dark.style.display  = isLightMode ? 'none' : '';
+  if (light) light.style.display = isLightMode ? ''     : 'none';
+})();
 
 // ══ DIVISION SELECTOR ══
 let projDrop = false;
@@ -4232,10 +4350,6 @@ switchWs('home');
 renderHomeList();
 showStartScreen();
 applyBreakpoint();
-// Sync theme toggle state to the actual active theme (loader may have applied light).
-isLight = (getActiveThemeId() === 'default-light');
-document.getElementById('themeIconDark').style.display = isLight ? 'none' : '';
-document.getElementById('themeIconLight').style.display = isLight ? '' : 'none';
 
 // SEARCH CONVERSATIONS MODAL
 function openSearchModal(){
