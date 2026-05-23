@@ -1681,8 +1681,11 @@ function getActiveThemeId() {
 }
 
 function applyTheme(id) {
-  if (!THEMES[id]) id = DEFAULT_THEME_ID;
-  try { localStorage.setItem('theme', id); } catch (e) { /* ignore */ }
+  const valid = !!THEMES[id];
+  if (valid) {
+    try { localStorage.setItem('theme', id); } catch (e) { /* ignore */ }
+  }
+  if (!valid) id = DEFAULT_THEME_ID;
 
   // Suppress transitions during the swap to avoid simultaneous color interpolations.
   document.documentElement.classList.add('theme-switching');
