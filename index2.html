@@ -76,9 +76,6 @@ html[data-theme="default-dark"] {
   --color-red-600: #c05040;
   --color-violet-500: #7c5cbf;
 
-  /* Tenant-flavor accents (used by alt themes / brand discovery defaults) */
-  --color-mint-100: #f7faf9;
-
   /* Alpha overlays (kept as primitives for clarity at callsites) */
   --color-alpha-white-07: rgba(255, 255, 255, 0.07);
   --color-alpha-white-08: rgba(255, 255, 255, 0.08);
@@ -1737,17 +1734,6 @@ const WL_CSS_MAP = {
   primary:   '--brand-primary',
   secondary: '--brand-primary-hover',
   accent:    '--accent2',
-};
-
-// Per-client default colour palettes (used when a client has no wlColors saved yet).
-const WL_CLIENT_DEFAULTS = {
-  monese: {primary:'#0b72fd', secondary:'#3892ff', background:'#f7faf9', accent:'#1a1a2e'},
-};
-
-// "Pull colours from URL" discovery demo. Keyed by hostname segment.
-const WL_BRAND_PALETTES = {
-  monese: {primary:'#00c389', secondary:'#00a374', background:'#f7faf9', accent:'#1a1a2e'},
-  default: {primary:'#4a7fd4', secondary:'#3266ad', background:'#f5f7fa', accent:'#e8a020'},
 };
 
 const DS_SOURCES = [
