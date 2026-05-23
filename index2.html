@@ -12,14 +12,7 @@
   var THEMES = { 'default-dark': 1, 'default-light': 1 };
   var stored = null;
   try { stored = localStorage.getItem('theme'); } catch (e) {}
-  var id = (stored && THEMES[stored]) ? stored : null;
-  if (!id) {
-    try {
-      id = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches)
-        ? 'default-light' : 'default-dark';
-    } catch (e) { id = 'default-dark'; }
-    if (!THEMES[id]) id = 'default-dark';
-  }
+  var id = (stored && THEMES[stored]) ? stored : 'default-dark';
   document.documentElement.setAttribute('data-theme', id);
 })();
 </script>
