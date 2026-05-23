@@ -47,6 +47,7 @@
   --color-blue-700: #0b72fd;
 
   /* Status — semantic ramps */
+  --color-emerald-400: #38c87e;
   --color-emerald-500: #2ea86a;
   --color-emerald-600: #00a374;
   --color-emerald-700: #00c389;
@@ -54,6 +55,8 @@
   --color-amber-500: #e8b929;
   --color-amber-600: #e8a020;
   --color-amber-700: #daa520;
+  --color-amber-800: #d49417;
+  --color-red-400: #e06050;
   --color-red-500: #d0553a;
   --color-red-600: #c05040;
   --color-violet-500: #7c5cbf;
@@ -913,13 +916,20 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .stale-banner-msg{flex:1;min-width:0;}
 .stale-banner-msg b{color:var(--text);font-weight:600;}
 .stale-regen-btn{padding:7px 14px;border-radius:8px;background:var(--accent2);border:none;color:var(--color-neutral-0);font-family:'Montserrat',sans-serif;font-size:11.5px;font-weight:600;cursor:pointer;flex-shrink:0;transition:background .15s;letter-spacing:-.005em;display:inline-flex;align-items:center;gap:5px;}
-.stale-regen-btn:hover{background:#d49417;}
+.stale-regen-btn:hover{background:var(--color-amber-800);}
 .stale-regen-btn svg{color:var(--color-neutral-0);}
 @keyframes staleSlide{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
 
 /* Preview frame label */
 .preview-label{font-family:'Montserrat',sans-serif;font-size:9.5px;letter-spacing:.09em;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 .preview-label span{color:var(--brand-primary-hover);}
+
+/* ── EMAIL/SMS/LANDING/AD PREVIEW MOCKUPS ──
+   The CSS rules below render mockup surfaces representing EXTERNAL content
+   (email, SMS, landing-page, and ad previews). Their hex literals are
+   deliberately not tokenized — theme switching should NOT recolor preview
+   content. The same rationale applies to the .msg-* chat-preview bubbles
+   defined earlier in this stylesheet. */
 
 /* Email device frame */
 .email-device{width:100%;max-width:420px;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px var(--border2),0 12px 40px rgba(0,0,0,.5);}
@@ -1000,7 +1010,7 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .wiz-btn.next{background:var(--brand-primary);border:none;color:var(--color-neutral-0);}
 .wiz-btn.next:hover{background:var(--brand-primary-hover);}
 .wiz-btn.finish{background:var(--green);border:none;color:var(--color-neutral-0);}
-.wiz-btn.finish:hover{background:#38c87e;}
+.wiz-btn.finish:hover{background:var(--color-emerald-400);}
 .coming-soon{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:40px;text-align:center;}
 .cs-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:4px;}
 .cs-title{font-size:15px;font-weight:600;color:var(--text);}
@@ -1045,7 +1055,7 @@ body.light-mode .dim-info-banner{color:#7a4a05;}
 .ctx-item{display:flex;align-items:center;gap:7px;padding:6px 9px;border-radius:6px;font-size:12px;color:var(--text2);cursor:pointer;transition:background .1s,color .1s;}
 .ctx-item:hover{background:var(--bg4);color:var(--text);}
 .ctx-item.danger{color:var(--color-red-600);}
-.ctx-item.danger:hover{background:rgba(192,80,64,.12);color:#e06050;}
+.ctx-item.danger:hover{background:rgba(192,80,64,.12);color:var(--color-red-400);}
 .ctx-div{height:1px;background:var(--border);margin:4px 0;}
 
 /* ── CLIENT WHITE-LABEL LOGO ── */
@@ -3717,10 +3727,15 @@ function buildAudienceExplorerHTML(){
 }
 
 function bootAudienceExplorer(){
+  // Chart slice palette. `color`/`hi` values mix theme tokens (var(--color-blue-*),
+  // --color-amber-700, --decoration-accent) with literal hex (chart-only siblings
+  // like #0858c4, #7fb0ff, #b8860b, #5c40a0). The literals are deliberately NOT
+  // tokenized — they're categorical data-viz colors meant to be visually distinct
+  // from each other, not chrome that should track the theme.
   const AEC=[
-    {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count:7180, pct:.320,color:'var(--brand-primary)',hi:'#0858c4'},
-    {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:4915, pct:.219,color:'var(--brand-primary-hover)',hi:'var(--brand-primary)'},
-    {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:4040, pct:.180,color:'var(--color-blue-400)',hi:'var(--brand-primary-hover)'},
+    {name:'Capable Needy',           short:'CAPABLE\nNEEDY',           count:7180, pct:.320,color:'#0b72fd',hi:'#0858c4'},
+    {name:'Deal Seeker',             short:'DEAL\nSEEKER',             count:4915, pct:.219,color:'#3892ff',hi:'#0b72fd'},
+    {name:'Process Fearing',         short:'PROCESS\nFEARING',         count:4040, pct:.180,color:'var(--color-blue-400)',hi:'#3892ff'},
     {name:'Long-Term Cost Conscious',short:'COST\nCONSCIOUS',          count:2915, pct:.130,color:'var(--color-blue-300)',hi:'#7fb0ff'},
     {name:'Disorganized Buyer',      short:'DISORGANIZED\nBUYER',      count:2245, pct:.100,color:'var(--color-amber-700)',hi:'#b8860b'},
     {name:'Reluctant Buyer',         short:'RELUCTANT\nBUYER',         count:1140, pct:.051,color:'var(--decoration-accent)',hi:'#5c40a0'},
