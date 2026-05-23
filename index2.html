@@ -1894,6 +1894,29 @@ const USERS = {
     email: 'demo@monese.com',
     role: 'user',
     clientId: 'monese',
+    initials: 'DU',
+    color: 'var(--brand-primary)',
+  },
+  'demo-admin': {
+    id: 'demo-admin',
+    name: 'Sarah L.',
+    email: 'sarah@monese.com',
+    role: 'admin',
+    clientId: 'monese',
+    initials: 'SL',
+    color: '#4a6741',
+  },
+  // Dan S. keeps clientId:null so the email-host match at doLogin() never
+  // picks him for an @monese.com login, preserving demo@monese.com → monese-demo
+  // as the default landing.
+  'demo-super': {
+    id: 'demo-super',
+    name: 'Dan S.',
+    email: 'dan@youtility.co.uk',
+    role: 'super',
+    clientId: null,
+    initials: 'DS',
+    color: '#4a7fd4',
   },
 };
 let CURRENT_USER_ID = 'monese-demo';
@@ -2165,6 +2188,14 @@ function doLogin() {
   const email = (document.getElementById('loginEmail') || {}).value || '';
   const lc = email.toLowerCase();
   let targetId = 'monese-demo';
+  // Exact-email match wins over all tenant routing. In singleTenant Monese,
+  // monese-demo and Sarah L. share clientId:'monese' so the tenant-admin
+  // pick rule below would otherwise route demo@monese.com to Sarah L.
+  const exact = Object.values(USERS).find(u => u.email && u.email.toLowerCase() === lc);
+  if (exact) {
+    quickLogin(exact.id);
+    return;
+  }
   // Super-admin / Youtility staff first — these win over tenant matching
   // because they're cross-tenant identities.
   if (lc.includes('youtility') || lc.includes('super')) {
@@ -2225,8 +2256,10 @@ function syncAvatarUI(){
   document.querySelectorAll('.user-av-role').forEach(el => el.textContent = roleText);
 }
 
+// SWITCH USER is intentionally narrowed to the three canonical demo personas.
+// Other USERS entries (if added later) won't leak into the switch list.
 function getDemoUsers(){
-  return Object.values(USERS);
+  return ['monese-demo', 'demo-admin', 'demo-super'].map(id => USERS[id]).filter(Boolean);
 }
 
 function pinSwitchOpposite(currentUser, baseTargets){
@@ -2265,6 +2298,62 @@ function renderClientAcctPanel(u, client){
     ${signOutSection}`;
   }
 
+  function renderAdminAcctPanel(u){
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = pinSwitchOpposite(u, getDemoUsers().filter(other => other.id !== u.id && !isAdminRole(other.role)));
+    const clientListSection = `
+    <div class="acct-section-lbl">CLIENT LIST</div>
+    ${CLIENTS.map(c => {
+      const sClass = c.status === 'setup' ? 'status-setup' : 'status-live';
+      const sLabel = c.status === 'setup' ? 'SETUP' : 'LIVE';
+      return `<div class="acct-menu-item" onclick="closeAccountModal(); showToast('Client detail — coming soon')"><div class="admin-client-dot" style="background:${c.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label" style="flex:1">${c.name}</div><span class="admin-client-status ${sClass}">${sLabel}</span></div>`;
+    }).join('')}
+    `;
+    const switchSection = switchTargets.length > 0 ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:var(--font-size-label);background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name}</div></div>`).join('')}
+    ` : '';
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">Youtility · ${u.role.toUpperCase()}</div>
+        <span class="acct-badge badge-super">SUPER ADMIN</span>
+      </div>
+    </div>
+    ${clientListSection}
+    ${switchSection}
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+  }
+
+  function renderClientAdminAcctPanel(u, client){
+    const initials = u.initials || (u.name.split(' ').map(s => s[0]).join('').slice(0, 2).toUpperCase());
+    const switchTargets = pinSwitchOpposite(u, getDemoUsers().filter(other => other.id !== u.id));
+    const roleLabel = r => r === 'admin' ? 'Client Admin' : r === 'super' ? 'Super Admin' : 'User';
+    const switchSection = switchTargets.length > 0 ? `
+    <div class="acct-section-lbl">SWITCH USER</div>
+    ${switchTargets.map(t => `<div class="acct-menu-item" onclick="closeAccountModal(); quickLogin('${t.id}')"><div class="acct-av" style="width:24px;height:24px;font-size:var(--font-size-label);background:${deriveUserColor(t)}">${deriveUserInitials(t)}</div><div class="acct-menu-label">Switch to ${t.name} (${roleLabel(t.role)})</div></div>`).join('')}
+    ` : '';
+    return `
+    <div class="acct-user-card">
+      <div class="acct-av" style="background:${u.color || 'var(--brand-primary)'}">${initials}</div>
+      <div>
+        <div class="acct-name">${u.name}</div>
+        <div class="acct-role">${client.name} · CLIENT ADMIN</div>
+        <span class="acct-badge badge-client">CLIENT ADMIN</span>
+      </div>
+    </div>
+    <div class="acct-section-lbl">YOUR CLIENT</div>
+    <div class="acct-menu-item" onclick="closeAccountModal(); showDataSourcesView();"><div class="admin-client-dot" style="background:${client.color || 'var(--brand-primary)'}"></div><div class="acct-menu-label">${client.name}</div></div>
+    ${client.enabledFeatures && client.enabledFeatures.whitelabel ? `
+    <div class="acct-menu-item" onclick="closeAccountModal(); showToast('Edit branding — coming soon')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text2);"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg><div class="acct-menu-label">Edit branding</div></div>` : ''}
+    ${switchSection}
+    <div class="acct-divider"></div>
+    <button class="acct-signout" onclick="signOut()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign out</button>`;
+  }
+
 function openAccountModal(){
     const u = getCurrentUser();
     if (!u) return;
@@ -2274,15 +2363,18 @@ function openAccountModal(){
     if (!titleEl || !bodyEl) return;
     if (u.role === 'super') {
       titleEl.textContent = 'Admin panel';
-      bodyEl.innerHTML = (typeof renderAdminAcctPanel === 'function') ? renderAdminAcctPanel(u) : renderClientAcctPanel(u, client);
+      bodyEl.innerHTML = renderAdminAcctPanel(u);
     } else if (u.role === 'admin') {
       titleEl.textContent = 'Admin panel';
-      bodyEl.innerHTML = (typeof renderClientAdminAcctPanel === 'function') ? renderClientAdminAcctPanel(u, client) : renderClientAcctPanel(u, client);
+      bodyEl.innerHTML = renderClientAdminAcctPanel(u, client);
     } else {
       titleEl.textContent = 'Account';
       bodyEl.innerHTML = renderClientAcctPanel(u, client);
     }
-    if (getActiveClient().mode === 'singleTenant') {
+    // Sign-out is hidden only for the base demo user in singleTenant — admin
+    // and super personas need the sign-out path to reach the login screen,
+    // which is the only way back to monese-demo after switching personas.
+    if (getActiveClient().mode === 'singleTenant' && u.role === 'user') {
       const so = bodyEl.querySelector('.acct-signout');
       if (so) so.style.display = 'none';
     }
