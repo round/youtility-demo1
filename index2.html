@@ -1811,10 +1811,9 @@ const BRAND_PALETTES = {
 // ── WHITE LABEL ENGINE ──
 // Maps logical whitelabel tokens to CSS variable names.
 const WL_CSS_MAP = {
-  primary:    '--brand-primary',
-  secondary:  '--brand-primary-hover',
-  background: '--bg',
-  accent:     '--accent2',
+  primary:   '--brand-primary',
+  secondary: '--brand-primary-hover',
+  accent:    '--accent2',
 };
 
 // Per-client default colour palettes (used when a client has no wlColors saved yet).
@@ -1916,7 +1915,7 @@ function restoreActiveTenantBranding(){
     const props = new Set([
       ...targets,
       '--brand-primary','--brand-primary-hover','--brand-primary-rgb',
-      '--bg','--bg2','--bg3','--accent2',
+      '--accent2',
     ]);
     props.forEach(p => { html.style.removeProperty(p); body && body.style.removeProperty(p); });
   } catch(e){ /* noop */ }
@@ -1949,15 +1948,6 @@ function applyColorToInterface(token, hex){
       document.documentElement.style.setProperty('--brand-primary-rgb', triplet);
       document.body.style.setProperty('--brand-primary-rgb', triplet);
     }
-  }
-  // Derived depth-ramp vars: mirror at body scope so light-mode cannot shadow.
-  if(token === 'background'){
-    const bg2 = shadeHex(hex, -5);
-    const bg3 = shadeHex(hex, -10);
-    document.documentElement.style.setProperty('--bg2', bg2);
-    document.documentElement.style.setProperty('--bg3', bg3);
-    document.body.style.setProperty('--bg2', bg2);
-    document.body.style.setProperty('--bg3', bg3);
   }
 }
 
