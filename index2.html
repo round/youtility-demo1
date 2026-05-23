@@ -748,7 +748,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .sb-toggle span{display:block;width:14px;height:1.5px;background:var(--text2);border-radius:var(--radius-tiny);}
 .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
 .logo-icon{width:32px;height:32px;background:var(--bg4);border:1px solid var(--border2);border-radius:var(--radius-control);display:flex;align-items:center;justify-content:center;font-family:var(--font-ui);font-size:var(--font-size-subhead);color:var(--text2);}
-.logo-text{font-weight:600;font-size:var(--font-size-heading-sm);letter-spacing:.06em;color:var(--text);}
+.logo-text{font-family:'Montserrat',sans-serif;font-weight:600;font-size:var(--font-size-heading-sm);letter-spacing:.06em;color:var(--text);}
 .logo-text em{font-style:normal;font-weight:300;color:var(--text2);margin-left:4px;}
 .hdr-right{display:flex;align-items:center;gap:10px;}
 .icon-btn{width:32px;height:32px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);border-radius:var(--radius-control);transition:color var(--motion-fast);}
@@ -817,18 +817,15 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 2
 .theme-btn.open{background:var(--bg3);border-color:var(--border3);}
 .theme-btn-dot{display:block;width:12px;height:12px;border-radius:var(--radius-full);background:var(--brand-primary);box-shadow:0 0 0 1px var(--color-alpha-black-35) inset;transition:background var(--motion-fast);}
 .theme-dropdown{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-card);padding:5px;z-index:var(--z-popover);box-shadow:0 12px 32px var(--color-alpha-black-60);display:none;min-width:200px;}
-.theme-dropdown.open{display:block;}
+.theme-dropdown.open,.theme-picker:hover .theme-dropdown{display:block;}
 .theme-drop-label{font-family:var(--font-ui);font-size:var(--font-size-caption);letter-spacing:.1em;color:var(--text3);padding:6px 9px 4px;text-transform:uppercase;font-weight:600;}
 .theme-option{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:var(--radius-control);cursor:pointer;transition:background var(--motion-fast);position:relative;}
 .theme-option:hover{background:var(--bg4);}
 .theme-option.active{background:var(--bg5);}
 .theme-option.active::before{content:'';position:absolute;left:0;top:22%;bottom:22%;width:2.5px;background:var(--accent3);border-radius:var(--radius-tiny);}
-.theme-opt-swatch{width:18px;height:18px;border-radius:var(--radius-input);flex-shrink:0;border:1px solid var(--border2);position:relative;overflow:hidden;}
-.theme-opt-swatch::after{content:'';position:absolute;right:0;top:0;bottom:0;width:40%;background:var(--swatch-accent,transparent);}
 .theme-opt-name{flex:1;font-size:var(--font-size-body);font-weight:500;color:var(--text);}
 .theme-opt-check{color:var(--accent3);opacity:0;flex-shrink:0;}
 .theme-option.active .theme-opt-check{opacity:1;}
-.theme-divider{height:1px;background:var(--border);margin:5px 4px;}
 /* Division selector */
 .proj-switcher{padding:8px 10px 6px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;}
 .proj-btn{width:100%;display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg5);border:1px solid var(--border2);border-radius:var(--radius-control);cursor:pointer;transition:border-color var(--motion-fast);text-align:left;}
@@ -1775,7 +1772,7 @@ html.theme-switching *::after {
   </div>
   <div class="hdr-right">
     <div class="theme-picker">
-      <button class="theme-btn" id="themeBtn" type="button" onclick="toggleThemePicker(event)" aria-label="Switch theme" aria-haspopup="listbox" aria-expanded="false">
+      <button class="theme-btn" id="themeBtn" type="button" onclick="cycleTheme(event)" aria-label="Cycle theme" aria-haspopup="listbox" aria-expanded="false">
         <span class="theme-btn-dot" id="themeBtnDot" aria-hidden="true"></span>
       </button>
       <div class="theme-dropdown" id="themeDrop" role="listbox" aria-label="Theme"></div>
@@ -4540,25 +4537,39 @@ function newChat(){homeChats.forEach(x=>x.active=false);homeChats.unshift({id:ne
 
 // Also update selectChat to restore start screen if chat has no messages
 function selectChatAndShow(id){homeChats.forEach(x=>x.active=x.id===id);renderHomeList();msgs=[];nMsgId=1;showStartScreen();}
-// ─── THEME PICKER ───
+// ─── THEME PICKER — button cycles to the next theme and opens the dropdown so the user
+// sees the current selection; clicking a row picks that theme directly. ───
 let themeDropOpen = false;
-function toggleThemePicker(e) {
-  if (e) e.stopPropagation();
-  themeDropOpen = !themeDropOpen;
+function openThemeDrop() {
+  themeDropOpen = true;
   const btn = document.getElementById('themeBtn');
   const drop = document.getElementById('themeDrop');
-  if (btn)  btn.classList.toggle('open', themeDropOpen);
-  if (btn)  btn.setAttribute('aria-expanded', themeDropOpen ? 'true' : 'false');
-  if (drop) drop.classList.toggle('open', themeDropOpen);
+  if (btn) {
+    btn.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+  if (drop) drop.classList.add('open');
 }
 function closeThemePicker() {
   if (!themeDropOpen) return;
   themeDropOpen = false;
   const btn = document.getElementById('themeBtn');
   const drop = document.getElementById('themeDrop');
-  if (btn)  btn.classList.remove('open');
-  if (btn)  btn.setAttribute('aria-expanded', 'false');
+  if (btn) {
+    btn.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
   if (drop) drop.classList.remove('open');
+}
+function cycleTheme(e) {
+  if (e) e.stopPropagation();
+  const ids = Object.keys(THEMES);
+  if (!ids.length) return;
+  const current = getActiveThemeId();
+  const idx = ids.indexOf(current);
+  const next = ids[(idx + 1) % ids.length];
+  applyTheme(next);
+  openThemeDrop();
 }
 function pickTheme(id) {
   applyTheme(id);
@@ -4577,7 +4588,6 @@ document.addEventListener('keydown', (e) => {
 function renderThemePicker() {
   const drop = document.getElementById('themeDrop');
   if (!drop) return;
-  // Build via DOM APIs so theme ids/names can't escape attribute or JS-string contexts.
   drop.textContent = '';
   const label = document.createElement('div');
   label.className = 'theme-drop-label';
@@ -4590,20 +4600,16 @@ function renderThemePicker() {
     row.setAttribute('role', 'option');
     row.dataset.themeId = id;
     row.addEventListener('click', () => pickTheme(id));
-    const swatch = document.createElement('span');
-    swatch.className = 'theme-opt-swatch';
-    swatch.style.background = t.swatch;
-    swatch.style.setProperty('--swatch-accent', t.accent);
     const name = document.createElement('span');
     name.className = 'theme-opt-name';
     name.textContent = t.name;
-    row.append(swatch, name);
+    row.append(name);
     row.insertAdjacentHTML('beforeend', CHECK_SVG);
     drop.appendChild(row);
   }
 }
 
-// Highlight the active row + paint the switcher button's accent dot.
+// Paint the button's accent dot + highlight the active row in the dropdown.
 function syncThemePicker() {
   const activeId = getActiveThemeId();
   const active = THEMES[activeId] || THEMES[DEFAULT_THEME_ID];
