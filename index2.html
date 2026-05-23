@@ -11,6 +11,7 @@
   /* ─── PRIMITIVES — raw values, never referenced directly by component rules ─── */
   /* Neutrals */
   --color-neutral-0: #ffffff;
+  --color-neutral-25: #e8eaf2;
   --color-neutral-50: #f7f9fc;
   --color-neutral-100: #f1f4f9;
   --color-neutral-200: #e9eef5;
@@ -194,14 +195,22 @@
   --z-modal: 100;
   --z-tooltip: 200;
 
-  /* ─── SEMANTIC (unchanged in this task — kept verbatim below) ─── */
-  --bg:#08091a;--bg2:#0d1124;--bg3:#111828;--bg4:#161e30;--bg5:#1c2438;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);--border3:rgba(255,255,255,0.2);
-  --text:#e8eaf2;--text2:#8b90a8;--text3:#555a72;
-  --accent:#d0553a;--accent2:#e8a020;--accent3:#4a7fd4;
-  --green:#2ea86a;--purple:#7c5cbf;
-  --brand-primary:#0b72fd;--brand-primary-hover:#3892ff;--brand-primary-rgb:11 114 253;
-  --sw:268px;
+  /* ─── SEMANTIC — resolved through primitives (Phase 4) ─── */
+  --bg: var(--color-neutral-950);
+  --bg2: var(--color-neutral-925);
+  --bg3: var(--color-neutral-900);
+  --bg4: var(--color-neutral-870);
+  --bg5: var(--color-neutral-850);
+  --border: var(--color-alpha-white-07);
+  --border2: var(--color-alpha-white-12);
+  --border3: var(--color-alpha-white-20);
+  --text: var(--color-neutral-25);
+  --text2: var(--color-neutral-text2-dark);
+  --text3: var(--color-neutral-600);
+  --brand-primary: var(--color-blue-700);
+  --brand-primary-hover: var(--color-blue-600);
+  --brand-primary-rgb: 11 114 253;
+  --sw: 268px;
 
   /* ─── PROMOTED SEMANTIC TOKENS ─── */
   /* Status colors */
@@ -230,9 +239,17 @@
   --purple: var(--decoration-accent);
 }
 body.light-mode{
-  --bg:#ffffff;--bg2:#f7f9fc;--bg3:#f1f4f9;--bg4:#e9eef5;--bg5:#dde4ee;
-  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.12);--border3:rgba(0,0,0,0.2);
-  --text:#1a1c28;--text2:#4a4e66;--text3:#8a8da8;
+  --bg: var(--color-neutral-0);
+  --bg2: var(--color-neutral-50);
+  --bg3: var(--color-neutral-100);
+  --bg4: var(--color-neutral-200);
+  --bg5: var(--color-neutral-300);
+  --border: var(--color-alpha-black-07);
+  --border2: var(--color-alpha-black-12);
+  --border3: var(--color-alpha-black-20);
+  --text: var(--color-neutral-800);
+  --text2: var(--color-neutral-700);
+  --text3: var(--color-neutral-500);
   --status-success: var(--color-emerald-500);
   --status-warning: var(--color-amber-600);
   --status-danger: var(--color-red-500);
