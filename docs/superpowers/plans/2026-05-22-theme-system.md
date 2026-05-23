@@ -453,7 +453,7 @@ Map every hex literal in CSS/JS string positions according to the table below. U
 | `#555` | `var(--color-gray-500)` |
 | `#666` | `var(--color-gray-400)` |
 | `#777` | `var(--color-gray-300)` |
-| `#555a72` | `var(--color-neutral-700)` |
+| `#555a72` | `var(--color-neutral-600)` |
 | `#8b90a8` | `var(--color-neutral-text2-dark)` |
 | `#9eb1c9` | `var(--color-neutral-400)` |
 | `#daa520` | `var(--color-amber-700)` |
@@ -644,7 +644,7 @@ Then replace lines 11–17 with:
   --border3: var(--color-alpha-white-20);
   --text: var(--color-neutral-25);
   --text2: var(--color-neutral-text2-dark);
-  --text3: var(--color-neutral-700);
+  --text3: var(--color-neutral-600);
   --brand-primary: var(--color-blue-700);
   --brand-primary-hover: var(--color-blue-600);
   --brand-primary-rgb: 11 114 253;
@@ -673,11 +673,11 @@ Replace with:
   --border2: var(--color-alpha-black-12);
   --border3: var(--color-alpha-black-20);
   --text: var(--color-neutral-800);
-  --text2: var(--color-neutral-600);
+  --text2: var(--color-neutral-700);
   --text3: var(--color-neutral-500);
 ```
 
-(Note: `--color-neutral-500` is `#8a8da8` per Task 1's primitive list — confirm the value matches `#8a8da8` and adjust the primitive table if a typo crept in. If the light-mode and dark-mode `--text3` resolve to different primitives, that's intentional — semantic vars get redefined per theme.)
+(Note: `--color-neutral-500` is `#8a8da8` per Task 1's primitive list — confirm the value matches `#8a8da8` and adjust the primitive table if a typo crept in. If the light-mode and dark-mode `--text3` resolve to different primitives, that's intentional — semantic vars get redefined per theme. After the post-Task-1 fix swapping `-600` and `-700`, light-mode `--text2: #4a4e66` is at `--color-neutral-700` and dark-mode `--text3: #555a72` is at `--color-neutral-600`.)
 
 - [ ] **Step 3: Visual diff.**
 
